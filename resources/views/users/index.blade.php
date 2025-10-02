@@ -46,6 +46,7 @@
                     <tr>
                         <th>Nome</th>
                         <th>E-mail</th>
+                        <th>Perfil</th>
                         <th>Status</th>
                         <th class="w-24 whitespace-nowrap">Ações</th>
                     </tr>
@@ -63,6 +64,7 @@
                                 </a>
                             </td>
                             <td>{{ $user->email }}</td>
+                            <td>{{ $user->role === 'admin' ? 'Administrador' : 'Usuário comum' }}</td>
                             <td class="table-actions">
                                 <span class="{{ $user->status === 'active' ? 'badge-success' : 'badge-danger' }}">
                                     {{ $user->status === 'active' ? 'Ativo' : 'Inativo' }}
@@ -102,7 +104,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="table-empty">Nenhum usuário encontrado.</td>
+                            <td colspan="5" class="table-empty">Nenhum usuário encontrado.</td>
                         </tr>
                     @endforelse
                 </tbody>

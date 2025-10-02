@@ -10,7 +10,7 @@ class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        return $this->user()?->isAdmin() ?? false;
     }
 
     public function rules(): array
@@ -26,6 +26,7 @@ class UpdateUserRequest extends FormRequest
             ],
             'password' => ['nullable', 'confirmed', Password::defaults()],
             'status' => ['required', 'in:active,inactive'],
+            'role' => ['required', 'in:admin,user'],
         ];
     }
 }

@@ -17,6 +17,10 @@ const loadingTemplate = `
                     <div class="skeleton h-4 w-24 rounded-md"></div>
                     <div class="skeleton h-4 w-28 rounded-md"></div>
                 </div>
+                <div class="space-y-3">
+                    <div class="skeleton h-4 w-24 rounded-md"></div>
+                    <div class="skeleton h-4 w-28 rounded-md"></div>
+                </div>
             </div>
         </div>
         <div class="space-y-4">
@@ -215,4 +219,3 @@ const bootstrapUserDetailsModal = () => {
 };
 
 document.addEventListener('DOMContentLoaded', bootstrapUserDetailsModal);
-

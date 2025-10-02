@@ -2,6 +2,7 @@
     $user = $user ?? null;
     $requirePassword = $requirePassword ?? false;
     $statusIsActive = old('status', $user->status ?? 'active') === 'active';
+    $role = old('role', $user->role ?? 'user');
 @endphp
 
 <div class="space-y-6">
@@ -64,4 +65,22 @@
             <p class="text-sm text-slate-500">Preencha apenas se desejar definir uma nova senha para o usuário.</p>
         @endunless
     </fieldset>
+    <div class="space-y-2">
+        <span class="text-sm font-semibold text-slate-700">Perfil de acesso</span>
+        <div class="grid gap-4 sm:grid-cols-2">
+            <label class="form-label">
+                Função
+                <select name="role" class="form-select" required>
+                    <option value="user" {{ $role === 'user' ? 'selected' : '' }}>Usuário comum</option>
+                    <option value="admin" {{ $role === 'admin' ? 'selected' : '' }}>Administrador</option>
+                </select>
+            </label>
+            <p class="text-sm text-slate-500">
+                Administradores podem gerenciar usuários. Demais perfis possuem acesso restrito às próprias operações.
+            </p>
+        </div>
+        @error('role')
+            <span class="text-sm font-medium text-rose-600">{{ $message }}</span>
+        @enderror
+    </div>
 </div>

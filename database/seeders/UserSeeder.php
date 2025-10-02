@@ -17,8 +17,11 @@ class UserSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => 'password',
             'status' => 'active',
+            'role' => 'admin',
         ]);
 
-        User::factory()->count(22)->create();
+        User::factory()->count(22)->create([
+            'role' => 'user',
+        ]);
     }
 }

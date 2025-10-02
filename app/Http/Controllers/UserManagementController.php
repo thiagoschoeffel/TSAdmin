@@ -60,7 +60,7 @@ class UserManagementController extends Controller
     {
         $this->ensureNotCurrentUser($user);
 
-        $user->fill($request->safe()->only(['name', 'email', 'status']));
+        $user->fill($request->safe()->only(['name', 'email', 'status', 'role']));
 
         if ($request->filled('password')) {
             $user->password = $request->validated('password');

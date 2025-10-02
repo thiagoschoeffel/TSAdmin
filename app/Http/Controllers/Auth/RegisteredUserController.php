@@ -34,6 +34,7 @@ class RegisteredUserController extends Controller
             'email' => $validated['email'],
             'password' => $validated['password'],
             'status' => 'active',
+            'role' => 'user',
         ]);
 
         Auth::login($user);

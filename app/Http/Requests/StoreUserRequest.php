@@ -9,7 +9,7 @@ class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        return $this->user()?->isAdmin() ?? false;
     }
 
     public function rules(): array
@@ -19,6 +19,7 @@ class StoreUserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'status' => ['required', 'in:active,inactive'],
+            'role' => ['required', 'in:admin,user'],
         ];
     }
 }

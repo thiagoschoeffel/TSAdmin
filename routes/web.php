@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function (): void {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('users')->name('users.')->group(function (): void {
+    Route::prefix('users')->name('users.')->middleware('admin')->group(function (): void {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
         Route::get('create', [UserManagementController::class, 'create'])->name('create');
         Route::post('/', [UserManagementController::class, 'store'])->name('store');

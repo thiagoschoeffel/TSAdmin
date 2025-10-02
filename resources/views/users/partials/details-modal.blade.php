@@ -18,6 +18,12 @@
                 <dt class="text-sm font-semibold text-slate-500">E-mail</dt>
                 <dd class="text-sm text-slate-800">{{ $user->email }}</dd>
             </div>
+            <div class="space-y-1">
+                <dt class="text-sm font-semibold text-slate-500">Perfil</dt>
+                <dd class="text-sm text-slate-800">
+                    {{ $user->role === 'admin' ? 'Administrador' : 'Usuário comum' }}
+                </dd>
+            </div>
         </dl>
     </section>
 
