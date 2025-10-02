@@ -10,6 +10,12 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+@keyframes skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
 @layer base {
     :root {
         color-scheme: light;
@@ -180,47 +186,102 @@
 }
 
 @layer components {
-    .confirm-modal {
+    .modal {
         @apply fixed inset-0 z-[1100] flex items-center justify-center p-4 pointer-events-none;
     }
 
-    .confirm-modal.is-open {
+    .modal.is-open {
         @apply pointer-events-auto;
     }
 
-    .confirm-modal__backdrop {
+    .modal__backdrop {
         @apply absolute inset-0 bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-200 ease-out;
     }
 
-    .confirm-modal.is-open .confirm-modal__backdrop {
+    .modal.is-open .modal__backdrop {
         @apply opacity-100;
     }
 
-    .confirm-modal__panel {
-        @apply relative z-10 w-full max-w-md transform-gpu rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-900/10 opacity-0 -translate-y-4 scale-95 transition-all duration-200 ease-out;
+    .modal__panel {
+        @apply relative z-10 w-full max-w-screen-lg transform-gpu overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-900/10 opacity-0 -translate-y-4 scale-95 transition-all duration-200 ease-out max-h-[60vh];
+        scrollbar-width: thin;
+        scrollbar-color: theme('colors.slate.400') transparent;
     }
 
-    .confirm-modal.is-open .confirm-modal__panel {
+    .modal__panel::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal__panel::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: theme('borderRadius.2xl');
+        margin: 8px;
+    }
+
+    .modal__panel::-webkit-scrollbar-thumb {
+        background-color: theme('colors.slate.400');
+        border-radius: theme('borderRadius.2xl');
+    }
+
+    .modal__panel--sm {
+        @apply max-w-md;
+    }
+
+    .modal__panel--lg {
+        @apply max-w-screen-xl;
+    }
+
+    .modal.is-open .modal__panel {
         @apply opacity-100 translate-y-0 scale-100;
     }
 
-    .confirm-modal__header {
-        @apply space-y-2 text-center;
+    .modal__close {
+        @apply absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 hover:text-slate-600;
     }
 
-    .confirm-modal__title {
+    .modal__header {
+        @apply mb-4 flex flex-col gap-2 pr-8 text-left;
+    }
+
+    .modal__title {
         @apply text-xl font-semibold text-slate-900;
     }
 
-    .confirm-modal__message {
+    .modal__description {
         @apply text-sm text-slate-600;
     }
 
-    .confirm-modal__actions {
+    .modal__body {
+        @apply space-y-6;
+    }
+
+    .modal__empty {
+        @apply flex flex-col items-center justify-center gap-3 text-center text-sm text-slate-500;
+    }
+
+    .skeleton {
+        @apply relative overflow-hidden bg-slate-200/80;
+    }
+
+    .skeleton::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background-image: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.7) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        animation: skeleton-shimmer 1.2s ease-in-out infinite;
+    }
+
+    .modal__actions {
         @apply mt-6 flex flex-wrap items-center justify-center gap-3;
     }
 
-    .confirm-modal__confirm {
+    .modal__confirm {
         @apply min-w-28;
     }
 }

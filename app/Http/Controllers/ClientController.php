@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,6 +69,15 @@ class ClientController extends Controller
         $client->load(['createdBy', 'updatedBy']);
 
         return view('clients.show', compact('client'));
+    }
+
+    public function modal(Client $client): JsonResponse
+    {
+        $client->load(['createdBy', 'updatedBy']);
+
+        return response()->json([
+            'html' => view('clients.partials.details-modal', compact('client'))->render(),
+        ]);
     }
 
     public function edit(Client $client): View

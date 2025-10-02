@@ -53,7 +53,15 @@
                 <tbody>
                     @forelse ($users as $user)
                         <tr>
-                            <td>{{ $user->name }}</td>
+                            <td>
+                                <a href="#"
+                                   class="text-blue-600 transition hover:text-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                                   role="button"
+                                   data-user-details-trigger
+                                   data-user-details-url="{{ route('users.modal', $user) }}">
+                                    {{ $user->name }}
+                                </a>
+                            </td>
                             <td>{{ $user->email }}</td>
                             <td class="table-actions">
                                 <span class="{{ $user->status === 'active' ? 'badge-success' : 'badge-danger' }}">
@@ -106,3 +114,29 @@
         </div>
     </section>
 @endsection
+
+@push('modals')
+    <div class="modal hidden" data-modal="user-details" role="dialog" aria-modal="true"
+         aria-labelledby="user-details-modal-placeholder-title" aria-hidden="true" hidden>
+        <div class="modal__backdrop" data-modal-backdrop></div>
+
+        <div class="modal__panel" role="document">
+            <button type="button" class="modal__close" data-modal-close data-modal-autofocus="true"
+                    aria-label="Fechar detalhes do usuário">
+                <x-heroicon name="x-mark" class="h-5 w-5" />
+            </button>
+
+            <div class="modal__body" data-modal-body>
+                <div class="modal__empty" data-modal-empty>
+                    <x-heroicon name="users" class="h-12 w-12 text-slate-300" />
+                    <div class="space-y-1">
+                        <h2 id="user-details-modal-placeholder-title" class="text-base font-semibold text-slate-900">
+                            Detalhes do usuário
+                        </h2>
+                        <p>Selecione um usuário na lista para visualizar os dados completos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endpush

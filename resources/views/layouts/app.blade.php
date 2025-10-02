@@ -83,6 +83,8 @@
         &copy; {{ date('Y') }} {{ config('app.name', 'Example App') }}. Todos os direitos reservados.
     </footer>
 
+    @stack('modals')
+
     <x-confirm-modal />
 
     @stack('scripts')

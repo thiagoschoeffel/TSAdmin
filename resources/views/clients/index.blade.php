@@ -64,7 +64,14 @@
                 <tbody>
                     @forelse ($clients as $client)
                         <tr>
-                            <td>{{ $client->name }}</td>
+                            <td>
+                                <a href="{{ route('clients.show', $client) }}"
+                                   class="text-blue-600 transition hover:text-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                                   data-client-details-trigger
+                                   data-client-details-url="{{ route('clients.modal', $client) }}">
+                                    {{ $client->name }}
+                                </a>
+                            </td>
                             <td>{{ $client->person_type === 'company' ? 'Jurídica' : 'Física' }}</td>
                             <td class="table-actions">
                                 <span class="{{ $client->status === 'active' ? 'badge-success' : 'badge-danger' }}">
@@ -81,10 +88,6 @@
                                         <x-heroicon name="ellipsis-horizontal" class="h-5 w-5" />
                                     </button>
                                     <div class="menu-panel hidden" data-menu-panel="{{ $menuId }}" data-dropdown-align="end">
-                                        <a class="menu-panel-link" href="{{ route('clients.show', $client) }}">
-                                            <x-heroicon name="eye" class="h-4 w-4" />
-                                            <span>Detalhes</span>
-                                        </a>
                                         <a class="menu-panel-link" href="{{ route('clients.edit', $client) }}">
                                             <x-heroicon name="pencil" class="h-4 w-4" />
                                             <span>Editar</span>
@@ -120,3 +123,29 @@
         </div>
     </section>
 @endsection
+
+@push('modals')
+    <div class="modal hidden" data-modal="client-details" role="dialog" aria-modal="true"
+         aria-labelledby="client-details-modal-placeholder-title" aria-hidden="true" hidden>
+        <div class="modal__backdrop" data-modal-backdrop></div>
+
+        <div class="modal__panel modal__panel--lg" role="document">
+            <button type="button" class="modal__close" data-modal-close data-modal-autofocus="true"
+                    aria-label="Fechar detalhes do cliente">
+                <x-heroicon name="x-mark" class="h-5 w-5" />
+            </button>
+
+            <div class="modal__body" data-modal-body>
+                <div class="modal__empty" data-modal-empty>
+                    <x-heroicon name="user-circle" class="h-12 w-12 text-slate-300" />
+                    <div class="space-y-1">
+                        <h2 id="client-details-modal-placeholder-title" class="text-base font-semibold text-slate-900">
+                            Detalhes do cliente
+                        </h2>
+                        <p>Selecione um cliente na lista para visualizar os dados completos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endpush

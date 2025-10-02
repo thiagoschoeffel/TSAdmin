@@ -6,6 +6,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Rules\UserHasNoClients;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -86,6 +87,13 @@ class UserManagementController extends Controller
         return redirect()
             ->route('users.index')
             ->with('status', 'Usuário removido com sucesso.');
+    }
+
+    public function modal(User $user): JsonResponse
+    {
+        return response()->json([
+            'html' => view('users.partials.details-modal', compact('user'))->render(),
+        ]);
     }
 
     protected function ensureNotCurrentUser(User $user): void
