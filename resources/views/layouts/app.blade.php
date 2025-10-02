@@ -29,6 +29,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1.5rem;
             max-width: 960px;
             margin: 0 auto;
         }
@@ -48,6 +49,73 @@
             display: flex;
             gap: 1rem;
             align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .nav-user {
+            position: relative;
+        }
+        .user-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: none;
+            background: #1e3a8a;
+            color: #f8fafc;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .user-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.25);
+        }
+        .user-dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 0.75rem);
+            min-width: 200px;
+            background: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.12);
+            padding: 0.5rem;
+            display: none;
+            z-index: 20;
+        }
+        .user-dropdown.show {
+            display: block;
+        }
+        .user-dropdown a,
+        .user-dropdown button {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.5rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 0.55rem;
+            border: none;
+            background: transparent;
+            color: #0f172a;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .user-dropdown a:hover,
+        .user-dropdown button:hover {
+            background: #eff6ff;
+        }
+        .user-dropdown form {
+            margin: 0;
         }
         .button-link,
         button,
@@ -78,6 +146,67 @@
             background: transparent;
             color: inherit;
             padding: 0;
+        }
+        .menu-trigger {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: none;
+            background: #e2e8f0;
+            color: #0f172a;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, box-shadow 0.15s ease;
+        }
+        .menu-trigger:hover {
+            background: #cbd5f5;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+        }
+        .menu-panel {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 0.5rem);
+            background: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.12);
+            padding: 0.5rem;
+            min-width: 170px;
+            display: none;
+            z-index: 999;
+        }
+        .table-actions {
+            position: relative;
+            overflow: visible !important;
+        }
+        .menu-panel.show {
+            display: block;
+        }
+        .menu-panel a,
+        .menu-panel button {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.5rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 0.55rem;
+            border: none;
+            background: transparent;
+            color: #0f172a;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .menu-panel a:hover,
+        .menu-panel button:hover {
+            background: #eff6ff;
+        }
+        .menu-panel form {
+            margin: 0;
         }
         .card {
             background: white;
@@ -210,23 +339,40 @@
             main {
                 padding: 1.5rem;
             }
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <nav>
-            <a href="{{ route('home') }}">{{ config('app.name', 'Example App') }}</a>
+            <a class="link" href="{{ route('home') }}">{{ config('app.name', 'Example App') }}</a>
+
             <div class="nav-links">
                 @auth
                     <a class="link" href="{{ route('dashboard') }}">Dashboard</a>
-                    <a class="link" href="{{ route('profile.edit') }}">Meu perfil</a>
                     <a class="link" href="{{ route('users.index') }}">Usuários</a>
                     <a class="link" href="{{ route('clients.index') }}">Clientes</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit">Sair</button>
-                    </form>
+                @endauth
+            </div>
+
+            <div class="nav-actions">
+                @auth
+                    <div class="nav-user">
+                        <button type="button" class="user-toggle" data-user-menu-toggle>
+                            {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
+                        </button>
+                        <div class="user-dropdown" data-user-menu>
+                            <a href="{{ route('profile.edit') }}">Meu perfil</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit">Sair</button>
+                            </form>
+                        </div>
+                    </div>
                 @else
                     <a class="link" href="{{ route('login') }}">Entrar</a>
                     <a class="button-link" href="{{ route('register') }}">Registrar</a>
@@ -242,6 +388,118 @@
     <footer>
         &copy; {{ date('Y') }} {{ config('app.name', 'Example App') }}. Todos os direitos reservados.
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdowns = [];
+
+            const registerDropdown = (toggle, menu) => {
+                if (!toggle || !menu) {
+                    return;
+                }
+
+                const parent = menu.parentElement;
+                const placeholder = document.createComment('dropdown-placeholder');
+                parent.insertBefore(placeholder, menu);
+
+                const state = {
+                    toggle,
+                    menu,
+                    placeholder,
+                    parent,
+                    isOpen: false,
+                    position() {
+                        const rect = toggle.getBoundingClientRect();
+                        const width = menu.offsetWidth || 180;
+                        menu.style.top = `${rect.bottom + 8}px`;
+                        menu.style.left = `${rect.right - width}px`;
+                    },
+                    open() {
+                        if (state.isOpen) {
+                            return;
+                        }
+
+                        document.body.appendChild(menu);
+                        menu.classList.add('show');
+                        menu.style.position = 'fixed';
+                        menu.style.zIndex = '1000';
+                        menu.style.right = 'auto';
+                        const width = Math.max(menu.offsetWidth || 0, 170);
+                        menu.style.minWidth = `${width}px`;
+                        state.position();
+                        state.isOpen = true;
+                    },
+                    close() {
+                        if (!state.isOpen) {
+                            return;
+                        }
+
+                        menu.classList.remove('show');
+                        ['position', 'zIndex', 'right', 'top', 'left', 'minWidth'].forEach((prop) => {
+                            menu.style[prop] = '';
+                        });
+                        state.placeholder.parentNode?.insertBefore(menu, state.placeholder);
+                        state.isOpen = false;
+                    },
+                };
+
+                toggle.addEventListener('click', (event) => {
+                    event.stopPropagation();
+
+                    dropdowns.filter((item) => item !== state).forEach((item) => item.close());
+
+                    if (state.isOpen) {
+                        state.close();
+                    } else {
+                        state.open();
+                    }
+                });
+
+                dropdowns.push(state);
+            };
+
+            const closeAll = () => dropdowns.forEach((item) => item.close());
+
+            document.addEventListener('click', (event) => {
+                dropdowns.forEach((state) => {
+                    if (
+                        state.isOpen &&
+                        !state.menu.contains(event.target) &&
+                        state.toggle !== event.target
+                    ) {
+                        state.close();
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeAll();
+                }
+            });
+
+            document.addEventListener('scroll', closeAll, true);
+
+            window.addEventListener('resize', () => {
+                dropdowns.forEach((state) => {
+                    if (state.isOpen) {
+                        state.position();
+                    }
+                });
+            });
+
+            registerDropdown(
+                document.querySelector('[data-user-menu-toggle]'),
+                document.querySelector('[data-user-menu]')
+            );
+
+            document.querySelectorAll('[data-menu-toggle]').forEach((toggle) => {
+                const menuId = toggle.getAttribute('data-menu-toggle');
+                const menu = document.querySelector(`[data-menu-panel="${menuId}"]`);
+                registerDropdown(toggle, menu);
+            });
+        });
+    </script>
 
     @stack('scripts')
 </body>

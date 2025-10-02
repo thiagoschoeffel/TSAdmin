@@ -45,7 +45,7 @@
             <div class="status">{{ session('status') }}</div>
         @endif
 
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto;overflow-y:visible;position:relative;">
             <table style="width:100%;border-collapse:collapse;">
                 <thead>
                     <tr style="text-align:left;color:#475569;border-bottom:2px solid #e2e8f0;">
@@ -55,7 +55,7 @@
                         <th style="padding:0.75rem 0.5rem;">Documento</th>
                         <th style="padding:0.75rem 0.5rem;">Cidade/UF</th>
                         <th style="padding:0.75rem 0.5rem;">Cadastrado em</th>
-                        <th style="padding:0.75rem 0.5rem;width:180px;">Ações</th>
+                        <th style="padding:0.75rem 0.5rem;width:80px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,7 +63,7 @@
                         <tr style="border-bottom:1px solid #e2e8f0;">
                             <td style="padding:0.75rem 0.5rem;">{{ $client->name }}</td>
                             <td style="padding:0.75rem 0.5rem;">{{ $client->person_type === 'company' ? 'Jurídica' : 'Física' }}</td>
-                            <td style="padding:0.75rem 0.5rem;">
+                            <td class="table-actions" style="padding:0.75rem 0.5rem;">
                                 <span style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.2rem 0.7rem;border-radius:999px;font-size:0.9rem;font-weight:600;background:{{ $client->status === 'active' ? '#dcfce7' : '#fee2e2' }};color:{{ $client->status === 'active' ? '#166534' : '#991b1b' }};">
                                     {{ $client->status === 'active' ? 'Ativo' : 'Inativo' }}
                                 </span>
@@ -71,14 +71,20 @@
                             <td style="padding:0.75rem 0.5rem;">{{ $client->formattedDocument() }}</td>
                             <td style="padding:0.75rem 0.5rem;">{{ $client->city }}/{{ $client->state }}</td>
                             <td style="padding:0.75rem 0.5rem;">{{ $client->created_at->format('d/m/Y H:i') }}</td>
-                            <td style="padding:0.75rem 0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
-                                <a class="button-link" style="padding:0.5rem 0.9rem;font-size:0.9rem;" href="{{ route('clients.show', $client) }}">Detalhes</a>
-                                <a class="link" href="{{ route('clients.edit', $client) }}">Editar</a>
-                                <form method="POST" action="{{ route('clients.destroy', $client) }}" onsubmit="return confirm('Deseja realmente remover este cliente?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" style="background:#ef4444;">Excluir</button>
-                                </form>
+                            <td style="padding:0.75rem 0.5rem;">
+                                @php $menuId = 'client-menu-'.$client->id; @endphp
+                                <div style="position:relative;display:inline-block;z-index:10;">
+                                    <button type="button" class="menu-trigger" data-menu-toggle="{{ $menuId }}">…</button>
+                                    <div class="menu-panel" data-menu-panel="{{ $menuId }}">
+                                        <a href="{{ route('clients.show', $client) }}">Detalhes</a>
+                                        <a href="{{ route('clients.edit', $client) }}">Editar</a>
+                                        <form method="POST" action="{{ route('clients.destroy', $client) }}" onsubmit="return confirm('Deseja realmente remover este cliente?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" style="color:#ef4444;">Excluir</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @empty

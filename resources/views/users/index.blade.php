@@ -37,14 +37,14 @@
             <div class="status">{{ session('status') }}</div>
         @endif
 
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto;overflow-y:visible;position:relative;">
             <table style="width:100%;border-collapse:collapse;">
                 <thead>
                     <tr style="text-align:left;color:#475569;border-bottom:2px solid #e2e8f0;">
                         <th style="padding:0.75rem 0.5rem;">Nome</th>
                         <th style="padding:0.75rem 0.5rem;">E-mail</th>
                         <th style="padding:0.75rem 0.5rem;">Status</th>
-                        <th style="padding:0.75rem 0.5rem;width:200px;">Ações</th>
+                        <th style="padding:0.75rem 0.5rem;width:80px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,19 +52,25 @@
                         <tr style="border-bottom:1px solid #e2e8f0;">
                             <td style="padding:0.75rem 0.5rem;">{{ $user->name }}</td>
                             <td style="padding:0.75rem 0.5rem;">{{ $user->email }}</td>
-                            <td style="padding:0.75rem 0.5rem;">
+                            <td class="table-actions" style="padding:0.75rem 0.5rem;">
                                 <span style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.2rem 0.7rem;border-radius:999px;font-size:0.9rem;font-weight:600;background:{{ $user->status === 'active' ? '#dcfce7' : '#fee2e2' }};color:{{ $user->status === 'active' ? '#166534' : '#991b1b' }};">
                                     {{ $user->status === 'active' ? 'Ativo' : 'Inativo' }}
                                 </span>
                             </td>
-                            <td style="padding:0.75rem 0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+                            <td style="padding:0.75rem 0.5rem;">
                                 @if ($user->id !== auth()->id())
-                                    <a class="button-link" style="padding:0.5rem 0.9rem;font-size:0.9rem;" href="{{ route('users.edit', $user) }}">Editar</a>
-                                    <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Tem certeza que deseja remover este usuário?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" style="background:#ef4444;">Excluir</button>
-                                    </form>
+                                    @php $menuId = 'user-menu-'.$user->id; @endphp
+                                <div style="position:relative;display:inline-block;z-index:10;">
+                                    <button type="button" class="menu-trigger" data-menu-toggle="{{ $menuId }}">…</button>
+                                    <div class="menu-panel" data-menu-panel="{{ $menuId }}">
+                                        <a href="{{ route('users.edit', $user) }}">Editar</a>
+                                            <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Tem certeza que deseja remover este usuário?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" style="color:#ef4444;">Excluir</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 @else
                                     <a class="button-link" style="padding:0.5rem 0.9rem;font-size:0.9rem;background:#1e293b;" href="{{ route('profile.edit') }}">Gerenciar conta</a>
                                 @endif
