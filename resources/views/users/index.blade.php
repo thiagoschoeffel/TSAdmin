@@ -44,7 +44,7 @@
                         <th>Nome</th>
                         <th>E-mail</th>
                         <th>Status</th>
-                        <th class="w-24">Ações</th>
+                        <th class="w-24 whitespace-nowrap">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +57,7 @@
                                     {{ $user->status === 'active' ? 'Ativo' : 'Inativo' }}
                                 </span>
                             </td>
-                            <td>
+                            <td class="whitespace-nowrap">
                                 @if ($user->id !== auth()->id())
                                     @php $menuId = 'user-menu-'.$user->id; @endphp
                                     <div class="relative inline-block z-10">
