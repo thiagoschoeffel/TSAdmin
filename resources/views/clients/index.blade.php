@@ -36,7 +36,10 @@
                 </label>
             </div>
             <div class="flex flex-wrap gap-3">
-                <button type="submit" class="btn-primary">Filtrar</button>
+                <button type="submit" class="btn-primary">
+                    <x-heroicon name="funnel" class="h-5 w-5" />
+                    <span>Filtrar</span>
+                </button>
                 <a class="btn-ghost" href="{{ route('clients.index') }}">Limpar filtros</a>
             </div>
         </form>
@@ -74,10 +77,18 @@
                             <td>
                                 @php $menuId = 'client-menu-'.$client->id; @endphp
                                 <div class="relative inline-block z-10">
-                                    <button type="button" class="menu-trigger" data-menu-toggle="{{ $menuId }}">…</button>
+                                    <button type="button" class="menu-trigger" data-menu-toggle="{{ $menuId }}" aria-label="Abrir menu de ações">
+                                        <x-heroicon name="ellipsis-horizontal" class="h-5 w-5" />
+                                    </button>
                                     <div class="menu-panel hidden" data-menu-panel="{{ $menuId }}" data-dropdown-align="end">
-                                        <a class="menu-panel-link" href="{{ route('clients.show', $client) }}">Detalhes</a>
-                                        <a class="menu-panel-link" href="{{ route('clients.edit', $client) }}">Editar</a>
+                                        <a class="menu-panel-link" href="{{ route('clients.show', $client) }}">
+                                            <x-heroicon name="eye" class="h-4 w-4" />
+                                            <span>Detalhes</span>
+                                        </a>
+                                        <a class="menu-panel-link" href="{{ route('clients.edit', $client) }}">
+                                            <x-heroicon name="pencil" class="h-4 w-4" />
+                                            <span>Editar</span>
+                                        </a>
                                         <form method="POST" action="{{ route('clients.destroy', $client) }}"
                                               data-confirm
                                               data-confirm-title="Excluir cliente"
@@ -86,7 +97,10 @@
                                               data-confirm-variant="danger">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="menu-panel-link text-rose-600 hover:text-rose-700">Excluir</button>
+                                            <button type="submit" class="menu-panel-link text-rose-600 hover:text-rose-700">
+                                                <x-heroicon name="trash" class="h-4 w-4" />
+                                                <span>Excluir</span>
+                                            </button>
                                         </form>
                                     </div>
                                 </div>

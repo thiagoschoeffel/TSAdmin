@@ -20,9 +20,24 @@
 
                 <div class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-200 sm:gap-4">
                     @auth
-                        <a class="transition hover:text-white" href="{{ route('dashboard') }}">Dashboard</a>
-                        <a class="transition hover:text-white" href="{{ route('users.index') }}">Usuários</a>
-                        <a class="transition hover:text-white" href="{{ route('clients.index') }}">Clientes</a>
+                        <a class="group transition hover:text-white" href="{{ route('dashboard') }}">
+                            <span class="inline-flex items-center gap-2">
+                                <x-heroicon name="chart-bar" class="h-4 w-4 transition-colors group-hover:text-white" />
+                                <span>Dashboard</span>
+                            </span>
+                        </a>
+                        <a class="group transition hover:text-white" href="{{ route('users.index') }}">
+                            <span class="inline-flex items-center gap-2">
+                                <x-heroicon name="users" class="h-4 w-4 transition-colors group-hover:text-white" />
+                                <span>Usuários</span>
+                            </span>
+                        </a>
+                        <a class="group transition hover:text-white" href="{{ route('clients.index') }}">
+                            <span class="inline-flex items-center gap-2">
+                                <x-heroicon name="identification" class="h-4 w-4 transition-colors group-hover:text-white" />
+                                <span>Clientes</span>
+                            </span>
+                        </a>
                     @endauth
                 </div>
             </div>
@@ -34,7 +49,10 @@
                             {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
                         </button>
                         <div class="user-dropdown hidden" data-user-menu data-dropdown-align="end">
-                            <a class="dropdown-link" href="{{ route('profile.edit') }}">Meu perfil</a>
+                            <a class="dropdown-link" href="{{ route('profile.edit') }}">
+                                <x-heroicon name="user-circle" class="h-5 w-5" />
+                                <span>Meu perfil</span>
+                            </a>
                             <form method="POST" action="{{ route('logout') }}"
                                   data-confirm
                                   data-confirm-title="Sair da conta"
@@ -42,7 +60,10 @@
                                   data-confirm-confirm-text="Sair"
                                   data-confirm-variant="secondary">
                                 @csrf
-                                <button type="submit" class="dropdown-link-danger">Sair</button>
+                                <button type="submit" class="dropdown-link-danger">
+                                    <x-heroicon name="arrow-left-end-on-rectangle" class="h-5 w-5" />
+                                    <span>Sair</span>
+                                </button>
                             </form>
                         </div>
                     </div>

@@ -28,7 +28,10 @@
                 </label>
             </div>
             <div class="flex flex-wrap gap-3">
-                <button type="submit" class="btn-primary">Filtrar</button>
+                <button type="submit" class="btn-primary">
+                    <x-heroicon name="funnel" class="h-5 w-5" />
+                    <span>Filtrar</span>
+                </button>
                 <a class="btn-ghost" href="{{ route('users.index') }}">Limpar filtros</a>
             </div>
         </form>
@@ -61,9 +64,14 @@
                                 @if ($user->id !== auth()->id())
                                     @php $menuId = 'user-menu-'.$user->id; @endphp
                                     <div class="relative inline-block z-10">
-                                        <button type="button" class="menu-trigger" data-menu-toggle="{{ $menuId }}">…</button>
+                                        <button type="button" class="menu-trigger" data-menu-toggle="{{ $menuId }}" aria-label="Abrir menu de ações">
+                                            <x-heroicon name="ellipsis-horizontal" class="h-5 w-5" />
+                                        </button>
                                         <div class="menu-panel hidden" data-menu-panel="{{ $menuId }}" data-dropdown-align="end">
-                                            <a class="menu-panel-link" href="{{ route('users.edit', $user) }}">Editar</a>
+                                            <a class="menu-panel-link" href="{{ route('users.edit', $user) }}">
+                                                <x-heroicon name="pencil" class="h-4 w-4" />
+                                                <span>Editar</span>
+                                            </a>
                                             <form method="POST" action="{{ route('users.destroy', $user) }}"
                                                   data-confirm
                                                   data-confirm-title="Excluir usuário"
@@ -72,7 +80,10 @@
                                                   data-confirm-variant="danger">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="menu-panel-link text-rose-600 hover:text-rose-700">Excluir</button>
+                                                <button type="submit" class="menu-panel-link text-rose-600 hover:text-rose-700">
+                                                    <x-heroicon name="trash" class="h-4 w-4" />
+                                                    <span>Excluir</span>
+                                                </button>
                                             </form>
                                         </div>
                                     </div>
