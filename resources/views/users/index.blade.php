@@ -64,7 +64,12 @@
                                         <button type="button" class="menu-trigger" data-menu-toggle="{{ $menuId }}">…</button>
                                         <div class="menu-panel hidden" data-menu-panel="{{ $menuId }}" data-dropdown-align="end">
                                             <a class="menu-panel-link" href="{{ route('users.edit', $user) }}">Editar</a>
-                                            <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Tem certeza que deseja remover este usuário?');">
+                                            <form method="POST" action="{{ route('users.destroy', $user) }}"
+                                                  data-confirm
+                                                  data-confirm-title="Excluir usuário"
+                                                  data-confirm-message="Tem certeza que deseja remover {{ $user->name }}?"
+                                                  data-confirm-confirm-text="Excluir"
+                                                  data-confirm-variant="danger">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="menu-panel-link text-rose-600 hover:text-rose-700">Excluir</button>

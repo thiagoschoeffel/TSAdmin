@@ -13,7 +13,12 @@
             </div>
             <div class="flex flex-wrap gap-3">
                 <a class="btn-secondary" href="{{ route('clients.edit', $client) }}">Editar</a>
-                <form method="POST" action="{{ route('clients.destroy', $client) }}" onsubmit="return confirm('Deseja realmente remover este cliente?');">
+                <form method="POST" action="{{ route('clients.destroy', $client) }}"
+                      data-confirm
+                      data-confirm-title="Excluir cliente"
+                      data-confirm-message="Deseja realmente remover {{ $client->name }}?"
+                      data-confirm-confirm-text="Excluir"
+                      data-confirm-variant="danger">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn-danger">Excluir</button>

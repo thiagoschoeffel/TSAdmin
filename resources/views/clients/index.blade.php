@@ -78,7 +78,12 @@
                                     <div class="menu-panel hidden" data-menu-panel="{{ $menuId }}" data-dropdown-align="end">
                                         <a class="menu-panel-link" href="{{ route('clients.show', $client) }}">Detalhes</a>
                                         <a class="menu-panel-link" href="{{ route('clients.edit', $client) }}">Editar</a>
-                                        <form method="POST" action="{{ route('clients.destroy', $client) }}" onsubmit="return confirm('Deseja realmente remover este cliente?');">
+                                        <form method="POST" action="{{ route('clients.destroy', $client) }}"
+                                              data-confirm
+                                              data-confirm-title="Excluir cliente"
+                                              data-confirm-message="Deseja realmente remover {{ $client->name }}?"
+                                              data-confirm-confirm-text="Excluir"
+                                              data-confirm-variant="danger">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="menu-panel-link text-rose-600 hover:text-rose-700">Excluir</button>

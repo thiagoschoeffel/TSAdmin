@@ -35,7 +35,12 @@
                         </button>
                         <div class="user-dropdown hidden" data-user-menu data-dropdown-align="end">
                             <a class="dropdown-link" href="{{ route('profile.edit') }}">Meu perfil</a>
-                            <form method="POST" action="{{ route('logout') }}">
+                            <form method="POST" action="{{ route('logout') }}"
+                                  data-confirm
+                                  data-confirm-title="Sair da conta"
+                                  data-confirm-message="Tem certeza que deseja encerrar a sessão?"
+                                  data-confirm-confirm-text="Sair"
+                                  data-confirm-variant="secondary">
                                 @csrf
                                 <button type="submit" class="dropdown-link-danger">Sair</button>
                             </form>
@@ -56,6 +61,8 @@
     <footer class="container-default py-8 text-center text-sm text-slate-500">
         &copy; {{ date('Y') }} {{ config('app.name', 'Example App') }}. Todos os direitos reservados.
     </footer>
+
+    <x-confirm-modal />
 
     @stack('scripts')
 </body>

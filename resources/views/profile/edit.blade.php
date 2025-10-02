@@ -75,7 +75,12 @@
                 <h2 class="text-lg font-semibold text-rose-700">Excluir conta</h2>
                 <p class="text-sm text-rose-600">Esta ação é permanente. Ao confirmar, sua conta será removida e você será desconectado imediatamente.</p>
             </div>
-            <form method="POST" action="{{ route('profile.destroy') }}" onsubmit="return confirm('Tem certeza que deseja remover sua conta? Esta ação não pode ser desfeita.');">
+            <form method="POST" action="{{ route('profile.destroy') }}"
+                  data-confirm
+                  data-confirm-title="Excluir conta"
+                  data-confirm-message="Tem certeza que deseja remover sua conta? Esta ação não pode ser desfeita."
+                  data-confirm-confirm-text="Excluir"
+                  data-confirm-variant="danger">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn-danger">Excluir minha conta</button>
