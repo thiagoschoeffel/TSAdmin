@@ -18,6 +18,14 @@
                     Buscar por nome ou e-mail
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Digite para buscar">
                 </label>
+                <label>
+                    Status
+                    <select name="status">
+                        <option value="">Todos</option>
+                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Ativos</option>
+                        <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inativos</option>
+                    </select>
+                </label>
             </div>
             <div style="display:flex;gap:1rem;">
                 <button type="submit" style="width:auto;">Filtrar</button>
@@ -35,7 +43,8 @@
                     <tr style="text-align:left;color:#475569;border-bottom:2px solid #e2e8f0;">
                         <th style="padding:0.75rem 0.5rem;">Nome</th>
                         <th style="padding:0.75rem 0.5rem;">E-mail</th>
-                        <th style="padding:0.75rem 0.5rem;width:160px;">Ações</th>
+                        <th style="padding:0.75rem 0.5rem;">Status</th>
+                        <th style="padding:0.75rem 0.5rem;width:200px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,6 +52,11 @@
                         <tr style="border-bottom:1px solid #e2e8f0;">
                             <td style="padding:0.75rem 0.5rem;">{{ $user->name }}</td>
                             <td style="padding:0.75rem 0.5rem;">{{ $user->email }}</td>
+                            <td style="padding:0.75rem 0.5rem;">
+                                <span style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.2rem 0.7rem;border-radius:999px;font-size:0.9rem;font-weight:600;background:{{ $user->status === 'active' ? '#dcfce7' : '#fee2e2' }};color:{{ $user->status === 'active' ? '#166534' : '#991b1b' }};">
+                                    {{ $user->status === 'active' ? 'Ativo' : 'Inativo' }}
+                                </span>
+                            </td>
                             <td style="padding:0.75rem 0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
                                 @if ($user->id !== auth()->id())
                                     <a class="button-link" style="padding:0.5rem 0.9rem;font-size:0.9rem;" href="{{ route('users.edit', $user) }}">Editar</a>
@@ -58,7 +72,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" style="padding:1.5rem;text-align:center;color:#64748b;">Nenhum usuário encontrado.</td>
+                            <td colspan="4" style="padding:1.5rem;text-align:center;color:#64748b;">Nenhum usuário encontrado.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -59,4 +59,21 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($user);
         $response->assertRedirect(route('dashboard'));
     }
+
+    public function test_inactive_user_cannot_login(): void
+    {
+        $user = User::factory()->create([
+            'password' => 'Password123!',
+            'status' => 'inactive',
+        ]);
+
+        $response = $this->from(route('login'))->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'Password123!',
+        ]);
+
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
 }

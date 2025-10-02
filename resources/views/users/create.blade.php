@@ -30,3 +30,24 @@
         </form>
     </section>
 @endsection
+
+@push('scripts')
+    <script>
+        const statusToggle = document.querySelector('[data-status-toggle]');
+        const statusLabel = document.querySelector('[data-status-label]');
+
+        const updateStatusLabel = () => {
+            if (!statusLabel || !statusToggle) return;
+            if (statusToggle.checked) {
+                statusLabel.textContent = 'Ativo';
+                statusLabel.style.color = '#2563eb';
+            } else {
+                statusLabel.textContent = 'Inativo';
+                statusLabel.style.color = '#991b1b';
+            }
+        };
+
+        updateStatusLabel();
+        statusToggle?.addEventListener('change', updateStatusLabel);
+    </script>
+@endpush

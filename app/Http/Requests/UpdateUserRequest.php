@@ -25,6 +25,7 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users')->ignore($this->route('user')->id),
             ],
             'password' => ['nullable', 'confirmed', Password::defaults()],
+            'status' => ['required', 'in:active,inactive'],
         ];
     }
 }

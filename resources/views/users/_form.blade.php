@@ -20,6 +20,19 @@
                 <span class="error">{{ $message }}</span>
             @enderror
         </label>
+
+        <div class="switch-field">
+            <span class="switch-label">Status do usuário</span>
+            <label class="switch">
+                <input type="hidden" name="status" value="inactive">
+                <input type="checkbox" name="status" value="active" data-status-toggle {{ old('status', $user->status ?? 'active') === 'active' ? 'checked' : '' }}>
+                <span class="switch-slider"></span>
+            </label>
+            <span style="font-weight:600;color:#2563eb;" data-status-label>{{ old('status', $user->status ?? 'active') === 'active' ? 'Ativo' : 'Inativo' }}</span>
+        </div>
+        @error('status')
+            <span class="error">{{ $message }}</span>
+        @enderror
     </div>
 
     <fieldset style="border:none;padding:0;display:grid;gap:0.75rem;">

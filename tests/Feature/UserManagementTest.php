@@ -85,11 +85,13 @@ class UserManagementTest extends TestCase
         $response = $this->actingAs($user)->patch(route('users.update', $other), [
             'name' => 'Updated User',
             'email' => 'updated@example.com',
+            'status' => 'inactive',
         ]);
 
         $response->assertRedirect(route('users.index'));
 
         $this->assertEquals('Updated User', $other->fresh()->name);
+        $this->assertEquals('inactive', $other->fresh()->status);
     }
 
     public function test_user_can_create_user_from_admin_panel(): void
@@ -101,10 +103,11 @@ class UserManagementTest extends TestCase
             'email' => 'newuser@example.com',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
+            'status' => 'active',
         ]);
 
         $response->assertRedirect(route('users.index'));
-        $this->assertDatabaseHas('users', ['email' => 'newuser@example.com']);
+        $this->assertDatabaseHas('users', ['email' => 'newuser@example.com', 'status' => 'active']);
     }
 
     public function test_user_can_delete_other_user(): void

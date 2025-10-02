@@ -39,6 +39,16 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
+        $user = Auth::user();
+
+        if ($user && $user->status !== 'active') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => __('Esta conta está desativada. Entre em contato com um administrador.'),
+            ]);
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));

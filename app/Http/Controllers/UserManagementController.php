@@ -23,6 +23,10 @@ class UserManagementController extends Controller
             });
         }
 
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
         return view('users.index', [
             'users' => $query->orderBy('name')->paginate(10)->withQueryString(),
         ]);
@@ -55,7 +59,7 @@ class UserManagementController extends Controller
     {
         $this->ensureNotCurrentUser($user);
 
-        $user->fill($request->safe()->only(['name', 'email']));
+        $user->fill($request->safe()->only(['name', 'email', 'status']));
 
         if ($request->filled('password')) {
             $user->password = $request->validated('password');
