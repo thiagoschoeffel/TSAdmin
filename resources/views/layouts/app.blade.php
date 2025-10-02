@@ -26,12 +26,14 @@
                                 <span>Dashboard</span>
                             </span>
                         </a>
-                        <a class="group transition hover:text-white" href="{{ route('users.index') }}">
-                            <span class="inline-flex items-center gap-2">
-                                <x-heroicon name="users" class="h-4 w-4 transition-colors group-hover:text-white" />
-                                <span>Usuários</span>
-                            </span>
-                        </a>
+                        @if (auth()->user()?->isAdmin())
+                            <a class="group transition hover:text-white" href="{{ route('users.index') }}">
+                                <span class="inline-flex items-center gap-2">
+                                    <x-heroicon name="users" class="h-4 w-4 transition-colors group-hover:text-white" />
+                                    <span>Usuários</span>
+                                </span>
+                            </a>
+                        @endif
                         <a class="group transition hover:text-white" href="{{ route('clients.index') }}">
                             <span class="inline-flex items-center gap-2">
                                 <x-heroicon name="identification" class="h-4 w-4 transition-colors group-hover:text-white" />
