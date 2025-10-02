@@ -41,7 +41,10 @@ class ConfirmationModal {
         this.modal.removeAttribute('hidden');
         this.modal.classList.remove('hidden');
         this.modal.setAttribute('aria-hidden', 'false');
-        this.modal.classList.add('is-open');
+
+        requestAnimationFrame(() => {
+            this.modal.classList.add('is-open');
+        });
         document.body.style.overflow = 'hidden';
 
         document.addEventListener('keydown', this.handleKeydown, true);
