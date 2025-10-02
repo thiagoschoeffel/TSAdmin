@@ -3,30 +3,30 @@
 @section('title', 'Editar cliente')
 
 @section('content')
-    <section class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap;">
+    <section class="card space-y-8">
+        <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 style="font-size:1.75rem;margin:0;">Editar cliente</h1>
-                <p style="color:#64748b;margin-top:0.5rem;">Atualize as informações do cliente.</p>
+                <h1 class="text-2xl font-semibold text-slate-900">Editar cliente</h1>
+                <p class="mt-2 text-sm text-slate-500">Atualize as informações de {{ $client->name }}.</p>
             </div>
-            <a class="link" href="{{ route('clients.show', $client) }}">Voltar aos detalhes</a>
+            <a class="btn-ghost" href="{{ route('clients.index') }}">Voltar para lista</a>
         </div>
 
         @if ($errors->any())
-            <div class="status" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;">
-                <strong>Ops!</strong> Verifique os campos destacados abaixo.
+            <div class="status status-danger">
+                <strong class="font-semibold">Ops!</strong> Verifique os campos destacados abaixo.
             </div>
         @endif
 
-        <form method="POST" action="{{ route('clients.update', $client) }}" style="display:grid;gap:1.5rem;">
+        <form method="POST" action="{{ route('clients.update', $client) }}" id="client_form" class="space-y-6">
             @csrf
             @method('PATCH')
 
             @include('clients._form', ['client' => $client])
 
-            <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-                <button type="submit">Salvar alterações</button>
-                <a class="link" href="{{ route('clients.show', $client) }}">Cancelar</a>
+            <div class="flex flex-wrap gap-3">
+                <button type="submit" class="btn-primary">Salvar alterações</button>
+                <a class="btn-ghost" href="{{ route('clients.index') }}">Cancelar</a>
             </div>
         </form>
     </section>
@@ -46,7 +46,7 @@
         const applyMask = (value, pattern) => {
             let i = 0;
             const v = value.replace(/\D/g, '');
-            return pattern.replace(/#/g, _ => v[i++] ?? '').replace(/([-/\.() ])+$/, '');
+            return pattern.replace(/#/g, () => v[i++] ?? '').replace(/([-/\.() ])+$/, '');
         };
 
         const formatDocument = () => {
@@ -71,7 +71,7 @@
         };
 
         const toggleCompanyFields = () => {
-            companyFields.forEach(field => {
+            companyFields.forEach((field) => {
                 if (personTypeField.value === 'company') {
                     field.setAttribute('required', 'required');
                 } else {
@@ -81,13 +81,16 @@
         };
 
         const updateStatusLabel = () => {
-            if (!statusLabel || !statusToggle) return;
+            if (!statusLabel || !statusToggle) {
+                return;
+            }
+
             if (statusToggle.checked) {
+                statusLabel.classList.remove('inactive');
                 statusLabel.textContent = 'Ativo';
-                statusLabel.style.color = '#2563eb';
             } else {
+                statusLabel.classList.add('inactive');
                 statusLabel.textContent = 'Inativo';
-                statusLabel.style.color = '#991b1b';
             }
         };
 

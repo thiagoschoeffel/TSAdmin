@@ -3,37 +3,38 @@
 @section('title', 'Entrar')
 
 @section('content')
-    <section class="card" style="max-width:400px;margin:0 auto;">
-        <h1 style="font-size:1.75rem;margin-bottom:1.5rem;">Acesse sua conta</h1>
+    <section class="card mx-auto max-w-md space-y-6">
+        <h1 class="text-2xl font-semibold text-slate-900">Acesse sua conta</h1>
 
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
-            <label>
+            <label class="form-label">
                 E-mail
-                <input type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                <input type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus class="form-input">
                 @error('email')
-                    <span class="error">{{ $message }}</span>
+                    <span class="text-sm font-medium text-rose-600">{{ $message }}</span>
                 @enderror
             </label>
 
-            <label>
+            <label class="form-label">
                 Senha
-                <input type="password" name="password" required autocomplete="current-password">
+                <input type="password" name="password" required autocomplete="current-password" class="form-input">
                 @error('password')
-                    <span class="error">{{ $message }}</span>
+                    <span class="text-sm font-medium text-rose-600">{{ $message }}</span>
                 @enderror
             </label>
 
-            <label style="flex-direction:row;align-items:center;gap:0.5rem;font-weight:500;">
-                <input type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }} style="width:auto;">
+            <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                <input type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }} class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                 Manter-me conectado
             </label>
 
-            <button type="submit">Entrar</button>
+            <button type="submit" class="btn-primary w-full justify-center">Entrar</button>
         </form>
 
-        <p style="margin-top:1.5rem;text-align:center;">Ainda não possui conta?
+        <p class="text-center text-sm text-slate-600">
+            Ainda não possui conta?
             <a class="link" href="{{ route('register') }}">Cadastre-se</a>
         </p>
     </section>

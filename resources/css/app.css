@@ -9,3 +9,163 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer base {
+    :root {
+        color-scheme: light;
+    }
+
+    body {
+        @apply flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 antialiased;
+    }
+}
+
+@layer components {
+    .container-default {
+        @apply mx-auto w-full max-w-screen-lg px-6 sm:px-8;
+    }
+
+    .card {
+        @apply rounded-2xl bg-white p-8 shadow-lg ring-1 ring-slate-900/5;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 shadow-sm hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-lg focus-visible:outline-blue-500;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-slate-900 shadow-sm hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-lg focus-visible:outline-slate-900;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-rose-600 shadow-sm hover:-translate-y-0.5 hover:bg-rose-500 hover:shadow-lg focus-visible:outline-rose-500;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+    }
+
+    .btn-inverse {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 shadow-sm hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-lg focus-visible:outline-white;
+    }
+
+    .link {
+        @apply inline-flex items-center justify-center gap-2 text-sm font-semibold text-blue-600 transition hover:text-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+    }
+
+    .badge-success {
+        @apply inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700;
+    }
+
+    .badge-danger {
+        @apply inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700;
+    }
+
+    .form-label {
+        @apply flex flex-col gap-2 text-sm font-semibold text-slate-700;
+    }
+
+    .form-input {
+        @apply w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20;
+    }
+
+    .form-select {
+        @apply w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none pr-10;
+        background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"%3E%3Cpath d="M4 6L8 10L12 6" stroke="%23505F79" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
+        background-size: 16px 16px;
+        background-position: calc(100% - 0.75rem) 50%;
+        background-repeat: no-repeat;
+    }
+
+    .form-textarea {
+        @apply w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 min-h-36 resize-y;
+    }
+
+    .status {
+        @apply rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700;
+    }
+
+    .status-danger {
+        @apply border-rose-100 bg-rose-50 text-rose-700;
+    }
+
+    .table-wrapper {
+        @apply relative overflow-x-auto;
+    }
+
+    .table {
+        @apply min-w-full border-separate border-spacing-0;
+    }
+
+    .table thead tr {
+        @apply text-left text-sm font-semibold text-slate-600;
+    }
+
+    .table th {
+        @apply border-b-2 border-slate-200 px-3 py-3;
+    }
+
+    .table td {
+        @apply border-b border-slate-200 px-3 py-3 text-sm text-slate-800;
+    }
+
+    .table-empty {
+        @apply px-4 py-6 text-center text-sm text-slate-500;
+    }
+
+    .table-actions {
+        @apply relative;
+    }
+
+    .menu-trigger {
+        @apply inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg font-semibold text-slate-900 transition hover:bg-slate-300 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+    }
+
+    .menu-panel {
+        @apply absolute right-0 top-12 z-50 min-w-44 origin-top-right scale-95 rounded-xl border border-slate-200 bg-white p-2 opacity-0 shadow-xl ring-1 ring-slate-900/5 transition;
+    }
+
+    .menu-panel-link {
+        @apply flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+    }
+
+    .menu-panel.is-open {
+        @apply opacity-100 scale-100;
+    }
+
+    .user-toggle {
+        @apply inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-900 text-sm font-semibold uppercase tracking-wide text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+    }
+
+    .user-dropdown {
+        @apply absolute right-0 top-12 z-50 min-w-48 origin-top-right scale-95 rounded-xl border border-slate-200 bg-white p-2 opacity-0 shadow-xl ring-1 ring-slate-900/5 transition;
+    }
+
+    .dropdown-link {
+        @apply flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+    }
+
+    .dropdown-link-danger {
+        @apply flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-rose-600 transition hover:bg-slate-100 hover:text-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+    }
+
+    .user-dropdown.is-open {
+        @apply opacity-100 scale-100;
+    }
+
+    .switch-field {
+        @apply flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-slate-100 px-4 py-3;
+    }
+
+    .switch-label {
+        @apply text-sm font-semibold text-slate-700;
+    }
+
+    .switch-status {
+        @apply text-sm font-semibold text-blue-600;
+    }
+
+    .switch-status.inactive {
+        @apply text-rose-600;
+    }
+}

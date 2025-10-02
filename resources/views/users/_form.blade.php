@@ -1,58 +1,60 @@
 @php
     $user = $user ?? null;
     $requirePassword = $requirePassword ?? false;
+    $statusIsActive = old('status', $user->status ?? 'active') === 'active';
 @endphp
 
-<div style="display:grid;gap:1.5rem;">
-    <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
-        <label>
+<div class="space-y-6">
+    <div class="grid gap-4 sm:grid-cols-2">
+        <label class="form-label">
             Nome
-            <input type="text" name="name" value="{{ old('name', $user->name ?? '') }}" required autocomplete="name">
+            <input type="text" name="name" value="{{ old('name', $user->name ?? '') }}" required autocomplete="name" class="form-input">
             @error('name')
-                <span class="error">{{ $message }}</span>
+                <span class="text-sm font-medium text-rose-600">{{ $message }}</span>
             @enderror
         </label>
 
-        <label>
+        <label class="form-label">
             E-mail
-            <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}" required autocomplete="email">
+            <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}" required autocomplete="email" class="form-input">
             @error('email')
-                <span class="error">{{ $message }}</span>
+                <span class="text-sm font-medium text-rose-600">{{ $message }}</span>
             @enderror
         </label>
 
-        <div class="switch-field">
+        <div class="switch-field sm:col-span-2">
             <span class="switch-label">Status do usuário</span>
-            <label class="switch">
+            <label class="relative inline-flex h-7 w-12 cursor-pointer items-center">
                 <input type="hidden" name="status" value="inactive">
-                <input type="checkbox" name="status" value="active" data-status-toggle {{ old('status', $user->status ?? 'active') === 'active' ? 'checked' : '' }}>
-                <span class="switch-slider"></span>
+                <input type="checkbox" name="status" value="active" data-status-toggle class="peer sr-only" {{ $statusIsActive ? 'checked' : '' }}>
+                <span class="pointer-events-none block h-full w-full rounded-full bg-slate-300 transition peer-checked:bg-blue-600 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500/60"></span>
+                <span class="pointer-events-none absolute left-1 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5"></span>
             </label>
-            <span style="font-weight:600;color:#2563eb;" data-status-label>{{ old('status', $user->status ?? 'active') === 'active' ? 'Ativo' : 'Inativo' }}</span>
+            <span class="switch-status {{ $statusIsActive ? '' : 'inactive' }}" data-status-label>{{ $statusIsActive ? 'Ativo' : 'Inativo' }}</span>
         </div>
         @error('status')
-            <span class="error">{{ $message }}</span>
+            <span class="text-sm font-medium text-rose-600 sm:col-span-2">{{ $message }}</span>
         @enderror
     </div>
 
-    <fieldset style="border:none;padding:0;display:grid;gap:0.75rem;">
-        <legend style="font-weight:700;color:#1e293b;margin-bottom:0.5rem;">Credenciais de acesso</legend>
-        <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
-            <label>
+    <fieldset class="space-y-3">
+        <legend class="text-sm font-semibold text-slate-700">Credenciais de acesso</legend>
+        <div class="grid gap-4 sm:grid-cols-2">
+            <label class="form-label">
                 {{ $requirePassword ? 'Senha' : 'Nova senha' }}
-                <input type="password" name="password" autocomplete="new-password" {{ $requirePassword ? 'required' : '' }}>
+                <input type="password" name="password" autocomplete="new-password" {{ $requirePassword ? 'required' : '' }} class="form-input">
                 @error('password')
-                    <span class="error">{{ $message }}</span>
+                    <span class="text-sm font-medium text-rose-600">{{ $message }}</span>
                 @enderror
             </label>
 
-            <label>
+            <label class="form-label">
                 Confirmar senha
-                <input type="password" name="password_confirmation" {{ $requirePassword ? 'required' : '' }} autocomplete="new-password">
+                <input type="password" name="password_confirmation" {{ $requirePassword ? 'required' : '' }} autocomplete="new-password" class="form-input">
             </label>
         </div>
         @unless($requirePassword)
-            <p style="margin:0;color:#64748b;font-size:0.9rem;">Preencha apenas se desejar definir uma nova senha para o usuário.</p>
+            <p class="text-sm text-slate-500">Preencha apenas se desejar definir uma nova senha para o usuário.</p>
         @endunless
     </fieldset>
 </div>

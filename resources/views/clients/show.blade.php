@@ -3,20 +3,22 @@
 @section('title', 'Detalhes do cliente')
 
 @section('content')
-    <section class="card" style="display:grid;gap:1.5rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <section class="card space-y-8">
+        <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 style="font-size:1.75rem;margin:0;">{{ $client->name }}</h1>
-                <p style="color:#64748b;margin-top:0.5rem;">{{ $client->person_type === 'company' ? 'Pessoa jurídica' : 'Pessoa física' }} • Documento {{ $client->formattedDocument() }}</p>
+                <h1 class="text-2xl font-semibold text-slate-900">{{ $client->name }}</h1>
+                <p class="mt-2 text-sm text-slate-500">
+                    {{ $client->person_type === 'company' ? 'Pessoa jurídica' : 'Pessoa física' }} • Documento {{ $client->formattedDocument() }}
+                </p>
             </div>
-            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                <a class="button-link" href="{{ route('clients.edit', $client) }}">Editar</a>
+            <div class="flex flex-wrap gap-3">
+                <a class="btn-secondary" href="{{ route('clients.edit', $client) }}">Editar</a>
                 <form method="POST" action="{{ route('clients.destroy', $client) }}" onsubmit="return confirm('Deseja realmente remover este cliente?');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" style="background:#ef4444;">Excluir</button>
+                    <button type="submit" class="btn-danger">Excluir</button>
                 </form>
-                <a class="link" href="{{ route('clients.index') }}">Voltar</a>
+                <a class="btn-ghost" href="{{ route('clients.index') }}">Voltar</a>
             </div>
         </div>
 
@@ -24,21 +26,21 @@
             <div class="status">{{ session('status') }}</div>
         @endif
 
-        <section style="display:grid;gap:1rem;">
-            <h2 style="font-size:1.2rem;margin:0;">Informações gerais</h2>
-            <dl style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:0;">
-                <div>
-                    <dt style="font-weight:600;color:#475569;">CPF/CNPJ</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->formattedDocument() }}</dd>
+        <section class="space-y-3">
+            <h2 class="text-lg font-semibold text-slate-900">Informações gerais</h2>
+            <dl class="grid gap-4 sm:grid-cols-2">
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">CPF/CNPJ</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->formattedDocument() }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Observações</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->observations ?: '—' }}</dd>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Observações</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->observations ?: '—' }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Status</dt>
-                    <dd style="margin:0;">
-                        <span style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.2rem 0.7rem;border-radius:999px;font-size:0.9rem;font-weight:600;background:{{ $client->status === 'active' ? '#dcfce7' : '#fee2e2' }};color:{{ $client->status === 'active' ? '#166534' : '#991b1b' }};">
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Status</dt>
+                    <dd>
+                        <span class="{{ $client->status === 'active' ? 'badge-success' : 'badge-danger' }}">
                             {{ $client->status === 'active' ? 'Ativo' : 'Inativo' }}
                         </span>
                     </dd>
@@ -46,72 +48,72 @@
             </dl>
         </section>
 
-        <section style="display:grid;gap:1rem;">
-            <h2 style="font-size:1.2rem;margin:0;">Endereço</h2>
-            <dl style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:0;">
-                <div>
-                    <dt style="font-weight:600;color:#475569;">CEP</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->formattedPostalCode() }}</dd>
+        <section class="space-y-3">
+            <h2 class="text-lg font-semibold text-slate-900">Endereço</h2>
+            <dl class="grid gap-4 sm:grid-cols-2">
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">CEP</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->formattedPostalCode() }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Logradouro</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->address }}, nº {{ $client->address_number }}</dd>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Logradouro</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->address }}, nº {{ $client->address_number }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Complemento</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->address_complement ?: '—' }}</dd>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Complemento</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->address_complement ?: '—' }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Bairro</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->neighborhood }}</dd>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Bairro</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->neighborhood }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Cidade/UF</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->city }}/{{ $client->state }}</dd>
-                </div>
-            </dl>
-        </section>
-
-        <section style="display:grid;gap:1rem;">
-            <h2 style="font-size:1.2rem;margin:0;">Contato</h2>
-            <dl style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:0;">
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Nome do contato</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->contact_name ?: '—' }}</dd>
-                </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Telefone principal</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->formattedPhone($client->contact_phone_primary) ?: '—' }}</dd>
-                </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Telefone secundário</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->formattedPhone($client->contact_phone_secondary) ?: '—' }}</dd>
-                </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">E-mail</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->contact_email ?: '—' }}</dd>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Cidade/UF</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->city }}/{{ $client->state }}</dd>
                 </div>
             </dl>
         </section>
 
-        <section style="display:grid;gap:0.75rem;">
-            <h2 style="font-size:1.2rem;margin:0;">Auditoria</h2>
-            <dl style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:0;">
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Cadastrado em</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->created_at->format('d/m/Y H:i') }}</dd>
+        <section class="space-y-3">
+            <h2 class="text-lg font-semibold text-slate-900">Contato</h2>
+            <dl class="grid gap-4 sm:grid-cols-2">
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Nome do contato</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->contact_name ?: '—' }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Por</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->createdBy?->name ?? 'Conta removida' }}</dd>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Telefone principal</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->formattedPhone($client->contact_phone_primary) ?: '—' }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Última atualização</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->updated_at->format('d/m/Y H:i') }}</dd>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Telefone secundário</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->formattedPhone($client->contact_phone_secondary) ?: '—' }}</dd>
                 </div>
-                <div>
-                    <dt style="font-weight:600;color:#475569;">Por</dt>
-                    <dd style="margin:0;color:#0f172a;">{{ $client->updatedBy?->name ?? 'Nunca atualizado' }}</dd>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">E-mail</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->contact_email ?: '—' }}</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-lg font-semibold text-slate-900">Auditoria</h2>
+            <dl class="grid gap-4 sm:grid-cols-2">
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Cadastrado em</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->created_at->format('d/m/Y H:i') }}</dd>
+                </div>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Por</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->createdBy?->name ?? 'Conta removida' }}</dd>
+                </div>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Última atualização</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->updated_at->format('d/m/Y H:i') }}</dd>
+                </div>
+                <div class="space-y-1">
+                    <dt class="text-sm font-semibold text-slate-500">Por</dt>
+                    <dd class="text-sm text-slate-800">{{ $client->updatedBy?->name ?? 'Nunca atualizado' }}</dd>
                 </div>
             </dl>
         </section>
