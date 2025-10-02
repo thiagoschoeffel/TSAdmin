@@ -181,11 +181,11 @@
 
 @layer components {
     .confirm-modal {
-        @apply fixed inset-0 z-[1100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200 ease-out;
+        @apply fixed inset-0 z-[1100] flex items-center justify-center p-4 pointer-events-none;
     }
 
     .confirm-modal.is-open {
-        @apply pointer-events-auto opacity-100;
+        @apply pointer-events-auto;
     }
 
     .confirm-modal__backdrop {
