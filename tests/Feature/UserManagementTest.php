@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Client;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -134,5 +135,33 @@ class UserManagementTest extends TestCase
         $response->assertRedirect(route('home'));
         $this->assertGuest();
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
+    }
+
+    public function test_cannot_delete_user_with_associated_clients(): void
+    {
+        $user = User::factory()->create();
+        Client::factory()->create([
+            'created_by_id' => $user->id,
+        ]);
+
+        $this->actingAs(User::factory()->create())
+            ->delete(route('users.destroy', $user))
+            ->assertSessionHasErrors();
+
+        $this->assertDatabaseHas('users', ['id' => $user->id]);
+    }
+
+    public function test_user_cannot_delete_self_when_has_clients(): void
+    {
+        $user = User::factory()->create();
+        Client::factory()->create([
+            'created_by_id' => $user->id,
+        ]);
+
+        $response = $this->actingAs($user)->delete(route('profile.destroy'));
+
+        $response->assertRedirect(route('profile.edit'));
+        $response->assertSessionHasErrors('profile');
+        $this->assertDatabaseHas('users', ['id' => $user->id]);
     }
 }

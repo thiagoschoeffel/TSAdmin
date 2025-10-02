@@ -1,0 +1,110 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\UpdateClientRequest;
+use App\Models\Client;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+class ClientController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $query = Client::query();
+
+        if ($search = $request->string('search')->toString()) {
+            $digits = preg_replace('/\D+/', '', $search);
+
+            $query->where(function ($inner) use ($search, $digits): void {
+                $inner->where('name', 'like', "%{$search}%");
+
+                if ($digits) {
+                    $inner->orWhere('document', 'like', "%{$digits}%");
+                }
+            });
+        }
+
+        if ($personType = $request->get('person_type')) {
+            $query->where('person_type', $personType);
+        }
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        $clients = $query
+            ->with(['createdBy', 'updatedBy'])
+            ->orderBy('name')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('clients.index', compact('clients'));
+    }
+
+    public function create(): View
+    {
+        return view('clients.create');
+    }
+
+    public function store(StoreClientRequest $request): RedirectResponse
+    {
+        $data = $this->preparePayload($request->validated());
+
+        $client = Client::create(array_merge($data, [
+            'created_by_id' => Auth::id(),
+        ]));
+
+        return redirect()
+            ->route('clients.show', $client)
+            ->with('status', 'Cliente cadastrado com sucesso.');
+    }
+
+    public function show(Client $client): View
+    {
+        $client->load(['createdBy', 'updatedBy']);
+
+        return view('clients.show', compact('client'));
+    }
+
+    public function edit(Client $client): View
+    {
+        return view('clients.edit', compact('client'));
+    }
+
+    public function update(UpdateClientRequest $request, Client $client): RedirectResponse
+    {
+        $data = $this->preparePayload($request->validated());
+
+        $client->fill($data);
+        $client->updated_by_id = Auth::id();
+        $client->save();
+
+        return redirect()
+            ->route('clients.show', $client)
+            ->with('status', 'Cliente atualizado com sucesso.');
+    }
+
+    public function destroy(Client $client): RedirectResponse
+    {
+        $client->delete();
+
+        return redirect()
+            ->route('clients.index')
+            ->with('status', 'Cliente removido com sucesso.');
+    }
+
+    protected function preparePayload(array $data): array
+    {
+        $data['state'] = strtoupper($data['state']);
+
+        $data['contact_email'] = isset($data['contact_email']) && $data['contact_email'] !== ''
+            ? strtolower($data['contact_email'])
+            : null;
+
+        return $data;
+    }
+}

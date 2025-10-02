@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,14 @@ class ProfileController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         $user = $request->user();
+
+        if (Client::where('created_by_id', $user->id)->exists()) {
+            return redirect()
+                ->route('profile.edit')
+                ->withErrors([
+                    'profile' => 'Não é possível remover a conta enquanto houver clientes associados ao seu usuário.',
+                ]);
+        }
 
         Auth::logout();
 

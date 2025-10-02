@@ -85,6 +85,62 @@
             padding: 2rem;
             box-shadow: 0 20px 35px rgba(15, 23, 42, 0.08);
         }
+        .switch-field {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: #f8fafc;
+            border: 1px solid #cbd5f5;
+            border-radius: 0.75rem;
+        }
+        .switch-label {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #cbd5f5;
+            transition: 0.2s ease;
+            border-radius: 999px;
+        }
+        .switch-slider::before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 2px;
+            bottom: 2px;
+            background-color: #ffffff;
+            transition: 0.2s ease;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+        }
+        .switch input:checked + .switch-slider {
+            background-color: #2563eb;
+        }
+        .switch input:checked + .switch-slider::before {
+            transform: translateX(22px);
+        }
+        .switch input:focus + .switch-slider {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+        }
         form {
             display: grid;
             gap: 1.25rem;
@@ -99,7 +155,10 @@
         }
         input[type="email"],
         input[type="password"],
-        input[type="text"] {
+        input[type="text"],
+        input[type="tel"],
+        textarea,
+        select {
             padding: 0.75rem 1rem;
             border-radius: 0.55rem;
             border: 1px solid #cbd5f5;
@@ -107,7 +166,21 @@
             background: #f8fafc;
             transition: border 0.15s ease, box-shadow 0.15s ease;
         }
-        input:focus {
+        textarea {
+            resize: vertical;
+        }
+        select {
+            appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, #2563eb 50%),
+                              linear-gradient(135deg, #2563eb 50%, transparent 50%);
+            background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+            background-size: 5px 5px, 5px 5px;
+            background-repeat: no-repeat;
+            padding-right: 2.5rem;
+        }
+        input:focus,
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
@@ -149,6 +222,7 @@
                     <a class="link" href="{{ route('dashboard') }}">Dashboard</a>
                     <a class="link" href="{{ route('profile.edit') }}">Meu perfil</a>
                     <a class="link" href="{{ route('users.index') }}">Usuários</a>
+                    <a class="link" href="{{ route('clients.index') }}">Clientes</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit">Sair</button>
@@ -168,5 +242,7 @@
     <footer>
         &copy; {{ date('Y') }} {{ config('app.name', 'Example App') }}. Todos os direitos reservados.
     </footer>
+
+    @stack('scripts')
 </body>
 </html>

@@ -11,6 +11,12 @@
             <div class="status">{{ session('status') }}</div>
         @endif
 
+        @if ($errors->has('profile'))
+            <div class="status" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;">
+                {{ $errors->first('profile') }}
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('profile.update') }}">
             @csrf
             @method('PATCH')

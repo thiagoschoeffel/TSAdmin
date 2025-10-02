@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Rules\UserHasNoClients;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -60,6 +61,11 @@ class UserManagementController extends Controller
     public function destroy(User $user): RedirectResponse
     {
         $this->ensureNotCurrentUser($user);
+
+        validator(
+            ['user_id' => $user->id],
+            ['user_id' => [new UserHasNoClients()]]
+        )->validate();
 
         $user->delete();
 
