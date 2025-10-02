@@ -31,27 +31,3 @@
         </form>
     </section>
 @endsection
-
-@push('scripts')
-    <script>
-        const statusToggle = document.querySelector('[data-status-toggle]');
-        const statusLabel = document.querySelector('[data-status-label]');
-
-        const updateStatusLabel = () => {
-            if (!statusLabel || !statusToggle) {
-                return;
-            }
-
-            if (statusToggle.checked) {
-                statusLabel.classList.remove('inactive');
-                statusLabel.textContent = 'Ativo';
-            } else {
-                statusLabel.classList.add('inactive');
-                statusLabel.textContent = 'Inativo';
-            }
-        };
-
-        updateStatusLabel();
-        statusToggle?.addEventListener('change', updateStatusLabel);
-    </script>
-@endpush

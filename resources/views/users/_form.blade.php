@@ -22,7 +22,7 @@
             @enderror
         </label>
 
-        <div class="switch-field sm:col-span-2">
+        <div class="switch-field sm:col-span-2" data-status-control>
             <span class="switch-label">Status do usuário</span>
             <label class="relative inline-flex h-7 w-12 cursor-pointer items-center">
                 <input type="hidden" name="status" value="inactive">
@@ -30,7 +30,14 @@
                 <span class="pointer-events-none block h-full w-full rounded-full bg-slate-300 transition peer-checked:bg-blue-600 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500/60"></span>
                 <span class="pointer-events-none absolute left-1 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5"></span>
             </label>
-            <span class="switch-status {{ $statusIsActive ? '' : 'inactive' }}" data-status-label>{{ $statusIsActive ? 'Ativo' : 'Inativo' }}</span>
+            <span
+                class="switch-status {{ $statusIsActive ? '' : 'inactive' }}"
+                data-status-label
+                data-status-active="Ativo"
+                data-status-inactive="Inativo"
+            >
+                {{ $statusIsActive ? 'Ativo' : 'Inativo' }}
+            </span>
         </div>
         @error('status')
             <span class="text-sm font-medium text-rose-600 sm:col-span-2">{{ $message }}</span>
