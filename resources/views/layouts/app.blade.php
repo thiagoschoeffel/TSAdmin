@@ -147,6 +147,8 @@
             <div class="nav-links">
                 @auth
                     <a class="link" href="{{ route('dashboard') }}">Dashboard</a>
+                    <a class="link" href="{{ route('profile.edit') }}">Meu perfil</a>
+                    <a class="link" href="{{ route('users.index') }}">Usuários</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit">Sair</button>
