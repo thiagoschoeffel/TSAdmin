@@ -3,44 +3,28 @@
 @section('title', 'Novo usuário')
 
 @section('content')
-    <section class="card" style="max-width:520px;margin:0 auto;">
-        <h1 style="font-size:1.75rem;margin-bottom:1rem;">Cadastrar novo usuário</h1>
-        <p style="margin-bottom:1.5rem;color:#64748b;">Preencha as informações abaixo para adicionar um novo usuário ao sistema.</p>
+    <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap;">
+            <div>
+                <h1 style="font-size:1.75rem;margin:0;">Cadastrar usuário</h1>
+                <p style="color:#64748b;margin-top:0.5rem;">Inclua os dados do novo membro para liberar o acesso ao sistema.</p>
+            </div>
+            <a class="link" href="{{ route('users.index') }}">Voltar para lista</a>
+        </div>
 
-        <form method="POST" action="{{ route('users.store') }}">
+        @if ($errors->any())
+            <div class="status" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;">
+                <strong>Ops!</strong> Verifique os campos sinalizados abaixo.
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('users.store') }}" style="display:grid;gap:1.5rem;">
             @csrf
 
-            <label>
-                Nome
-                <input type="text" name="name" value="{{ old('name') }}" required autocomplete="name">
-                @error('name')
-                    <span class="error">{{ $message }}</span>
-                @enderror
-            </label>
+            @include('users._form', ['requirePassword' => true])
 
-            <label>
-                E-mail
-                <input type="email" name="email" value="{{ old('email') }}" required autocomplete="email">
-                @error('email')
-                    <span class="error">{{ $message }}</span>
-                @enderror
-            </label>
-
-            <label>
-                Senha
-                <input type="password" name="password" required autocomplete="new-password">
-                @error('password')
-                    <span class="error">{{ $message }}</span>
-                @enderror
-            </label>
-
-            <label>
-                Confirmar senha
-                <input type="password" name="password_confirmation" required autocomplete="new-password">
-            </label>
-
-            <div style="display:flex;gap:1rem;">
-                <button type="submit">Criar usuário</button>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <button type="submit">Salvar usuário</button>
                 <a class="link" href="{{ route('users.index') }}">Cancelar</a>
             </div>
         </form>

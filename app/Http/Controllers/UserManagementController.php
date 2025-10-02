@@ -7,14 +7,24 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Rules\UserHasNoClients;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class UserManagementController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $query = User::query();
+
+        if ($search = $request->string('search')->toString()) {
+            $query->where(function ($inner) use ($search): void {
+                $inner->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
         return view('users.index', [
-            'users' => User::orderBy('name')->paginate(10),
+            'users' => $query->orderBy('name')->paginate(10)->withQueryString(),
         ]);
     }
 

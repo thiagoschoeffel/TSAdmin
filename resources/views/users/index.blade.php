@@ -12,6 +12,19 @@
             <a class="button-link" href="{{ route('users.create') }}" style="padding:0.6rem 1.1rem;">Novo usuário</a>
         </div>
 
+        <form method="GET" action="{{ route('users.index') }}" style="display:grid;gap:0.75rem;margin-bottom:1.5rem;">
+            <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+                <label>
+                    Buscar por nome ou e-mail
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Digite para buscar">
+                </label>
+            </div>
+            <div style="display:flex;gap:1rem;">
+                <button type="submit" style="width:auto;">Filtrar</button>
+                <a class="link" href="{{ route('users.index') }}">Limpar filtros</a>
+            </div>
+        </form>
+
         @if (session('status'))
             <div class="status">{{ session('status') }}</div>
         @endif
@@ -30,7 +43,7 @@
                         <tr style="border-bottom:1px solid #e2e8f0;">
                             <td style="padding:0.75rem 0.5rem;">{{ $user->name }}</td>
                             <td style="padding:0.75rem 0.5rem;">{{ $user->email }}</td>
-                            <td style="padding:0.75rem 0.5rem;display:flex;gap:0.5rem;">
+                            <td style="padding:0.75rem 0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
                                 @if ($user->id !== auth()->id())
                                     <a class="button-link" style="padding:0.5rem 0.9rem;font-size:0.9rem;" href="{{ route('users.edit', $user) }}">Editar</a>
                                     <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Tem certeza que deseja remover este usuário?');">

@@ -3,46 +3,31 @@
 @section('title', 'Editar usuário')
 
 @section('content')
-    <section class="card" style="max-width:520px;margin:0 auto;">
-        <h1 style="font-size:1.75rem;margin-bottom:1rem;">Editar usuário</h1>
-        <p style="margin-bottom:1.5rem;color:#64748b;">Atualize os dados de {{ $user->name }}.</p>
+    <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap;">
+            <div>
+                <h1 style="font-size:1.75rem;margin:0;">Editar usuário</h1>
+                <p style="color:#64748b;margin-top:0.5rem;">Atualize as informações de {{ $user->name }}.</p>
+            </div>
+            <a class="link" href="{{ route('users.index') }}">Voltar para lista</a>
+        </div>
 
-        <form method="POST" action="{{ route('users.update', $user) }}">
+        @if ($errors->any())
+            <div class="status" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;">
+                <strong>Ops!</strong> Verifique os campos sinalizados abaixo.
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('users.update', $user) }}" style="display:grid;gap:1.5rem;">
             @csrf
             @method('PATCH')
 
-            <label>
-                Nome
-                <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
-                @error('name')
-                    <span class="error">{{ $message }}</span>
-                @enderror
-            </label>
+            @include('users._form', ['user' => $user])
 
-            <label>
-                E-mail
-                <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
-                @error('email')
-                    <span class="error">{{ $message }}</span>
-                @enderror
-            </label>
-
-            <hr style="border:none;border-top:1px solid #e2e8f0;">
-
-            <label>
-                Nova senha
-                <input type="password" name="password" autocomplete="new-password">
-                @error('password')
-                    <span class="error">{{ $message }}</span>
-                @enderror
-            </label>
-
-            <label>
-                Confirmar senha
-                <input type="password" name="password_confirmation" autocomplete="new-password">
-            </label>
-
-            <button type="submit">Salvar alterações</button>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <button type="submit">Salvar alterações</button>
+                <a class="link" href="{{ route('users.index') }}">Cancelar</a>
+            </div>
         </form>
     </section>
 @endsection
