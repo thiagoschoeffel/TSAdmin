@@ -18,6 +18,15 @@
     body {
         @apply flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 antialiased;
     }
+
+    button,
+    [type='button'],
+    [type='submit'],
+    [type='reset'],
+    a,
+    [role='button'] {
+        @apply cursor-pointer;
+    }
 }
 
 @layer components {
