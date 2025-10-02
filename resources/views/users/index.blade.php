@@ -6,7 +6,7 @@
     <section class="card space-y-8">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-semibold text-slate-900">Usuários cadastrados</h1>
+                <h1 class="text-2xl font-semibold text-slate-900">Usuários</h1>
                 <p class="mt-2 text-sm text-slate-500">Gerencie os usuários do sistema ou cadastre novos membros.</p>
             </div>
             <a class="btn-primary" href="{{ route('users.create') }}">Novo usuário</a>
