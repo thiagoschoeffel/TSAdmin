@@ -18,7 +18,7 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/register', [RegisteredUserController::class, 'store']);
 });
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware('auth')->prefix('admin')->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 

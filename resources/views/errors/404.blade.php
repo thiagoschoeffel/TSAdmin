@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Acesso restrito')
+@section('title', 'Página não encontrada')
 
 @section('content')
     <section class="card mx-auto max-w-2xl space-y-6 text-center">
         <div class="space-y-2">
-            <h1 class="text-2xl font-semibold text-slate-900">Acesso restrito</h1>
+            <h1 class="text-2xl font-semibold text-slate-900">Página não encontrada</h1>
             <p class="text-sm text-slate-600">
-                {{ $exception?->getMessage() ?: 'Você não possui permissão para acessar esta funcionalidade. Caso acredite ser um engano, entre em contato com um administrador.' }}
+                O recurso solicitado não foi localizado ou pode ter sido movido.
             </p>
         </div>
 
