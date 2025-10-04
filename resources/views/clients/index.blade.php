@@ -93,14 +93,18 @@
                                     <button type="button" class="menu-trigger" data-menu-toggle="{{ $menuId }}" aria-label="Abrir menu de ações">
                                         <x-heroicon name="ellipsis-horizontal" class="h-5 w-5" />
                                     </button>
+                                    @php
+                                        $canUpdate = auth()->user()->canManage('clients', 'update');
+                                        $canDelete = auth()->user()->canManage('clients', 'delete');
+                                    @endphp
                                     <div class="menu-panel hidden" data-menu-panel="{{ $menuId }}" data-dropdown-align="end">
-                                        @if (auth()->user()->canManage('clients', 'update'))
+                                        @if ($canUpdate)
                                             <a class="menu-panel-link" href="{{ route('clients.edit', $client) }}">
                                                 <x-heroicon name="pencil" class="h-4 w-4" />
                                                 <span>Editar</span>
                                             </a>
                                         @endif
-                                        @if (auth()->user()->canManage('clients', 'delete'))
+                                        @if ($canDelete)
                                             <form method="POST" action="{{ route('clients.destroy', $client) }}"
                                                   data-confirm
                                                   data-confirm-title="Excluir cliente"
@@ -114,6 +118,11 @@
                                                     <span>Excluir</span>
                                                 </button>
                                             </form>
+                                        @endif
+                                        @if (!$canUpdate && !$canDelete)
+                                            <span class="menu-panel-link pointer-events-none text-slate-400">
+                                                Nenhuma ação disponível
+                                            </span>
                                         @endif
                                     </div>
                                 </div>
