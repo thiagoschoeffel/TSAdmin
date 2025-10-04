@@ -39,3 +39,8 @@ Route::middleware('auth')->prefix('admin')->group(function (): void {
     Route::get('clients/{client}/modal', [ClientController::class, 'modal'])->name('clients.modal');
     Route::resource('clients', ClientController::class);
 });
+
+// Fallback para 404 dentro do grupo 'web', garantindo sessão e autenticação disponíveis
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});
