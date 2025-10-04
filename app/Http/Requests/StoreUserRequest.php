@@ -20,6 +20,8 @@ class StoreUserRequest extends FormRequest
             'password' => ['required', 'confirmed', Password::defaults()],
             'status' => ['required', 'in:active,inactive'],
             'role' => ['required', 'in:admin,user'],
+            'modules' => ['nullable', 'array'],
+            'modules.*' => ['nullable', 'boolean'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['nullable', 'array'],
             'permissions.*.*' => ['nullable', 'boolean'],

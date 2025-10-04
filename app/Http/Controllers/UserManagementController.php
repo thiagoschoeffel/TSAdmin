@@ -42,7 +42,11 @@ class UserManagementController extends Controller
     {
         $data = $request->validated();
 
-        $data['permissions'] = $this->preparePermissions($data['role'], $data['permissions'] ?? []);
+        $data['permissions'] = $this->preparePermissions(
+            $data['role'],
+            $data['permissions'] ?? [],
+            $request->input('modules', [])
+        );
 
         User::create($data);
 
@@ -67,7 +71,11 @@ class UserManagementController extends Controller
         $payload = $request->safe()->only(['name', 'email', 'status', 'role']);
 
         // Reaplicar permissões de acordo com a role e entrada enviada
-        $payload['permissions'] = $this->preparePermissions($payload['role'], $request->input('permissions', []));
+        $payload['permissions'] = $this->preparePermissions(
+            $payload['role'],
+            $request->input('permissions', []),
+            $request->input('modules', [])
+        );
 
         $user->fill($payload);
 
@@ -112,7 +120,7 @@ class UserManagementController extends Controller
         }
     }
 
-    protected function preparePermissions(string $role, array $input): array
+    protected function preparePermissions(string $role, array $input, array $modules = []): array
     {
         // Admin sempre possui todas as permissões
         if ($role === 'admin') {
@@ -124,8 +132,9 @@ class UserManagementController extends Controller
 
         foreach ($resources as $key => $resource) {
             $abilities = array_keys($resource['abilities'] ?? []);
+            $moduleEnabled = (bool)($modules[$key] ?? false);
             foreach ($abilities as $ability) {
-                $allowed[$key][$ability] = (bool)($input[$key][$ability] ?? false);
+                $allowed[$key][$ability] = $moduleEnabled ? (bool)($input[$key][$ability] ?? false) : false;
             }
         }
 

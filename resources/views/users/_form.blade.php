@@ -93,12 +93,30 @@
         @endphp
         <div class="space-y-4">
             @foreach ($resources as $key => $resource)
-                <fieldset class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <legend class="px-1 text-sm font-semibold text-slate-800">{{ $resource['label'] }}</legend>
-                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                @php
+                    $hasAnyAbility = false;
+                    foreach (($resource['abilities'] ?? []) as $abKey => $_) {
+                        if (!empty($currentPermissions[$key][$abKey])) { $hasAnyAbility = true; break; }
+                    }
+                    $moduleEnabled = $isAdmin ? true : old("modules.$key", $hasAnyAbility ? '1' : '0') === '1';
+                @endphp
+                <fieldset class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-permissions-resource="{{ $key }}" {{ $isAdmin ? 'disabled' : '' }}>
+                    <legend class="flex items-center justify-between gap-4 px-1 text-sm font-semibold text-slate-800">
+                        <span>{{ $resource['label'] }}</span>
+                        <label class="inline-flex items-center gap-2 text-xs font-medium text-slate-600">
+                            <input type="hidden" name="modules[{{ $key }}]" value="0">
+                            <input type="checkbox" name="modules[{{ $key }}]" value="1"
+                                   class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
+                                   data-module-toggle data-module="{{ $key }}"
+                                   {{ $moduleEnabled ? 'checked' : '' }}
+                                   {{ $isAdmin ? 'disabled' : '' }}>
+                            <span>Acesso ao módulo</span>
+                        </label>
+                    </legend>
+                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-abilities>
                         @foreach ($resource['abilities'] as $ability => $label)
                             @php
-                                $checked = $isAdmin ? true : (bool)($currentPermissions[$key][$ability] ?? false);
+                                $checked = $isAdmin ? true : ($moduleEnabled && (bool)($currentPermissions[$key][$ability] ?? false));
                             @endphp
                             <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
                                 <input type="checkbox"
@@ -106,13 +124,13 @@
                                        value="1"
                                        class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
                                        {{ $checked ? 'checked' : '' }}
-                                       {{ $isAdmin ? 'disabled' : '' }}>
+                                       {{ $isAdmin ? 'disabled' : ($moduleEnabled ? '' : 'disabled') }}>
                                 <span>{{ $label }}</span>
                             </label>
                         @endforeach
                     </div>
                     <p class="mt-2 text-xs text-slate-500 {{ $isAdmin ? '' : 'hidden' }}" data-admin-permissions-note>
-                        Todas as permissões estão habilitadas para administradores.
+                        Todas as permissões e módulos estão habilitados para administradores.
                     </p>
                 </fieldset>
             @endforeach
