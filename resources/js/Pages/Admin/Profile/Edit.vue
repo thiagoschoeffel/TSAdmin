@@ -1,6 +1,8 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 const page = usePage();
 const user = page.props.auth?.user || {};
@@ -17,9 +19,9 @@ const submit = () => {
   form.patch('/admin/profile');
 };
 
+const confirmDelete = ref(false);
 const destroyAccount = () => {
-  if (!confirm('Tem certeza que deseja remover sua conta? Esta ação não pode ser desfeita.')) return;
-  form.delete('/admin/profile');
+  confirmDelete.value = true;
 };
 </script>
 
@@ -89,6 +91,13 @@ const destroyAccount = () => {
           <p class="text-sm text-rose-600">Esta ação é permanente. Ao confirmar, sua conta será removida e você será desconectado imediatamente.</p>
         </div>
         <button type="button" class="btn-danger" :disabled="form.processing" @click="destroyAccount">Excluir minha conta</button>
+        <ConfirmModal v-model="confirmDelete"
+                      title="Excluir conta"
+                      message="Tem certeza que deseja remover sua conta? Esta ação não pode ser desfeita."
+                      confirm-text="Excluir"
+                      variant="danger"
+                      :processing="form.processing"
+                      @confirm="() => form.delete('/admin/profile')" />
       </div>
     </section>
   </AdminLayout>
@@ -104,4 +113,3 @@ const destroyAccount = () => {
 .status { border:1px solid #cbd5e1; background:#f8fafc; border-radius:.5rem; padding:.5rem .75rem; }
 .status-danger { border-color:#fecaca; background:#fff1f2; color:#b91c1c; }
 </style>
-

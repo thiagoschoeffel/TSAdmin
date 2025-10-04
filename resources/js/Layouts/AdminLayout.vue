@@ -1,13 +1,29 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import Dropdown from '@/components/Dropdown.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
+import { router } from '@inertiajs/vue3';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
 const isAdmin = computed(() => user.value?.role === 'admin');
 const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions?.clients?.view);
+
+// Logout modal state and action
+const logoutOpen = ref(false);
+const isLoggingOut = ref(false);
+const doLogout = async () => {
+  if (isLoggingOut.value) return;
+  isLoggingOut.value = true;
+  try {
+    await router.post('/admin/logout');
+  } finally {
+    isLoggingOut.value = false;
+    logoutOpen.value = false;
+  }
+};
 </script>
 
 <template>
@@ -54,12 +70,18 @@ const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions
                   <HeroIcon name="user-circle" class="h-5 w-5" />
                   <span>Meu perfil</span>
                 </Link>
-                <Link class="dropdown-link-danger" href="/admin/logout" method="post" as="button">
+                <button type="button" class="dropdown-link-danger" @click="logoutOpen = true">
                   <HeroIcon name="arrow-left-end-on-rectangle" class="h-5 w-5" />
                   <span>Sair</span>
-                </Link>
+                </button>
               </template>
             </Dropdown>
+            <ConfirmModal v-model="logoutOpen"
+                          title="Encerrar sessão"
+                          message="Tem certeza que deseja sair da sua conta?"
+                          confirm-text="Sair"
+                          :processing="isLoggingOut"
+                          @confirm="doLogout"/>
           </template>
         </div>
       </nav>
@@ -80,3 +102,4 @@ const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions
 .btn-inverse { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#fff; color:#0f172a; font-weight:600; }
 .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>
+
