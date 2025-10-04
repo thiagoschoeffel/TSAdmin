@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
             'password' => $credentials['password'],
         ], $remember)) {
             throw ValidationException::withMessages([
-                'email' => __('These credentials do not match our records.'),
+                'email' => __('auth.failed'),
             ]);
         }
 
@@ -49,7 +49,7 @@ class AuthenticatedSessionController extends Controller
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'email' => __('Esta conta está desativada. Entre em contato com um administrador.'),
+                'email' => __('auth.deactivated'),
             ]);
         }
 
