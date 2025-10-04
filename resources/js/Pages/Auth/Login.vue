@@ -1,6 +1,7 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { Link, useForm } from '@inertiajs/vue3';
+import Checkbox from '@/components/ui/Checkbox.vue';
 
 const form = useForm({
   email: '',
@@ -31,10 +32,7 @@ const submit = () => {
           <span v-if="form.errors.password" class="text-sm font-medium text-rose-600">{{ form.errors.password }}</span>
         </label>
 
-        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
-          <input type="checkbox" v-model="form.remember" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20" />
-          <span>Manter conectado</span>
-        </label>
+        <Checkbox v-model="form.remember">Manter conectado</Checkbox>
 
         <div class="flex flex-wrap items-center gap-3">
           <button type="submit" :disabled="form.processing" class="btn-primary">

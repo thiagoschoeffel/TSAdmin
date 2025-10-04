@@ -1,5 +1,6 @@
 <script setup>
 import { computed, watch, reactive } from 'vue';
+import Checkbox from '@/components/ui/Checkbox.vue';
 
 const props = defineProps({
   resources: { type: Object, required: true },
@@ -61,24 +62,22 @@ const toggleModule = (key, on) => {
       <fieldset v-for="(resource, key) in resources" :key="key" class="rounded-xl border border-slate-200 bg-slate-50 p-4">
         <legend class="flex items-center justify-between gap-4 px-1 text-sm font-semibold text-slate-800">
           <span>{{ resource.label }}</span>
-          <label class="inline-flex items-center gap-2 text-xs font-medium text-slate-600">
-            <input type="checkbox"
-                   :checked="isAdmin ? true : !!modules[key]"
-                   :disabled="isAdmin"
-                   class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
-                   @change="(e) => toggleModule(key, e.target.checked)" />
-            <span>Acesso ao módulo</span>
-          </label>
+          <Checkbox
+            :model-value="isAdmin ? true : !!modules[key]"
+            :disabled="isAdmin"
+            @update:modelValue="(v) => toggleModule(key, v)"
+          >
+            <span class="text-xs font-medium text-slate-600">Acesso ao módulo</span>
+          </Checkbox>
         </legend>
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <label v-for="(label, ability) in resource.abilities" :key="ability" class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
-            <input type="checkbox"
-                   class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
-                   :checked="isAdmin ? true : !!permissions[key][ability]"
-                   :disabled="isAdmin || !modules[key]"
-                   @change="(e) => permissions[key][ability] = e.target.checked" />
-            <span>{{ label }}</span>
-          </label>
+          <Checkbox v-for="(label, ability) in resource.abilities"
+                    :key="ability"
+                    :model-value="isAdmin ? true : !!permissions[key][ability]"
+                    :disabled="isAdmin || !modules[key]"
+                    @update:modelValue="(v) => permissions[key][ability] = !!v">
+            {{ label }}
+          </Checkbox>
         </div>
         <p class="mt-2 text-xs text-slate-500" v-if="isAdmin">
           Todas as permissões e módulos estão habilitados para administradores.
@@ -87,4 +86,3 @@ const toggleModule = (key, on) => {
     </div>
   </div>
 </template>
-

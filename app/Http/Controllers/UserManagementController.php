@@ -85,9 +85,23 @@ class UserManagementController extends Controller
             ->with('status', 'Usuário criado com sucesso.');
     }
 
-    public function edit(User $user): View
+    public function edit(User $user): View|\Inertia\Response
     {
         $this->ensureNotCurrentUser($user);
+
+        if (class_exists(\Inertia\Inertia::class)) {
+            return \Inertia\Inertia::render('Admin/Users/Edit', [
+                'resources' => config('permissions.resources', []),
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'status' => $user->status,
+                    'role' => $user->role,
+                    'permissions' => $user->permissions ?? [],
+                ],
+            ]);
+        }
 
         return view('users.edit', [
             'user' => $user,
