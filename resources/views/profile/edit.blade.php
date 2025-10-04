@@ -37,6 +37,11 @@
                 @enderror
             </label>
 
+            <label class="form-label">
+                Perfil de acesso
+                <input type="text" value="{{ $user->role === 'admin' ? 'Administrador' : 'Usuário comum' }}" class="form-input" disabled readonly>
+            </label>
+
             <div class="h-px bg-slate-200"></div>
 
             <div class="space-y-2">
