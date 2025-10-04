@@ -57,8 +57,14 @@ class UserManagementController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(): View|\Inertia\Response
     {
+        if (class_exists(\Inertia\Inertia::class)) {
+            return \Inertia\Inertia::render('Admin/Users/Create', [
+                'resources' => config('permissions.resources', []),
+            ]);
+        }
+
         return view('users.create');
     }
 
