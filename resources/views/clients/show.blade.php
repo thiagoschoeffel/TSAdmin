@@ -12,17 +12,21 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a class="btn-secondary" href="{{ route('clients.edit', $client) }}">Editar</a>
-                <form method="POST" action="{{ route('clients.destroy', $client) }}"
-                      data-confirm
-                      data-confirm-title="Excluir cliente"
-                      data-confirm-message="Deseja realmente remover {{ $client->name }}?"
-                      data-confirm-confirm-text="Excluir"
-                      data-confirm-variant="danger">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn-danger">Excluir</button>
-                </form>
+                @if (auth()->user()->canManage('clients', 'update'))
+                    <a class="btn-secondary" href="{{ route('clients.edit', $client) }}">Editar</a>
+                @endif
+                @if (auth()->user()->canManage('clients', 'delete'))
+                    <form method="POST" action="{{ route('clients.destroy', $client) }}"
+                          data-confirm
+                          data-confirm-title="Excluir cliente"
+                          data-confirm-message="Deseja realmente remover {{ $client->name }}?"
+                          data-confirm-confirm-text="Excluir"
+                          data-confirm-variant="danger">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-danger">Excluir</button>
+                    </form>
+                @endif
                 <a class="btn-ghost" href="{{ route('clients.index') }}">Voltar</a>
             </div>
         </div>

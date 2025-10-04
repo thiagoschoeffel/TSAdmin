@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'status',
         'role',
+        'permissions',
     ];
 
     /**
@@ -45,11 +46,22 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'permissions' => 'array',
         ];
     }
 
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function canManage(string $resource, string $ability): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $this->permissions ?? [];
+        return (bool)($permissions[$resource][$ability] ?? false);
     }
 }

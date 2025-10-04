@@ -9,7 +9,9 @@
                 <h1 class="text-2xl font-semibold text-slate-900">Clientes</h1>
                 <p class="mt-2 text-sm text-slate-500">Gerencie os cadastros de clientes existentes ou adicione novos registros.</p>
             </div>
-            <a class="btn-primary" href="{{ route('clients.create') }}">Novo cliente</a>
+            @if (auth()->user()->canManage('clients', 'create'))
+                <a class="btn-primary" href="{{ route('clients.create') }}">Novo cliente</a>
+            @endif
         </div>
 
         <form method="GET" action="{{ route('clients.index') }}" class="space-y-4">
@@ -65,12 +67,16 @@
                     @forelse ($clients as $client)
                         <tr>
                             <td>
+                                @if (auth()->user()->canManage('clients', 'view'))
                                 <a href="{{ route('clients.show', $client) }}"
                                    class="text-blue-600 transition hover:text-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
                                    data-client-details-trigger
                                    data-client-details-url="{{ route('clients.modal', $client) }}">
                                     {{ $client->name }}
                                 </a>
+                                @else
+                                    {{ $client->name }}
+                                @endif
                             </td>
                             <td>{{ $client->person_type === 'company' ? 'Jurídica' : 'Física' }}</td>
                             <td class="table-actions">
@@ -88,23 +94,27 @@
                                         <x-heroicon name="ellipsis-horizontal" class="h-5 w-5" />
                                     </button>
                                     <div class="menu-panel hidden" data-menu-panel="{{ $menuId }}" data-dropdown-align="end">
-                                        <a class="menu-panel-link" href="{{ route('clients.edit', $client) }}">
-                                            <x-heroicon name="pencil" class="h-4 w-4" />
-                                            <span>Editar</span>
-                                        </a>
-                                        <form method="POST" action="{{ route('clients.destroy', $client) }}"
-                                              data-confirm
-                                              data-confirm-title="Excluir cliente"
-                                              data-confirm-message="Deseja realmente remover {{ $client->name }}?"
-                                              data-confirm-confirm-text="Excluir"
-                                              data-confirm-variant="danger">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="menu-panel-link text-rose-600 hover:text-rose-700">
-                                                <x-heroicon name="trash" class="h-4 w-4" />
-                                                <span>Excluir</span>
-                                            </button>
-                                        </form>
+                                        @if (auth()->user()->canManage('clients', 'update'))
+                                            <a class="menu-panel-link" href="{{ route('clients.edit', $client) }}">
+                                                <x-heroicon name="pencil" class="h-4 w-4" />
+                                                <span>Editar</span>
+                                            </a>
+                                        @endif
+                                        @if (auth()->user()->canManage('clients', 'delete'))
+                                            <form method="POST" action="{{ route('clients.destroy', $client) }}"
+                                                  data-confirm
+                                                  data-confirm-title="Excluir cliente"
+                                                  data-confirm-message="Deseja realmente remover {{ $client->name }}?"
+                                                  data-confirm-confirm-text="Excluir"
+                                                  data-confirm-variant="danger">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="menu-panel-link text-rose-600 hover:text-rose-700">
+                                                    <x-heroicon name="trash" class="h-4 w-4" />
+                                                    <span>Excluir</span>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </div>
                             </td>

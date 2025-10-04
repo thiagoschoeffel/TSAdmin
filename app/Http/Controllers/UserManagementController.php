@@ -40,7 +40,11 @@ class UserManagementController extends Controller
 
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        User::create($request->validated());
+        $data = $request->validated();
+
+        $data['permissions'] = $this->preparePermissions($data['role'], $data['permissions'] ?? []);
+
+        User::create($data);
 
         return redirect()
             ->route('users.index')
@@ -60,7 +64,12 @@ class UserManagementController extends Controller
     {
         $this->ensureNotCurrentUser($user);
 
-        $user->fill($request->safe()->only(['name', 'email', 'status', 'role']));
+        $payload = $request->safe()->only(['name', 'email', 'status', 'role']);
+
+        // Reaplicar permissões de acordo com a role e entrada enviada
+        $payload['permissions'] = $this->preparePermissions($payload['role'], $request->input('permissions', []));
+
+        $user->fill($payload);
 
         if ($request->filled('password')) {
             $user->password = $request->validated('password');
@@ -101,5 +110,37 @@ class UserManagementController extends Controller
         if (auth()->id() === $user->id) {
             abort(403, 'Você não pode realizar esta ação no próprio usuário.');
         }
+    }
+
+    protected function preparePermissions(string $role, array $input): array
+    {
+        // Admin sempre possui todas as permissões
+        if ($role === 'admin') {
+            return $this->allPermissionsMatrix();
+        }
+
+        $allowed = [];
+        $resources = config('permissions.resources', []);
+
+        foreach ($resources as $key => $resource) {
+            $abilities = array_keys($resource['abilities'] ?? []);
+            foreach ($abilities as $ability) {
+                $allowed[$key][$ability] = (bool)($input[$key][$ability] ?? false);
+            }
+        }
+
+        return $allowed;
+    }
+
+    protected function allPermissionsMatrix(): array
+    {
+        $matrix = [];
+        $resources = config('permissions.resources', []);
+        foreach ($resources as $key => $resource) {
+            foreach (array_keys($resource['abilities'] ?? []) as $ability) {
+                $matrix[$key][$ability] = true;
+            }
+        }
+        return $matrix;
     }
 }

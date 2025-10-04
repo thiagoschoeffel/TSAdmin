@@ -83,4 +83,39 @@
             <span class="text-sm font-medium text-rose-600">{{ $message }}</span>
         @enderror
     </div>
+
+    <div class="space-y-2">
+        <span class="text-sm font-semibold text-slate-700">Permissões</span>
+        @php
+            $resources = config('permissions.resources');
+            $isAdmin = $role === 'admin';
+            $currentPermissions = old('permissions', $user->permissions ?? []);
+        @endphp
+        <div class="space-y-4">
+            @foreach ($resources as $key => $resource)
+                <fieldset class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <legend class="px-1 text-sm font-semibold text-slate-800">{{ $resource['label'] }}</legend>
+                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        @foreach ($resource['abilities'] as $ability => $label)
+                            @php
+                                $checked = $isAdmin ? true : (bool)($currentPermissions[$key][$ability] ?? false);
+                            @endphp
+                            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
+                                <input type="checkbox"
+                                       name="permissions[{{ $key }}][{{ $ability }}]"
+                                       value="1"
+                                       class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
+                                       {{ $checked ? 'checked' : '' }}
+                                       {{ $isAdmin ? 'disabled' : '' }}>
+                                <span>{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @if($isAdmin)
+                        <p class="mt-2 text-xs text-slate-500">Todas as permissões estão habilitadas para administradores.</p>
+                    @endif
+                </fieldset>
+            @endforeach
+        </div>
+    </div>
 </div>

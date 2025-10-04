@@ -15,6 +15,7 @@ class ClientController extends Controller
 {
     public function index(Request $request): View
     {
+        abort_unless($request->user()->canManage('clients', 'view'), 403);
         $query = Client::query();
 
         if ($search = $request->string('search')->toString()) {
@@ -48,11 +49,13 @@ class ClientController extends Controller
 
     public function create(): View
     {
+        abort_unless(auth()->user()->canManage('clients', 'create'), 403);
         return view('clients.create');
     }
 
     public function store(StoreClientRequest $request): RedirectResponse
     {
+        abort_unless($request->user()->canManage('clients', 'create'), 403);
         $data = $this->preparePayload($request->validated());
 
         $client = Client::create(array_merge($data, [
@@ -66,6 +69,7 @@ class ClientController extends Controller
 
     public function show(Client $client): View
     {
+        abort_unless(auth()->user()->canManage('clients', 'view'), 403);
         $client->load(['createdBy', 'updatedBy']);
 
         return view('clients.show', compact('client'));
@@ -73,6 +77,7 @@ class ClientController extends Controller
 
     public function modal(Client $client): JsonResponse
     {
+        abort_unless(auth()->user()->canManage('clients', 'view'), 403);
         $client->load(['createdBy', 'updatedBy']);
 
         return response()->json([
@@ -82,11 +87,13 @@ class ClientController extends Controller
 
     public function edit(Client $client): View
     {
+        abort_unless(auth()->user()->canManage('clients', 'update'), 403);
         return view('clients.edit', compact('client'));
     }
 
     public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
+        abort_unless($request->user()->canManage('clients', 'update'), 403);
         $data = $this->preparePayload($request->validated());
 
         $client->fill($data);
@@ -100,6 +107,7 @@ class ClientController extends Controller
 
     public function destroy(Client $client): RedirectResponse
     {
+        abort_unless(auth()->user()->canManage('clients', 'delete'), 403);
         $client->delete();
 
         return redirect()
