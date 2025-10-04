@@ -108,13 +108,13 @@ const performDelete = async () => {
                 </span>
               </td>
               <td class="whitespace-nowrap">
-                <template v-if="u.id !== meId">
-                  <Dropdown>
-                    <template #trigger="{ toggle }">
-                      <button type="button" class="menu-trigger" @click="toggle" aria-label="Abrir menu de ações">
-                        <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                      </button>
-                    </template>
+                <Dropdown>
+                  <template #trigger="{ toggle }">
+                    <button type="button" class="menu-trigger" @click="toggle" aria-label="Abrir menu de ações">
+                      <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
+                    </button>
+                  </template>
+                  <template v-if="u.id !== meId">
                     <Link class="menu-panel-link" :href="`/admin/users/${u.id}/edit`">
                       <HeroIcon name="pencil" class="h-4 w-4" />
                       <span>Editar</span>
@@ -123,11 +123,14 @@ const performDelete = async () => {
                       <HeroIcon name="trash" class="h-4 w-4" />
                       <span>Excluir</span>
                     </button>
-                  </Dropdown>
-                </template>
-                <template v-else>
-                  <Link class="btn-secondary text-xs px-2 py-1" href="/admin/profile">Gerenciar conta</Link>
-                </template>
+                  </template>
+                  <template v-else>
+                    <Link class="menu-panel-link" href="/admin/profile">
+                      <HeroIcon name="user-circle" class="h-4 w-4" />
+                      <span>Meu perfil</span>
+                    </Link>
+                  </template>
+                </Dropdown>
               </td>
             </tr>
             <tr v-if="!users.data || users.data.length === 0">
