@@ -1,14 +1,11 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { Link, useForm } from '@inertiajs/vue3';
-
-const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 const form = useForm({
   name: '',
   email: '',
   password: '',
   password_confirmation: '',
-  _token: csrf,
 });
 
 const submit = () => {

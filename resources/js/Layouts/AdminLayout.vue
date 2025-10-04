@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import Dropdown from '@/components/Dropdown.vue';
+import HeroIcon from '@/components/icons/HeroIcon.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
@@ -18,16 +20,46 @@ const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions
           </Link>
 
           <div class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-200 sm:gap-4">
-            <Link class="group transition hover:text-white" href="/admin/dashboard">Dashboard</Link>
-            <Link v-if="isAdmin" class="group transition hover:text-white" href="/admin/users">Usuários</Link>
-            <Link v-if="canViewClients" class="group transition hover:text-white" href="/admin/clients">Clientes</Link>
+            <Link class="group transition hover:text-white" href="/admin/dashboard">
+              <span class="inline-flex items-center gap-2">
+                <HeroIcon name="chart-bar" class="h-4 w-4 transition-colors group-hover:text-white" />
+                <span>Dashboard</span>
+              </span>
+            </Link>
+            <Link v-if="isAdmin" class="group transition hover:text-white" href="/admin/users">
+              <span class="inline-flex items-center gap-2">
+                <HeroIcon name="users" class="h-4 w-4 transition-colors group-hover:text-white" />
+                <span>Usuários</span>
+              </span>
+            </Link>
+            <Link v-if="canViewClients" class="group transition hover:text-white" href="/admin/clients">
+              <span class="inline-flex items-center gap-2">
+                <HeroIcon name="identification" class="h-4 w-4 transition-colors group-hover:text-white" />
+                <span>Clientes</span>
+              </span>
+            </Link>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-3 sm:justify-end">
           <template v-if="user">
-            <Link class="btn-inverse" href="/admin/profile">Meu perfil</Link>
-            <Link class="btn-ghost" href="/admin/logout" method="post" as="button">Sair</Link>
+            <Dropdown panelClass="user-dropdown" openClass="is-open">
+              <template #trigger="{ toggle }">
+                <button type="button" class="user-toggle" @click="toggle">
+                  {{ (user?.name || 'U').toString().trim().charAt(0).toUpperCase() }}
+                </button>
+              </template>
+              <template #default>
+                <Link class="dropdown-link" href="/admin/profile">
+                  <HeroIcon name="user-circle" class="h-5 w-5" />
+                  <span>Meu perfil</span>
+                </Link>
+                <Link class="dropdown-link-danger" href="/admin/logout" method="post" as="button">
+                  <HeroIcon name="arrow-left-end-on-rectangle" class="h-5 w-5" />
+                  <span>Sair</span>
+                </Link>
+              </template>
+            </Dropdown>
           </template>
         </div>
       </nav>
@@ -48,4 +80,3 @@ const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions
 .btn-inverse { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#fff; color:#0f172a; font-weight:600; }
 .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>
-

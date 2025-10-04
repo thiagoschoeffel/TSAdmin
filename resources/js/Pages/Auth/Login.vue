@@ -2,12 +2,10 @@
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { Link, useForm } from '@inertiajs/vue3';
 
-const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 const form = useForm({
   email: '',
   password: '',
   remember: false,
-  _token: csrf,
 });
 
 const submit = () => {
@@ -58,4 +56,3 @@ const submit = () => {
 .btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
 .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>
-
