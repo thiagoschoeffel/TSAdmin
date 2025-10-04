@@ -21,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
             guests: fn () => route('login'),
             users: fn () => route('dashboard'),
         );
+
+        // Inertia: adiciona o middleware ao grupo 'web' (não impacta rotas até que sejam Inertia)
+        // Evite autoload do nosso middleware antes da lib estar instalada.
+        if (class_exists(\Inertia\Middleware::class) && method_exists($middleware, 'appendToGroup')) {
+            $middleware->appendToGroup('web', \App\Http\Middleware\HandleInertiaRequests::class);
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
