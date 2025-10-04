@@ -11,10 +11,14 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function create(): RedirectResponse|View
+    public function create(): RedirectResponse|View|\Inertia\Response
     {
         if (Auth::check()) {
             return redirect()->route('dashboard');
+        }
+
+        if (class_exists(\Inertia\Inertia::class)) {
+            return \Inertia\Inertia::render('Auth/Login');
         }
 
         return view('auth.login');
