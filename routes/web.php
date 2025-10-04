@@ -9,7 +9,13 @@ use App\Http\Controllers\ClientController;
 use Illuminate\Support\Facades\Route;
 // use Inertia\Inertia; // evitamos usar diretamente antes de instalar a dependência
 
-Route::view('/', 'home')->name('home');
+if (class_exists(\Inertia\Inertia::class)) {
+    Route::get('/', function () {
+        return \Inertia\Inertia::render('Home/Index');
+    })->name('home');
+} else {
+    Route::view('/', 'home')->name('home');
+}
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');

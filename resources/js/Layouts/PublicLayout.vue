@@ -1,0 +1,44 @@
+<script setup>
+import { computed } from 'vue';
+import { usePage, Link } from '@inertiajs/vue3';
+
+const page = usePage();
+const isAuth = computed(() => !!page.props.auth?.user);
+</script>
+
+<template>
+  <div class="min-h-screen bg-white text-slate-900">
+    <header class="bg-slate-900 text-white">
+      <nav class="container-default flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+          <Link class="text-lg font-semibold tracking-tight text-white transition hover:text-blue-200" href="/">
+            {{ $page.props.app?.name ?? 'Example App' }}
+          </Link>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 sm:justify-end">
+          <template v-if="!isAuth">
+            <a class="text-sm font-semibold text-slate-200 transition hover:text-white" href="/login">Entrar</a>
+            <a class="btn-inverse" href="/register">Registrar</a>
+          </template>
+          <template v-else>
+            <Link class="btn-inverse" href="/admin/dashboard">Acessar painel</Link>
+          </template>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-default py-10">
+      <slot />
+    </main>
+
+    <footer class="container-default py-8 text-center text-sm text-slate-500">
+      &copy; {{ new Date().getFullYear() }} {{ $page.props.app?.name ?? 'Example App' }}. Todos os direitos reservados.
+    </footer>
+  </div>
+</template>
+
+<style scoped>
+.container-default { max-width: 72rem; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; }
+.btn-inverse { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#fff; color:#0f172a; font-weight:600; }
+</style>
+
