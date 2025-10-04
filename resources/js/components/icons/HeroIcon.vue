@@ -6,6 +6,11 @@ import {
   IdentificationIcon,
   UserCircleIcon,
   ArrowLeftEndOnRectangleIcon,
+  FunnelIcon,
+  EllipsisHorizontalIcon,
+  PencilIcon,
+  TrashIcon,
+  XMarkIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -19,6 +24,11 @@ const map = {
   'identification': IdentificationIcon,
   'user-circle': UserCircleIcon,
   'arrow-left-end-on-rectangle': ArrowLeftEndOnRectangleIcon,
+  'funnel': FunnelIcon,
+  'ellipsis-horizontal': EllipsisHorizontalIcon,
+  'pencil': PencilIcon,
+  'trash': TrashIcon,
+  'x-mark': XMarkIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);

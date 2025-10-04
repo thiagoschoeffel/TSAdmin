@@ -13,7 +13,7 @@ use Illuminate\View\View;
 
 class UserManagementController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|\Inertia\Response
     {
         $query = User::query();
 
@@ -28,8 +28,32 @@ class UserManagementController extends Controller
             $query->where('status', $status);
         }
 
+        $users = $query
+            ->orderBy('name')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(function (User $user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'status' => $user->status,
+                ];
+            });
+
+        if (class_exists(\Inertia\Inertia::class)) {
+            return \Inertia\Inertia::render('Admin/Users/Index', [
+                'filters' => [
+                    'search' => $request->string('search')->toString(),
+                    'status' => $request->get('status'),
+                ],
+                'users' => $users,
+            ]);
+        }
+
         return view('users.index', [
-            'users' => $query->orderBy('name')->paginate(10)->withQueryString(),
+            'users' => $users,
         ]);
     }
 
