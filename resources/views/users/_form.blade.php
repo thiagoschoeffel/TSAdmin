@@ -70,7 +70,7 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <label class="form-label">
                 Função
-                <select name="role" class="form-select" required>
+                <select name="role" class="form-select" required data-role-select>
                     <option value="user" {{ $role === 'user' ? 'selected' : '' }}>Usuário comum</option>
                     <option value="admin" {{ $role === 'admin' ? 'selected' : '' }}>Administrador</option>
                 </select>
@@ -84,7 +84,7 @@
         @enderror
     </div>
 
-    <div class="space-y-2">
+    <div class="space-y-2" data-permissions-container>
         <span class="text-sm font-semibold text-slate-700">Permissões</span>
         @php
             $resources = config('permissions.resources');
@@ -111,9 +111,9 @@
                             </label>
                         @endforeach
                     </div>
-                    @if($isAdmin)
-                        <p class="mt-2 text-xs text-slate-500">Todas as permissões estão habilitadas para administradores.</p>
-                    @endif
+                    <p class="mt-2 text-xs text-slate-500 {{ $isAdmin ? '' : 'hidden' }}" data-admin-permissions-note>
+                        Todas as permissões estão habilitadas para administradores.
+                    </p>
                 </fieldset>
             @endforeach
         </div>

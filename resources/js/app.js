@@ -5,3 +5,4 @@ import './modules/statusToggle';
 import './clients/form';
 import './clients/detailsModal';
 import './users/detailsModal';
+import './users/permissionsForm';
