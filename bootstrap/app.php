@@ -29,5 +29,31 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Renderiza erros via Inertia quando a navegação é SPA
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, \Illuminate\Http\Request $request) {
+            if (!$request->headers->has('X-Inertia') || !class_exists(\Inertia\Inertia::class)) {
+                return null;
+            }
+
+            $status = $e->getStatusCode();
+            if (in_array($status, [403, 404, 500, 503])) {
+                return \Inertia\Inertia::render("Errors/{$status}", [
+                    'status' => $status,
+                ])->toResponse($request)->setStatusCode($status);
+            }
+
+            return null;
+        });
+
+        // 419 (TokenMismatchException) -> página Inertia específica
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+            if (!$request->headers->has('X-Inertia') || !class_exists(\Inertia\Inertia::class)) {
+                return null;
+            }
+
+            $status = 419;
+            return \Inertia\Inertia::render('Errors/419', [
+                'status' => $status,
+            ])->toResponse($request)->setStatusCode($status);
+        });
     })->create();
