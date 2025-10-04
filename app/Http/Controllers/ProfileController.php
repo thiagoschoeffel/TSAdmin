@@ -11,8 +11,12 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    public function edit(): View
+    public function edit(): View|\Inertia\Response
     {
+        if (class_exists(\Inertia\Inertia::class)) {
+            return \Inertia\Inertia::render('Admin/Profile/Edit');
+        }
+
         return view('profile.edit', [
             'user' => Auth::user(),
         ]);
