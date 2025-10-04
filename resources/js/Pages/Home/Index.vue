@@ -16,8 +16,8 @@ const isAuth = computed(() => !!page.props.auth?.user);
       </p>
 
       <div v-if="!isAuth" class="flex flex-wrap gap-3">
-        <a class="btn-primary" href="/login">Entrar</a>
-        <a class="link" href="/register">Criar uma conta</a>
+        <Link class="btn-primary" href="/login">Entrar</Link>
+        <Link class="link" href="/register">Criar uma conta</Link>
       </div>
       <p v-else class="font-semibold text-slate-700">
         Você já está autenticado. Acesse o seu <Link class="link" href="/admin/dashboard">dashboard</Link>.
@@ -32,4 +32,3 @@ const isAuth = computed(() => !!page.props.auth?.user);
 .btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
 .link { color:#2563eb; text-decoration: underline; }
 </style>
-

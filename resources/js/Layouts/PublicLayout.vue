@@ -17,8 +17,8 @@ const isAuth = computed(() => !!page.props.auth?.user);
         </div>
         <div class="flex flex-wrap items-center gap-3 sm:justify-end">
           <template v-if="!isAuth">
-            <a class="text-sm font-semibold text-slate-200 transition hover:text-white" href="/login">Entrar</a>
-            <a class="btn-inverse" href="/register">Registrar</a>
+            <Link class="text-sm font-semibold text-slate-200 transition hover:text-white" href="/login">Entrar</Link>
+            <Link class="btn-inverse" href="/register">Registrar</Link>
           </template>
           <template v-else>
             <Link class="btn-inverse" href="/admin/dashboard">Acessar painel</Link>
@@ -41,4 +41,3 @@ const isAuth = computed(() => !!page.props.auth?.user);
 .container-default { max-width: 72rem; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; }
 .btn-inverse { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#fff; color:#0f172a; font-weight:600; }
 </style>
-
