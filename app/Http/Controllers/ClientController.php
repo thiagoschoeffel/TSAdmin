@@ -116,9 +116,35 @@ class ClientController extends Controller
         ]);
     }
 
-    public function edit(Client $client): View
+    public function edit(Client $client): View|\Inertia\Response
     {
         abort_unless(auth()->user()->canManage('clients', 'update'), 403);
+        if (class_exists(\Inertia\Inertia::class)) {
+            return \Inertia\Inertia::render('Admin/Clients/Edit', [
+                'states' => [
+                    'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
+                ],
+                'client' => [
+                    'id' => $client->id,
+                    'name' => $client->name,
+                    'person_type' => $client->person_type,
+                    'document' => $client->formattedDocument(),
+                    'observations' => $client->observations,
+                    'postal_code' => $client->formattedPostalCode(),
+                    'address' => $client->address,
+                    'address_number' => $client->address_number,
+                    'address_complement' => $client->address_complement,
+                    'neighborhood' => $client->neighborhood,
+                    'city' => $client->city,
+                    'state' => $client->state,
+                    'contact_name' => $client->contact_name,
+                    'contact_phone_primary' => $client->formattedPhone($client->contact_phone_primary),
+                    'contact_phone_secondary' => $client->formattedPhone($client->contact_phone_secondary),
+                    'contact_email' => $client->contact_email,
+                    'status' => $client->status,
+                ],
+            ]);
+        }
         return view('clients.edit', compact('client'));
     }
 
