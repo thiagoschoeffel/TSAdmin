@@ -8,21 +8,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
-    public function create(): RedirectResponse|View|\Inertia\Response
+    public function create(): RedirectResponse|Response
     {
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
 
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Auth/Register');
-        }
-
-        return view('auth.register');
+        return Inertia::render('Auth/Register');
     }
 
     public function store(Request $request): RedirectResponse

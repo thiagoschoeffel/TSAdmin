@@ -7,21 +7,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function create(): RedirectResponse|View|\Inertia\Response
+    public function create(): RedirectResponse|Response
     {
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
 
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Auth/Login');
-        }
-
-        return view('auth.login');
+        return Inertia::render('Auth/Login');
     }
 
     public function store(Request $request): RedirectResponse

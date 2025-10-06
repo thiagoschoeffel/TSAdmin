@@ -9,11 +9,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ClientController extends Controller
 {
-    public function index(Request $request): View|\Inertia\Response
+    public function index(Request $request): Response
     {
         abort_unless($request->user()->canManage('clients', 'view'), 403);
         $query = Client::query();
@@ -57,31 +58,50 @@ class ClientController extends Controller
                 ];
             });
 
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Admin/Clients/Index', [
-                'filters' => [
-                    'search' => $request->string('search')->toString(),
-                    'person_type' => $request->get('person_type'),
-                    'status' => $request->get('status'),
-                ],
-                'clients' => $clients,
-            ]);
-        }
-
-        return view('clients.index', compact('clients'));
+        return Inertia::render('Admin/Clients/Index', [
+            'filters' => [
+                'search' => $request->string('search')->toString(),
+                'person_type' => $request->get('person_type'),
+                'status' => $request->get('status'),
+            ],
+            'clients' => $clients,
+        ]);
     }
 
-    public function create(): View|\Inertia\Response
+    public function create(): Response
     {
-        abort_unless(auth()->user()->canManage('clients', 'create'), 403);
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Admin/Clients/Create', [
-                'states' => [
-                    'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
-                ],
-            ]);
-        }
-        return view('clients.create');
+        abort_unless(Auth::user()->canManage('clients', 'create'), 403);
+        return Inertia::render('Admin/Clients/Create', [
+            'states' => [
+                'AC',
+                'AL',
+                'AP',
+                'AM',
+                'BA',
+                'CE',
+                'DF',
+                'ES',
+                'GO',
+                'MA',
+                'MT',
+                'MS',
+                'MG',
+                'PA',
+                'PB',
+                'PR',
+                'PE',
+                'PI',
+                'RJ',
+                'RN',
+                'RS',
+                'RO',
+                'RR',
+                'SC',
+                'SP',
+                'SE',
+                'TO',
+            ],
+        ]);
     }
 
     public function store(StoreClientRequest $request): RedirectResponse
@@ -98,59 +118,128 @@ class ClientController extends Controller
             ->with('status', 'Cliente cadastrado com sucesso.');
     }
 
-    public function show(Client $client): View
+    public function show(Client $client): Response
     {
-        abort_unless(auth()->user()->canManage('clients', 'view'), 403);
+        abort_unless(Auth::user()->canManage('clients', 'view'), 403);
         $client->load(['createdBy', 'updatedBy']);
 
-        return view('clients.show', compact('client'));
+        return Inertia::render('Admin/Clients/Show', [
+            'client' => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'person_type' => $client->person_type,
+                'document' => $client->formattedDocument(),
+                'observations' => $client->observations,
+                'postal_code' => $client->formattedPostalCode(),
+                'address' => $client->address,
+                'address_number' => $client->address_number,
+                'address_complement' => $client->address_complement,
+                'neighborhood' => $client->neighborhood,
+                'city' => $client->city,
+                'state' => $client->state,
+                'contact_name' => $client->contact_name,
+                'contact_phone_primary' => $client->formattedPhone($client->contact_phone_primary),
+                'contact_phone_secondary' => $client->formattedPhone($client->contact_phone_secondary),
+                'contact_email' => $client->contact_email,
+                'status' => $client->status,
+                'created_at' => $client->created_at?->format('d/m/Y H:i'),
+                'updated_at' => $client->updated_at?->format('d/m/Y H:i'),
+                'created_by' => $client->createdBy?->name,
+                'updated_by' => $client->updatedBy?->name,
+            ],
+        ]);
     }
 
     public function modal(Client $client): JsonResponse
     {
-        abort_unless(auth()->user()->canManage('clients', 'view'), 403);
+        abort_unless(Auth::user()->canManage('clients', 'view'), 403);
         $client->load(['createdBy', 'updatedBy']);
 
         return response()->json([
-            'html' => view('clients.partials.details-modal', compact('client'))->render(),
+            'client' => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'person_type' => $client->person_type,
+                'document' => $client->formattedDocument(),
+                'observations' => $client->observations,
+                'postal_code' => $client->formattedPostalCode(),
+                'address' => $client->address,
+                'address_number' => $client->address_number,
+                'address_complement' => $client->address_complement,
+                'neighborhood' => $client->neighborhood,
+                'city' => $client->city,
+                'state' => $client->state,
+                'contact_name' => $client->contact_name,
+                'contact_phone_primary' => $client->formattedPhone($client->contact_phone_primary),
+                'contact_phone_secondary' => $client->formattedPhone($client->contact_phone_secondary),
+                'contact_email' => $client->contact_email,
+                'status' => $client->status,
+                'created_at' => $client->created_at?->format('d/m/Y H:i'),
+                'updated_at' => $client->updated_at?->format('d/m/Y H:i'),
+                'created_by' => $client->createdBy?->name,
+                'updated_by' => $client->updatedBy?->name,
+            ],
         ]);
     }
 
-    public function edit(Client $client): View|\Inertia\Response
+    public function edit(Client $client): Response
     {
-        abort_unless(auth()->user()->canManage('clients', 'update'), 403);
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Admin/Clients/Edit', [
-                'states' => [
-                    'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
-                ],
-                'client' => [
-                    'id' => $client->id,
-                    'name' => $client->name,
-                    'person_type' => $client->person_type,
-                    'document' => $client->formattedDocument(),
-                    'observations' => $client->observations,
-                    'postal_code' => $client->formattedPostalCode(),
-                    'address' => $client->address,
-                    'address_number' => $client->address_number,
-                    'address_complement' => $client->address_complement,
-                    'neighborhood' => $client->neighborhood,
-                    'city' => $client->city,
-                    'state' => $client->state,
-                    'contact_name' => $client->contact_name,
-                    'contact_phone_primary' => $client->formattedPhone($client->contact_phone_primary),
-                    'contact_phone_secondary' => $client->formattedPhone($client->contact_phone_secondary),
-                    'contact_email' => $client->contact_email,
-                    'status' => $client->status,
-                ],
-            ]);
-        }
-        return view('clients.edit', compact('client'));
+        abort_unless(Auth::user()->canManage('clients', 'update'), 403);
+        return Inertia::render('Admin/Clients/Edit', [
+            'states' => [
+                'AC',
+                'AL',
+                'AP',
+                'AM',
+                'BA',
+                'CE',
+                'DF',
+                'ES',
+                'GO',
+                'MA',
+                'MT',
+                'MS',
+                'MG',
+                'PA',
+                'PB',
+                'PR',
+                'PE',
+                'PI',
+                'RJ',
+                'RN',
+                'RS',
+                'RO',
+                'RR',
+                'SC',
+                'SP',
+                'SE',
+                'TO',
+            ],
+            'client' => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'person_type' => $client->person_type,
+                'document' => $client->formattedDocument(),
+                'observations' => $client->observations,
+                'postal_code' => $client->formattedPostalCode(),
+                'address' => $client->address,
+                'address_number' => $client->address_number,
+                'address_complement' => $client->address_complement,
+                'neighborhood' => $client->neighborhood,
+                'city' => $client->city,
+                'state' => $client->state,
+                'contact_name' => $client->contact_name,
+                'contact_phone_primary' => $client->formattedPhone($client->contact_phone_primary),
+                'contact_phone_secondary' => $client->formattedPhone($client->contact_phone_secondary),
+                'contact_email' => $client->contact_email,
+                'status' => $client->status,
+            ],
+        ]);
     }
 
     public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
-        abort_unless($request->user()->canManage('clients', 'update'), 403);
+        abort_unless(Auth::user()->canManage('clients', 'update'), 403);
         $data = $this->preparePayload($request->validated());
 
         $client->fill($data);
@@ -164,7 +253,7 @@ class ClientController extends Controller
 
     public function destroy(Client $client): RedirectResponse
     {
-        abort_unless(auth()->user()->canManage('clients', 'delete'), 403);
+        abort_unless(Auth::user()->canManage('clients', 'delete'), 403);
         $client->delete();
 
         return redirect()

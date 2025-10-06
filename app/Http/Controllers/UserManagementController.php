@@ -9,11 +9,13 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class UserManagementController extends Controller
 {
-    public function index(Request $request): View|\Inertia\Response
+    public function index(Request $request): Response
     {
         $query = User::query();
 
@@ -42,30 +44,20 @@ class UserManagementController extends Controller
                 ];
             });
 
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Admin/Users/Index', [
-                'filters' => [
-                    'search' => $request->string('search')->toString(),
-                    'status' => $request->get('status'),
-                ],
-                'users' => $users,
-            ]);
-        }
-
-        return view('users.index', [
+        return Inertia::render('Admin/Users/Index', [
+            'filters' => [
+                'search' => $request->string('search')->toString(),
+                'status' => $request->get('status'),
+            ],
             'users' => $users,
         ]);
     }
 
-    public function create(): View|\Inertia\Response
+    public function create(): Response
     {
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Admin/Users/Create', [
-                'resources' => config('permissions.resources', []),
-            ]);
-        }
-
-        return view('users.create');
+        return Inertia::render('Admin/Users/Create', [
+            'resources' => config('permissions.resources', []),
+        ]);
     }
 
     public function store(StoreUserRequest $request): RedirectResponse
@@ -85,26 +77,20 @@ class UserManagementController extends Controller
             ->with('status', 'Usuário criado com sucesso.');
     }
 
-    public function edit(User $user): View|\Inertia\Response
+    public function edit(User $user): Response
     {
         $this->ensureNotCurrentUser($user);
 
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Admin/Users/Edit', [
-                'resources' => config('permissions.resources', []),
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'status' => $user->status,
-                    'role' => $user->role,
-                    'permissions' => $user->permissions ?? [],
-                ],
-            ]);
-        }
-
-        return view('users.edit', [
-            'user' => $user,
+        return Inertia::render('Admin/Users/Edit', [
+            'resources' => config('permissions.resources', []),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'status' => $user->status,
+                'role' => $user->role,
+                'permissions' => $user->permissions ?? [],
+            ],
         ]);
     }
 
@@ -153,13 +139,22 @@ class UserManagementController extends Controller
     public function modal(User $user): JsonResponse
     {
         return response()->json([
-            'html' => view('users.partials.details-modal', compact('user'))->render(),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+                'permissions' => $user->permissions ?? [],
+                'created_at' => $user->created_at?->format('d/m/Y H:i'),
+                'updated_at' => $user->updated_at?->format('d/m/Y H:i'),
+            ],
         ]);
     }
 
     protected function ensureNotCurrentUser(User $user): void
     {
-        if (auth()->id() === $user->id) {
+        if (Auth::check() && Auth::id() === $user->id) {
             abort(403, 'Você não pode realizar esta ação no próprio usuário.');
         }
     }

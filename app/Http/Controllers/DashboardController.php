@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View|\Inertia\Response
+    public function __invoke(): Response
     {
-        if (class_exists(\Inertia\Inertia::class)) {
-            return \Inertia\Inertia::render('Admin/Dashboard');
-        }
-
-        return view('dashboard');
+        return Inertia::render('Admin/Dashboard');
     }
 }
