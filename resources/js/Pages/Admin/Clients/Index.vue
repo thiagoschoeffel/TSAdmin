@@ -6,6 +6,7 @@ import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ClientDetailsModal from '@/components/clients/ClientDetailsModal.vue';
+import Pagination from '@/components/Pagination.vue';
 
 const props = defineProps({
   clients: { type: Object, required: true },
@@ -145,12 +146,7 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
         </table>
       </div>
 
-      <nav v-if="clients.links && clients.links.length" class="mt-6 flex flex-wrap gap-2">
-        <template v-for="link in clients.links" :key="link.url + link.label">
-          <span v-if="!link.url" class="px-3 py-2 text-sm text-slate-400" v-html="link.label" />
-          <Link v-else :href="link.url" class="px-3 py-2 text-sm font-semibold text-slate-600 bg-white hover:text-slate-800 hover:bg-slate-100 rounded transition" :class="{ 'text-blue-700 border border-blue-200': link.active }" v-html="link.label" preserve-scroll />
-        </template>
-      </nav>
+      <Pagination v-if="clients && clients.total" :paginator="clients" />
     </section>
 
     <ClientDetailsModal v-model="details.open" :client-id="details.clientId" />

@@ -6,6 +6,7 @@ import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import UserDetailsModal from '@/components/users/UserDetailsModal.vue';
+import Pagination from '@/components/Pagination.vue';
 
 const props = defineProps({
   users: { type: Object, required: true },
@@ -147,12 +148,7 @@ const openDetails = (user) => {
         </table>
       </div>
 
-      <nav v-if="users.links && users.links.length" class="mt-6 flex flex-wrap gap-2">
-        <template v-for="link in users.links" :key="link.url + link.label">
-          <span v-if="!link.url" class="px-3 py-2 text-sm text-slate-400" v-html="link.label" />
-          <Link v-else :href="link.url" class="px-3 py-2 text-sm font-semibold text-slate-600 bg-white hover:text-slate-800 hover:bg-slate-100 rounded transition" :class="{ 'text-blue-700 border border-blue-200': link.active }" v-html="link.label" preserve-scroll />
-        </template>
-      </nav>
+      <Pagination v-if="users && users.total" :paginator="users" />
     </section>
 
     <ConfirmModal v-model="deleteState.open"
