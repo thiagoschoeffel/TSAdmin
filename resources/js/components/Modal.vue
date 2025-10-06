@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount, computed, Teleport, nextTick } from 'vue';
 import { registerModal, unregisterModal, getIndex, hasOpenModals } from '@/components/modalStack';
+import { lockScrollIfNeeded, unlockScrollIfNeeded } from '@/components/modalLockManager';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -52,18 +53,12 @@ function onBackdrop(e) {
 }
 
 let appliedLock = false;
-let prevOverflow = null;
 
 function onOpen() {
   if (!id.value) id.value = registerModal();
   document.addEventListener('keydown', onKeydown, true);
-  // Optionally lock body scroll (configurable)
   if (props.lockScroll) {
-    if (!hasOpenModals()) {
-      prevOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      appliedLock = true;
-    }
+    lockScrollIfNeeded();
   }
   emit('open');
   nextTick(() => {
@@ -79,19 +74,33 @@ function onClose() {
   document.removeEventListener('keydown', onKeydown, true);
   if (id.value) unregisterModal(id.value);
   id.value = null;
-  // Restore body scroll if we locked it and there are no other modals open
-  if (props.lockScroll && appliedLock && !hasOpenModals()) {
-    document.body.style.overflow = prevOverflow ?? '';
-    appliedLock = false;
-    prevOverflow = null;
+  if (props.lockScroll) {
+    unlockScrollIfNeeded();
   }
   emit('close');
 }
 
-function close() { open.value = false; }
+function close() {
+  // run cleanup immediately then update local state
+  try { onClose(); } catch (_) {}
+  open.value = false;
+}
+
+function handleCloseClick(e) {
+  close();
+}
 
 onMounted(() => { if (open.value) onOpen(); });
-onBeforeUnmount(() => { if (open.value) onClose(); });
+onBeforeUnmount(() => {
+  try {
+    try { onClose(); } catch (_) { /* ignore */ }
+    if (props.lockScroll) {
+      try { unlockScrollIfNeeded(); } catch (_) {}
+    }
+  } catch (_) {
+    try { unlockScrollIfNeeded(); } catch (_) {}
+  }
+});
 </script>
 
 <template>
@@ -99,14 +108,15 @@ onBeforeUnmount(() => { if (open.value) onClose(); });
     <div v-show="open" class="fixed inset-0 p-4 sm:p-6 md:p-8" :style="{ zIndex: zIndexOverlay }" @click="onBackdrop" aria-modal="true" role="dialog">
       <div class="absolute inset-0 bg-slate-900/50"></div>
       <div class="relative mx-auto w-full" :class="panelSize" :style="{ zIndex: zIndexPanel }">
-        <div ref="container" class="rounded-xl border border-slate-200 bg-white shadow-2xl">
+        <div ref="container" class="rounded-xl border border-slate-200 bg-white shadow-2xl flex flex-col overflow-hidden">
           <div class="flex items-start justify-between gap-4 border-b border-slate-200 p-4">
             <h3 class="text-base font-semibold text-slate-900">{{ title }}</h3>
-            <button v-if="showClose" type="button" class="rounded-md p-1 text-slate-500 hover:bg-slate-100" @click="close" aria-label="Fechar">
+            <button v-if="showClose" type="button" class="rounded-md p-1 text-slate-500 hover:bg-slate-100" @click="handleCloseClick" aria-label="Fechar">
               ✕
             </button>
           </div>
-          <div class="p-4">
+          <!-- content area: allow internal scrolling when content is tall -->
+          <div class="p-4 overflow-auto" :style="{ maxHeight: '80vh' }">
             <slot />
           </div>
           <div v-if="$slots.footer" class="flex justify-end gap-2 border-t border-slate-200 p-3">

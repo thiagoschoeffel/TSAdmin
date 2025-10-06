@@ -102,7 +102,7 @@ function formatDate(value) {
 </script>
 
 <template>
-  <Modal v-model="open" title="Detalhes do usuário" size="lg">
+  <Modal v-model="open" title="Detalhes do usuário" size="lg" :lockScroll="true">
     <div v-if="loading" class="space-y-6" aria-hidden="true">
       <div class="space-y-3">
         <div class="skeleton h-6 w-48 rounded-md"></div>
