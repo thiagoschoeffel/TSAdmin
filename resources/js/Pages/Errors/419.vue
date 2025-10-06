@@ -1,20 +1,28 @@
 <script setup>
-import PublicLayout from '@/Layouts/PublicLayout.vue';
-import { Link } from '@inertiajs/vue3';
-defineProps({ status: { type: Number, default: 419 } });
+import ErrorLayoutSelector from '@/components/ErrorLayoutSelector.vue'
+import { Link } from '@inertiajs/vue3'
+import { computed } from 'vue'
+
+const props = defineProps({ status: { type: Number, default: 419 }, url: { type: String, default: null } })
+
+const backHref = computed(() => {
+  const u = props.url || (typeof window !== 'undefined' ? window.location.pathname : '/')
+  if (u.startsWith('/admin')) return '/admin/dashboard'
+  return '/'
+})
 </script>
 
 <template>
-  <PublicLayout>
+  <ErrorLayoutSelector>
     <section class="error-card">
-      <h1 class="error-title">Sessão expirada ({{ status }})</h1>
+      <h1 class="error-title">Sessão expirada ({{ props.status }})</h1>
       <p class="error-message">Sua sessão expirou ou o token CSRF não é mais válido. Atualize a página ou faça login novamente.</p>
       <div class="actions">
         <Link class="btn-primary" href="/login">Fazer login</Link>
-        <Link class="btn-ghost" href="/">Ir para a página inicial</Link>
+        <Link class="btn-ghost" :href="backHref">Ir para a página inicial</Link>
       </div>
     </section>
-  </PublicLayout>
+  </ErrorLayoutSelector>
 </template>
 
 <style scoped>

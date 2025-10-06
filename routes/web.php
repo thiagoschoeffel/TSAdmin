@@ -53,6 +53,14 @@ Route::middleware('auth')->prefix('admin')->group(function (): void {
 });
 
 // Fallback para 404 dentro do grupo 'web', garantindo sessão e autenticação disponíveis
-Route::fallback(function () {
-    return \Inertia\Inertia::render('Errors/NotFound');
+Route::fallback(function (\Illuminate\Http\Request $request) {
+    // Se for requisição Inertia (X-Inertia), retorna uma resposta Inertia com status 404
+    // Se for uma requisição HTML (navegador), responder com Inertia (HTML inicial)
+    if (str_contains($request->header('Accept', ''), 'text/html')) {
+        // Incluir a URL requisitada para que o cliente Inertia possa decidir o layout
+        return \Inertia\Inertia::render('Errors/404', ['url' => $request->getRequestUri()])->toResponse($request)->setStatusCode(404);
+    }
+
+    // Para outras requisições (API/XHR sem Accept HTML), retornar 404 simples
+    return response()->json(['message' => 'Not Found'], 404);
 });

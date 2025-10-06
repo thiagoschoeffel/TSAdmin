@@ -1,19 +1,27 @@
 <script setup>
-import PublicLayout from '@/Layouts/PublicLayout.vue';
-import { Link } from '@inertiajs/vue3';
-defineProps({ status: { type: Number, default: 404 } });
+import ErrorLayoutSelector from '@/components/ErrorLayoutSelector.vue'
+import { Link } from '@inertiajs/vue3'
+import { computed } from 'vue'
+
+const props = defineProps({ status: { type: Number, default: 404 }, url: { type: String, default: null } })
+
+const backHref = computed(() => {
+  const u = props.url || (typeof window !== 'undefined' ? window.location.pathname : '/')
+  if (u.startsWith('/admin')) return '/admin/dashboard'
+  return '/'
+})
 </script>
 
 <template>
-  <PublicLayout>
+  <ErrorLayoutSelector>
     <section class="error-card">
-      <h1 class="error-title">Página não encontrada ({{ status }})</h1>
+      <h1 class="error-title">Página não encontrada ({{ props.status }})</h1>
       <p class="error-message">A página que você procura pode ter sido removida, renomeada ou está temporariamente indisponível.</p>
       <div class="actions">
-        <Link class="btn-primary" href="/">Voltar para a página inicial</Link>
+        <Link class="btn-primary" :href="backHref">Voltar para a página inicial</Link>
       </div>
     </section>
-  </PublicLayout>
+  </ErrorLayoutSelector>
 </template>
 
 <style scoped>
