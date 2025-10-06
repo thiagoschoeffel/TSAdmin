@@ -23,7 +23,7 @@ const onCancel = () => { open.value = false; emit('cancel'); };
 </script>
 
 <template>
-  <Modal v-model="open" :title="title" size="sm">
+  <Modal v-model="open" :title="title" size="sm" :lockScroll="true">
     <p class="text-slate-700">{{ message }}</p>
     <template #footer>
       <button type="button" class="btn-ghost" :disabled="processing" @click="onCancel">{{ cancelText }}</button>
