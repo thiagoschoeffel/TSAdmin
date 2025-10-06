@@ -53,7 +53,7 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
           <h1 class="text-2xl font-semibold text-slate-900">Clientes</h1>
           <p class="mt-2 text-sm text-slate-500">Gerencie os cadastros de clientes existentes ou adicione novos registros.</p>
         </div>
-        <Link v-if="canCreate" class="btn-primary" href="/admin/clients/create">Novo cliente</Link>
+  <Link v-if="canCreate" class="btn-primary" :href="route('clients.create')">Novo cliente</Link>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">

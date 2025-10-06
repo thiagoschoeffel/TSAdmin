@@ -45,7 +45,7 @@ const submit = () => {
           <h1 class="text-2xl font-semibold text-slate-900">Editar usuário</h1>
           <p class="mt-2 text-sm text-slate-500">Atualize as informações de {{ props.user.name }}.</p>
         </div>
-        <Link class="btn-ghost" href="/admin/users">Voltar para lista</Link>
+  <Link class="btn-ghost" :href="route('users.index')">Voltar para lista</Link>
       </div>
 
       <form @submit.prevent="submit" class="space-y-6">
@@ -111,7 +111,7 @@ const submit = () => {
 
         <div class="flex flex-wrap gap-3">
           <button type="submit" class="btn-primary" :disabled="form.processing">Salvar alterações</button>
-          <Link class="btn-ghost" href="/admin/users">Cancelar</Link>
+          <Link class="btn-ghost" :href="route('users.index')">Cancelar</Link>
         </div>
       </form>
     </section>

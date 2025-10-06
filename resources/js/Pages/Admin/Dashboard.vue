@@ -14,7 +14,7 @@ const name = page.props.auth?.user?.name ?? 'usuário';
         Você está na área autenticada do sistema. Utilize este espaço para adicionar os recursos administrativos que preferir.
       </p>
       <div class="flex flex-wrap gap-3">
-        <Link class="btn-primary" href="/">Voltar para a home pública</Link>
+  <Link class="btn-primary" :href="route('home')">Voltar para a home pública</Link>
       </div>
     </section>
   </AdminLayout>

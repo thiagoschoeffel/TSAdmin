@@ -39,12 +39,12 @@ const submit = () => {
             <span v-if="!form.processing">Entrar</span>
             <span v-else>Enviando…</span>
           </button>
-          <Link class="btn-ghost" href="/register">Criar uma conta</Link>
+          <Link class="btn-ghost" :href="route('register')">Criar uma conta</Link>
         </div>
       </form>
     </section>
   </PublicLayout>
-  
+
 </template>
 
 <style scoped>

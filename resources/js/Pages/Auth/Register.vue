@@ -47,12 +47,12 @@ const submit = () => {
             <span v-if="!form.processing">Cadastrar</span>
             <span v-else>Enviando…</span>
           </button>
-          <Link class="btn-ghost" href="/login">Já tenho conta</Link>
+          <Link class="btn-ghost" :href="route('login')">Já tenho conta</Link>
         </div>
       </form>
     </section>
   </PublicLayout>
-  
+
 </template>
 
 <style scoped>

@@ -16,15 +16,15 @@ const isAuth = computed(() => !!page.props.auth?.user);
       </p>
 
       <div v-if="!isAuth" class="flex flex-wrap gap-3">
-        <Link class="btn-primary" href="/login">Entrar</Link>
-        <Link class="link" href="/register">Criar uma conta</Link>
+  <Link class="btn-primary" :href="route('login')">Entrar</Link>
+  <Link class="link" :href="route('register')">Criar uma conta</Link>
       </div>
       <p v-else class="font-semibold text-slate-700">
-        Você já está autenticado. Acesse o seu <Link class="link" href="/admin/dashboard">dashboard</Link>.
+  Você já está autenticado. Acesse o seu <Link class="link" :href="route('dashboard')">dashboard</Link>.
       </p>
     </section>
   </PublicLayout>
-  
+
 </template>
 
 <style scoped>

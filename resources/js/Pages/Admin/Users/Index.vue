@@ -61,7 +61,7 @@ const openDetails = (user) => {
           <h1 class="text-2xl font-semibold text-slate-900">Usuários</h1>
           <p class="mt-2 text-sm text-slate-500">Gerencie os usuários do sistema ou cadastre novos membros.</p>
         </div>
-        <Link class="btn-primary" href="/admin/users/create">Novo usuário</Link>
+  <Link class="btn-primary" :href="route('users.create')">Novo usuário</Link>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">
@@ -89,7 +89,7 @@ const openDetails = (user) => {
         </div>
       </form>
 
-      
+
 
       <div class="table-wrapper">
         <table class="table">
@@ -132,7 +132,7 @@ const openDetails = (user) => {
                     </button>
                   </template>
                   <template v-else>
-                    <Link class="menu-panel-link" href="/admin/profile">
+                    <Link class="menu-panel-link" :href="route('profile.edit')">
                       <HeroIcon name="user-circle" class="h-4 w-4" />
                       <span>Meu perfil</span>
                     </Link>

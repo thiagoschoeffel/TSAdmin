@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { route } from '@/ziggy-client';
 import Dropdown from '@/components/Dropdown.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -45,24 +46,24 @@ watch(() => page.props.flash, (f) => {
     <header class="bg-slate-900 text-white">
       <nav class="container-default flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-          <Link class="text-lg font-semibold tracking-tight text-white transition hover:text-blue-200" href="/admin/dashboard">
+          <Link class="text-lg font-semibold tracking-tight text-white transition hover:text-blue-200" :href="route('dashboard')">
             {{ $page.props.app?.name ?? 'Example App' }}
           </Link>
 
           <div class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-200 sm:gap-4">
-            <Link class="group transition hover:text-white" href="/admin/dashboard">
+            <Link class="group transition hover:text-white" :href="route('dashboard')">
               <span class="inline-flex items-center gap-2">
                 <HeroIcon name="chart-bar" class="h-4 w-4 transition-colors group-hover:text-white" />
                 <span>Dashboard</span>
               </span>
             </Link>
-            <Link v-if="isAdmin" class="group transition hover:text-white" href="/admin/users">
+            <Link v-if="isAdmin" class="group transition hover:text-white" :href="route('users.index')">
               <span class="inline-flex items-center gap-2">
                 <HeroIcon name="users" class="h-4 w-4 transition-colors group-hover:text-white" />
                 <span>Usuários</span>
               </span>
             </Link>
-            <Link v-if="canViewClients" class="group transition hover:text-white" href="/admin/clients">
+            <Link v-if="canViewClients" class="group transition hover:text-white" :href="route('clients.index')">
               <span class="inline-flex items-center gap-2">
                 <HeroIcon name="identification" class="h-4 w-4 transition-colors group-hover:text-white" />
                 <span>Clientes</span>
@@ -80,7 +81,7 @@ watch(() => page.props.flash, (f) => {
                 </button>
               </template>
               <template #default>
-                <Link class="dropdown-link" href="/admin/profile">
+                <Link class="dropdown-link" :href="route('profile.edit')">
                   <HeroIcon name="user-circle" class="h-5 w-5" />
                   <span>Meu perfil</span>
                 </Link>

@@ -42,10 +42,10 @@ const submit = () => {
           <h1 class="text-2xl font-semibold text-slate-900">Editar cliente</h1>
           <p class="mt-2 text-sm text-slate-500">Atualize as informações de {{ props.client.name }}.</p>
         </div>
-        <Link class="btn-ghost" href="/admin/clients">Voltar para lista</Link>
+  <Link class="btn-ghost" :href="route('clients.index')">Voltar para lista</Link>
       </div>
 
-      <ClientForm :form="form" :states="props.states" :submit-label="'Salvar alterações'" cancel-href="/admin/clients" @submit="submit" />
+  <ClientForm :form="form" :states="props.states" :submit-label="'Salvar alterações'" :cancel-href="route('clients.index')" @submit="submit" />
     </section>
   </AdminLayout>
 </template>

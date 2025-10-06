@@ -14,14 +14,15 @@
 <script setup>
 import ErrorLayoutSelector from '@/components/ErrorLayoutSelector.vue'
 import { Link } from '@inertiajs/vue3'
+import { route } from '@/ziggy-client'
 import { computed } from 'vue'
 
 const props = defineProps({ url: { type: String, default: null } })
 
 const backHref = computed(() => {
   const u = props.url || (typeof window !== 'undefined' ? window.location.pathname : '/')
-  if (u.startsWith('/admin')) return '/admin/dashboard'
-  return '/'
+  if (u.startsWith('/admin')) return route('dashboard')
+  return route('home')
 })
 </script>
 

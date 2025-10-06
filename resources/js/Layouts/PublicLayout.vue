@@ -1,6 +1,7 @@
 <script setup>
 import { computed, watch } from 'vue';
 import { usePage, Link } from '@inertiajs/vue3';
+import { route } from '@/ziggy-client';
 import ToastContainer from '@/components/toast/ToastContainer.vue';
 import { useToasts } from '@/components/toast/useToasts';
 
@@ -26,17 +27,17 @@ watch(() => page.props.flash, (f) => {
     <header class="bg-slate-900 text-white">
       <nav class="container-default flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-          <Link class="text-lg font-semibold tracking-tight text-white transition hover:text-blue-200" href="/">
+          <Link class="text-lg font-semibold tracking-tight text-white transition hover:text-blue-200" :href="route('home')">
             {{ $page.props.app?.name ?? 'Example App' }}
           </Link>
         </div>
         <div class="flex flex-wrap items-center gap-3 sm:justify-end">
           <template v-if="!isAuth">
-            <Link class="text-sm font-semibold text-slate-200 transition hover:text-white" href="/login">Entrar</Link>
-            <Link class="btn-inverse" href="/register">Registrar</Link>
+            <Link class="text-sm font-semibold text-slate-200 transition hover:text-white" :href="route('login')">Entrar</Link>
+            <Link class="btn-inverse" :href="route('register')">Registrar</Link>
           </template>
           <template v-else>
-            <Link class="btn-inverse" href="/admin/dashboard">Acessar painel</Link>
+            <Link class="btn-inverse" :href="route('dashboard')">Acessar painel</Link>
           </template>
         </div>
       </nav>

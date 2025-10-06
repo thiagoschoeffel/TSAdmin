@@ -17,10 +17,10 @@ defineProps({
         </div>
 
         <div class="mt-6">
-            <Link href="/admin/dashboard" class="btn-ghost">Voltar para o dashboard</Link>
+            <Link :href="route('dashboard')" class="btn-ghost">Voltar para o dashboard</Link>
         </div>
     </div>
-    
+
 </template>
 
 <style scoped>
