@@ -22,27 +22,16 @@ export function lockScrollIfNeeded() {
         return;
     }
 
-    const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-
-    // Save previous paddings only once so we can restore the original values later
+    // NOTE: We intentionally do NOT add padding-right here. Previously we added
+    // scrollbar width as padding to prevent layout shift when hiding the
+    // scrollbar. The user requested that when the scrollbar disappears the
+    // content should occupy the full width, so we avoid injecting extra
+    // padding. We still keep prevBodyPadding/prevHtmlPadding in case other
+    // code set inline paddings earlier and they need to be restored later.
     if (prevBodyPadding === null)
         prevBodyPadding = document.body.style.paddingRight;
     if (prevHtmlPadding === null)
         prevHtmlPadding = document.documentElement.style.paddingRight;
-
-    if (scrollbarWidth > 0) {
-        const bodyCurrent =
-            parseFloat(getComputedStyle(document.body).paddingRight) || 0;
-        document.body.style.paddingRight = `${bodyCurrent + scrollbarWidth}px`;
-        const htmlCurrent =
-            parseFloat(
-                getComputedStyle(document.documentElement).paddingRight
-            ) || 0;
-        document.documentElement.style.paddingRight = `${
-            htmlCurrent + scrollbarWidth
-        }px`;
-    }
 
     document.documentElement.classList.add(LOCK_CLASS);
     document.body.classList.add(LOCK_CLASS);
