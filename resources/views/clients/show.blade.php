@@ -31,9 +31,7 @@
             </div>
         </div>
 
-        @if (session('status'))
-            <div class="status">{{ session('status') }}</div>
-        @endif
+        
 
         @include('clients.partials.details-sections', ['client' => $client])
     </section>

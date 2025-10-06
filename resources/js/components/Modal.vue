@@ -10,6 +10,7 @@ const props = defineProps({
   closeOnBackdrop: { type: Boolean, default: true },
   zBase: { type: Number, default: 1100 },
   showClose: { type: Boolean, default: true },
+  lockScroll: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:modelValue', 'open', 'close']);
@@ -50,11 +51,20 @@ function onBackdrop(e) {
   if (e.target === e.currentTarget) close();
 }
 
+let appliedLock = false;
+let prevOverflow = null;
+
 function onOpen() {
   if (!id.value) id.value = registerModal();
   document.addEventListener('keydown', onKeydown, true);
-  // Lock body scroll if at least one modal is open
-  document.body.style.overflow = 'hidden';
+  // Optionally lock body scroll (configurable)
+  if (props.lockScroll) {
+    if (!hasOpenModals()) {
+      prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      appliedLock = true;
+    }
+  }
   emit('open');
   nextTick(() => {
     // Focus the first focusable element
@@ -69,8 +79,12 @@ function onClose() {
   document.removeEventListener('keydown', onKeydown, true);
   if (id.value) unregisterModal(id.value);
   id.value = null;
-  // Restore body scroll if no modals
-  if (!hasOpenModals()) document.body.style.overflow = '';
+  // Restore body scroll if we locked it and there are no other modals open
+  if (props.lockScroll && appliedLock && !hasOpenModals()) {
+    document.body.style.overflow = prevOverflow ?? '';
+    appliedLock = false;
+    prevOverflow = null;
+  }
   emit('close');
 }
 
@@ -106,4 +120,3 @@ onBeforeUnmount(() => { if (open.value) onClose(); });
 
 <style scoped>
 </style>
-

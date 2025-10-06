@@ -1,10 +1,12 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import Dropdown from '@/components/Dropdown.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { router } from '@inertiajs/vue3';
+import ToastContainer from '@/components/toast/ToastContainer.vue';
+import { useToasts } from '@/components/toast/useToasts';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
@@ -24,6 +26,18 @@ const doLogout = async () => {
     logoutOpen.value = false;
   }
 };
+
+const { success, error } = useToasts();
+let lastFlash = '';
+watch(() => page.props.flash, (f) => {
+  const key = JSON.stringify(f||{});
+  if (key === lastFlash) return;
+  lastFlash = key;
+  if (!f) return;
+  if (f.status) success(f.status);
+  if (f.success) success(f.success);
+  if (f.error) error(f.error);
+}, { deep: true, immediate: true });
 </script>
 
 <template>
@@ -95,6 +109,7 @@ const doLogout = async () => {
       &copy; {{ new Date().getFullYear() }} {{ $page.props.app?.name ?? 'Example App' }}. Todos os direitos reservados.
     </footer>
   </div>
+  <ToastContainer />
 </template>
 
 <style scoped>
@@ -102,4 +117,3 @@ const doLogout = async () => {
 .btn-inverse { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#fff; color:#0f172a; font-weight:600; }
 .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>
-

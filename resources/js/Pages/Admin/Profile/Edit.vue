@@ -35,8 +35,7 @@ const destroyAccount = () => {
         <p class="text-sm text-slate-500">Atualize suas informações pessoais, e-mail e senha.</p>
       </div>
 
-      <div v-if="$page.props.flash?.status" class="status">{{ $page.props.flash.status }}</div>
-      <div v-if="form.errors.profile" class="status status-danger">{{ form.errors.profile }}</div>
+      
 
       <form @submit.prevent="submit" class="space-y-4">
         <label class="form-label">

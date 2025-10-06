@@ -5,6 +5,7 @@ import { ref, computed } from 'vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
+import UserDetailsModal from '@/components/users/UserDetailsModal.vue';
 
 const props = defineProps({
   users: { type: Object, required: true },
@@ -41,6 +42,12 @@ const performDelete = async () => {
     deleteState.value.open = false;
     deleteState.value.user = null;
   }
+};
+
+const details = ref({ open: false, userId: null });
+const openDetails = (user) => {
+  details.value.userId = user.id;
+  details.value.open = true;
 };
 </script>
 
@@ -82,7 +89,7 @@ const performDelete = async () => {
         </div>
       </form>
 
-      <div v-if="$page.props.flash?.status" class="status">{{ $page.props.flash.status }}</div>
+      
 
       <div class="table-wrapper">
         <table class="table">
@@ -98,7 +105,7 @@ const performDelete = async () => {
           <tbody>
             <tr v-for="u in users.data" :key="u.id">
               <td>
-                <span class="text-slate-900">{{ u.name }}</span>
+                <button type="button" class="link" @click="openDetails(u)">{{ u.name }}</button>
               </td>
               <td>{{ u.email }}</td>
               <td>{{ u.role === 'admin' ? 'Administrador' : 'Usuário comum' }}</td>
@@ -156,6 +163,8 @@ const performDelete = async () => {
                   variant="danger"
                   @confirm="performDelete" />
   </AdminLayout>
+
+  <UserDetailsModal v-model="details.open" :user-id="details.userId" />
 </template>
 
 <style scoped>

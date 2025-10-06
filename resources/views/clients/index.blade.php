@@ -46,9 +46,7 @@
             </div>
         </form>
 
-        @if (session('status'))
-            <div class="status">{{ session('status') }}</div>
-        @endif
+        
 
         <div class="table-wrapper">
             <table class="table">

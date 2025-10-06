@@ -1,9 +1,24 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { usePage, Link } from '@inertiajs/vue3';
+import ToastContainer from '@/components/toast/ToastContainer.vue';
+import { useToasts } from '@/components/toast/useToasts';
 
 const page = usePage();
 const isAuth = computed(() => !!page.props.auth?.user);
+
+// Flash -> toasts
+const { success, error } = useToasts();
+let lastFlash = '';
+watch(() => page.props.flash, (f) => {
+  const key = JSON.stringify(f||{});
+  if (key === lastFlash) return;
+  lastFlash = key;
+  if (!f) return;
+  if (f.status) success(f.status);
+  if (f.success) success(f.success);
+  if (f.error) error(f.error);
+}, { deep: true, immediate: true });
 </script>
 
 <template>
@@ -35,6 +50,7 @@ const isAuth = computed(() => !!page.props.auth?.user);
       &copy; {{ new Date().getFullYear() }} {{ $page.props.app?.name ?? 'Example App' }}. Todos os direitos reservados.
     </footer>
   </div>
+  <ToastContainer />
 </template>
 
 <style scoped>

@@ -9,13 +9,7 @@
             <p class="text-sm text-slate-500">Atualize suas informações pessoais, e-mail e senha.</p>
         </div>
 
-        @if (session('status'))
-            <div class="status">{{ session('status') }}</div>
-        @endif
-
-        @if ($errors->has('profile'))
-            <div class="status status-danger">{{ $errors->first('profile') }}</div>
-        @endif
+        
 
         <form method="POST" action="{{ route('profile.update') }}" class="space-y-4">
             @csrf
