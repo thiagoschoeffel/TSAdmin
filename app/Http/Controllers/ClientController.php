@@ -71,9 +71,16 @@ class ClientController extends Controller
         return view('clients.index', compact('clients'));
     }
 
-    public function create(): View
+    public function create(): View|\Inertia\Response
     {
         abort_unless(auth()->user()->canManage('clients', 'create'), 403);
+        if (class_exists(\Inertia\Inertia::class)) {
+            return \Inertia\Inertia::render('Admin/Clients/Create', [
+                'states' => [
+                    'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
+                ],
+            ]);
+        }
         return view('clients.create');
     }
 
