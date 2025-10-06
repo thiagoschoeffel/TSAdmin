@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import Modal from '@/components/Modal.vue';
 
 const props = defineProps({
@@ -12,7 +12,7 @@ const emit = defineEmits(['update:modelValue']);
 const open = ref(props.modelValue);
 const loading = ref(false);
 const error = ref(false);
-const html = ref('');
+const payload = ref(null); // structured client data (required)
 
 watch(() => props.modelValue, (v) => { open.value = v; if (v) tryFetch(); });
 watch(open, (v) => emit('update:modelValue', v));
@@ -22,7 +22,7 @@ async function tryFetch() {
   if (!props.clientId) return;
   loading.value = true;
   error.value = false;
-  html.value = '';
+  payload.value = null;
   try {
     const res = await fetch(`/admin/clients/${props.clientId}/modal`, {
       headers: { Accept: 'application/json' },
@@ -30,8 +30,8 @@ async function tryFetch() {
     });
     if (!res.ok) throw new Error('failed');
     const data = await res.json();
-    if (!data || typeof data.html !== 'string') throw new Error('invalid');
-    html.value = data.html;
+    if (!data || !data.client) throw new Error('invalid');
+    payload.value = data.client;
   } catch (_) {
     error.value = true;
   } finally {
@@ -40,6 +40,56 @@ async function tryFetch() {
 }
 
 function retry() { tryFetch(); }
+
+function formatDate(value) {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  try {
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(d);
+  } catch (_) {
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  }
+}
+
+function formatDocument(doc) {
+  if (!doc) return '—';
+  // naive formatting: if 11 digits -> CPF, if 14 -> CNPJ, else return raw
+  const digits = String(doc).replace(/\D/g, '');
+  if (digits.length === 11) {
+    return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+  if (digits.length === 14) {
+    return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  }
+  return doc;
+}
+
+function formatPostalCode(pc) {
+  if (!pc) return '—';
+  const digits = String(pc).replace(/\D/g, '');
+  if (digits.length === 8) return digits.replace(/(\d{5})(\d{3})/, '$1-$2');
+  return pc;
+}
+
+function formatPhone(phone) {
+  if (!phone) return '—';
+  const digits = String(phone).replace(/\D/g, '');
+  if (digits.length === 11) return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  if (digits.length === 10) return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+  return phone;
+}
+
+const createdBy = computed(() => payload.value?.createdBy?.name ?? 'Conta removida');
+const updatedBy = computed(() => payload.value?.updatedBy?.name ?? 'Nunca atualizado');
 </script>
 
 <template>
@@ -87,7 +137,101 @@ function retry() { tryFetch(); }
       <button type="button" class="btn-secondary" @click="retry">Tentar novamente</button>
     </div>
 
-    <div v-else v-html="html" class="space-y-6"></div>
+    <div v-if="payload" class="space-y-6">
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-slate-900">Informações gerais</h2>
+        <dl class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">CPF/CNPJ</dt>
+            <dd class="text-sm text-slate-800">{{ formatDocument(payload.document) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Observações</dt>
+            <dd class="text-sm text-slate-800">{{ payload.observations || '—' }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Status</dt>
+            <dd>
+              <span :class="payload.status === 'active' ? 'badge-success' : 'badge-danger'">
+                {{ payload.status === 'active' ? 'Ativo' : 'Inativo' }}
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-slate-900">Endereço</h2>
+        <dl class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">CEP</dt>
+            <dd class="text-sm text-slate-800">{{ formatPostalCode(payload.postal_code) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Logradouro</dt>
+            <dd class="text-sm text-slate-800">{{ payload.address }}, nº {{ payload.address_number }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Complemento</dt>
+            <dd class="text-sm text-slate-800">{{ payload.address_complement || '—' }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Bairro</dt>
+            <dd class="text-sm text-slate-800">{{ payload.neighborhood }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Cidade/UF</dt>
+            <dd class="text-sm text-slate-800">{{ payload.city }} / {{ payload.state }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-slate-900">Contato</h2>
+        <dl class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Nome do contato</dt>
+            <dd class="text-sm text-slate-800">{{ payload.contact_name || '—' }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Telefone principal</dt>
+            <dd class="text-sm text-slate-800">{{ formatPhone(payload.contact_phone_primary) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Telefone secundário</dt>
+            <dd class="text-sm text-slate-800">{{ formatPhone(payload.contact_phone_secondary) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">E-mail</dt>
+            <dd class="text-sm text-slate-800">{{ payload.contact_email || '—' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-slate-900">Auditoria</h2>
+        <dl class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Cadastrado em</dt>
+            <dd class="text-sm text-slate-800">{{ formatDate(payload.created_at) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Por</dt>
+            <dd class="text-sm text-slate-800">{{ createdBy }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Última atualização</dt>
+            <dd class="text-sm text-slate-800">{{ formatDate(payload.updated_at) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Por</dt>
+            <dd class="text-sm text-slate-800">{{ updatedBy }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+
+    <div v-else class="space-y-6"></div>
   </Modal>
 </template>
 
