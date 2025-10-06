@@ -13,7 +13,7 @@ use Illuminate\View\View;
 
 class ClientController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|\Inertia\Response
     {
         abort_unless($request->user()->canManage('clients', 'view'), 403);
         $query = Client::query();
@@ -42,7 +42,31 @@ class ClientController extends Controller
             ->with(['createdBy', 'updatedBy'])
             ->orderBy('name')
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function (Client $client) {
+                return [
+                    'id' => $client->id,
+                    'name' => $client->name,
+                    'person_type' => $client->person_type,
+                    'status' => $client->status,
+                    'document' => $client->document,
+                    'formatted_document' => $client->formattedDocument(),
+                    'city' => $client->city,
+                    'state' => $client->state,
+                    'created_at' => optional($client->created_at)->format('d/m/Y H:i'),
+                ];
+            });
+
+        if (class_exists(\Inertia\Inertia::class)) {
+            return \Inertia\Inertia::render('Admin/Clients/Index', [
+                'filters' => [
+                    'search' => $request->string('search')->toString(),
+                    'person_type' => $request->get('person_type'),
+                    'status' => $request->get('status'),
+                ],
+                'clients' => $clients,
+            ]);
+        }
 
         return view('clients.index', compact('clients'));
     }
