@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,10 +39,12 @@ class RegisteredUserController extends Controller
             'role' => 'user',
         ]);
 
-        Auth::login($user);
+        // Send verification email immediately
+        $user->sendEmailVerificationNotification();
 
-        $request->session()->regenerate();
+        // Do not auto-login; require email verification first
+        $request->session()->put('registered_user_id', $user->id);
 
-        return redirect()->route('dashboard');
+        return redirect()->route('verification.notice');
     }
 }

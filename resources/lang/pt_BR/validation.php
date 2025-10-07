@@ -112,5 +112,7 @@ return [
         'access_denied' => 'Acesso negado.',
         'session_expired' => 'Sua sessão expirou. Por favor, faça login novamente.',
         'unexpected_error' => 'Ocorreu um erro inesperado. Tente novamente mais tarde.',
+        'email_verified' => 'Seu e-mail foi verificado com sucesso. Bem-vindo!',
+        'verification_resent' => 'Link de verificação reenviado. Verifique seu e-mail.',
     ],
 ];
