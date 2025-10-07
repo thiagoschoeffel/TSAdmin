@@ -37,7 +37,10 @@ const submit = () => {
         <label class="form-label">
           Senha
           <input type="password" v-model="form.password" required autocomplete="current-password" class="form-input" />
-          <span v-if="fieldError('password')" class="text-sm font-medium text-rose-600">{{ fieldError('password') }}</span>
+          <div class="flex items-center justify-between">
+            <span v-if="fieldError('password')" class="text-sm font-medium text-rose-600">{{ fieldError('password') }}</span>
+            <Link class="text-sm text-slate-500 hover:text-slate-700" href="/forgot-password">Esqueceu sua senha?</Link>
+          </div>
         </label>
 
         <Checkbox v-model="form.remember">Manter conectado</Checkbox>
