@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: example_app
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - '8025:8025' # web UI
+      - '1025:1025' # smtp
+    environment:
+      - MAILPIT_WEB_PATH=/
+
+volumes:
+  db-data:
+    name: example_app_db_data
