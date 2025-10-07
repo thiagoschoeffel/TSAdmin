@@ -13,6 +13,7 @@ const { success, error } = useToasts();
 let lastFlash = '';
 watch(() => page.props.flash, (f) => {
   const key = JSON.stringify(f||{});
+  console.debug('[PublicLayout] flash changed:', f);
   if (key === lastFlash) return;
   lastFlash = key;
   if (!f) return;

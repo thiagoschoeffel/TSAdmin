@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 use Inertia\Inertia;
@@ -39,7 +40,9 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Foundation\Bootstrap\HandleExceptions::class; // garantir carregamento
 
         // Renderable closures para códigos comuns
-        app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, Request $request) {
+        $handler = app()->make(ExceptionHandlerContract::class);
+        /** @var \Illuminate\Foundation\Exceptions\Handler $handler */
+        $handler->renderable(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, Request $request) {
             if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
                 // Mesclar props globais do Inertia manualmente
                 $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
@@ -48,14 +51,14 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Rota Model Binding falhou (ex: Client não existe) -> retornar Errors/404 via Inertia
-        app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (\Illuminate\Database\Eloquent\ModelNotFoundException $e, Request $request) {
+        $handler->renderable(function (\Illuminate\Database\Eloquent\ModelNotFoundException $e, Request $request) {
             if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
                 return Inertia::render('Errors/404', ['url' => $request->getRequestUri()])->toResponse($request)->setStatusCode(404);
             }
         });
 
         // Tratar HttpException com status 403 (abort(403) gera HttpExceptionInterface)
-        app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, Request $request) {
+        $handler->renderable(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, Request $request) {
             if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
                 if ($e->getStatusCode() === 403) {
                     $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
@@ -65,33 +68,76 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Tratar Unauthenticated separadamente: redirecionar ao login (evita transformar em 500)
-        app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
+        $handler->renderable(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
             // Para requisições Inertia / HTML, redirecionar ao formulário de login
             if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
+                // Provide a friendly flash message so layouts can show a toast on the login page
+                session()->flash('status', __('validation.custom_messages.login_required'));
+                session()->flash('flash_id', (string) Str::uuid());
                 return redirect()->guest(route('login'));
             }
         });
 
-        app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException $e, Request $request) {
+        $handler->renderable(function (\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException $e, Request $request) {
             if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
+                // Flash a toast-friendly error so the client layouts will display it
+                session()->flash('error', __('validation.custom_messages.access_denied'));
+                session()->flash('flash_id', (string) Str::uuid());
                 $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
                 return Inertia::render('Errors/403', array_merge($globals, ['url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(403);
             }
         });
 
-        app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (\Illuminate\Session\TokenMismatchException $e, Request $request) {
+        $handler->renderable(function (\Illuminate\Session\TokenMismatchException $e, Request $request) {
             if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
+                // Session expired: show a toast and the 419 page
+                session()->flash('error', __('validation.custom_messages.session_expired'));
+                session()->flash('flash_id', (string) Str::uuid());
                 $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
                 return Inertia::render('Errors/419', array_merge($globals, ['url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(419);
             }
         });
 
-        app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (Throwable $e, Request $request) {
+        $handler->renderable(function (Throwable $e, Request $request) {
+            // If we're in debug mode, don't intercept - let Laravel display the Whoops/debug page.
+            if (config('app.debug')) {
+                return null;
+            }
+
             // Se a exceção for específica, tratá-la aqui para evitar que o handler genérico a transforme em 500
             if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
                 // Authentication -> redirecionar para login
                 if ($e instanceof \Illuminate\Auth\AuthenticationException) {
                     return redirect()->guest(route('login'));
+                }
+
+                // Validation exceptions -> return errors (422) or redirect back with errors
+                if ($e instanceof \Illuminate\Validation\ValidationException) {
+                    // Flash validation errors as toast messages
+                    if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
+                        foreach ($e->errors() as $field => $messages) {
+                            foreach ($messages as $message) {
+                                session()->flash('error', $message);
+                                session()->flash('flash_id', (string) Str::uuid());
+                            }
+                        }
+
+                        // Explicitly recreate flash messages for validation errors if they exist
+                        if ($errors = session('errors')) {
+                            foreach ($errors->getMessages() as $field => $messages) {
+                                foreach ($messages as $message) {
+                                    session()->flash('error', $message);
+                                    session()->flash('flash_id', (string) Str::uuid());
+                                }
+                            }
+                        }
+
+                        // Use the global session helper to reflash all session data
+                        session()->reflash();
+
+                        // Redirect back to the previous page
+                        return redirect()->back()->withInput();
+                    }
                 }
 
                 // Model not found / NotFoundHttpException -> mostrar 404 Inertia
@@ -105,8 +151,11 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 // Fallback: 500 genérico
+                // Flash a generic error (avoid leaking the raw exception message to users in production)
+                session()->flash('error', __('validation.custom_messages.unexpected_error'));
+                session()->flash('flash_id', (string) Str::uuid());
                 $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
-                return Inertia::render('Errors/500', array_merge($globals, ['message' => $e->getMessage(), 'url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(500);
+                return Inertia::render('Errors/500', array_merge($globals, ['message' => config('app.debug') ? $e->getMessage() : null, 'url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(500);
             }
         });
     }

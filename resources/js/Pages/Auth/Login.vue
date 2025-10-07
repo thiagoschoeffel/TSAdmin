@@ -1,13 +1,21 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 import Checkbox from '@/components/ui/Checkbox.vue';
+
+const page = usePage();
+const serverErrors = page.props.value?.errors || {};
 
 const form = useForm({
   email: '',
   password: '',
   remember: false,
 });
+
+function fieldError(field) {
+  // prefer form.errors (from useForm) then page props (server-rendered)
+  return form.errors[field] || serverErrors[field];
+}
 
 const submit = () => {
   form.post('/login');
@@ -23,13 +31,13 @@ const submit = () => {
         <label class="form-label">
           E-mail
           <input type="email" v-model="form.email" required autocomplete="email" class="form-input" />
-          <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
+          <span v-if="fieldError('email')" class="text-sm font-medium text-rose-600">{{ fieldError('email') }}</span>
         </label>
 
         <label class="form-label">
           Senha
           <input type="password" v-model="form.password" required autocomplete="current-password" class="form-input" />
-          <span v-if="form.errors.password" class="text-sm font-medium text-rose-600">{{ form.errors.password }}</span>
+          <span v-if="fieldError('password')" class="text-sm font-medium text-rose-600">{{ fieldError('password') }}</span>
         </label>
 
         <Checkbox v-model="form.remember">Manter conectado</Checkbox>

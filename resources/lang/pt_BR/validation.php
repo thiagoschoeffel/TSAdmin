@@ -106,5 +106,11 @@ return [
         'password' => 'senha',
         'password_confirmation' => 'confirmação de senha',
     ],
-];
 
+    'custom_messages' => [
+        'login_required' => 'Por favor faça login para continuar.',
+        'access_denied' => 'Acesso negado.',
+        'session_expired' => 'Sua sessão expirou. Por favor, faça login novamente.',
+        'unexpected_error' => 'Ocorreu um erro inesperado. Tente novamente mais tarde.',
+    ],
+];
