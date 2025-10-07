@@ -24,7 +24,7 @@ const submit = () => {
 
 <template>
   <PublicLayout>
-    <section class="card space-y-6 max-w-xl">
+    <section class="card space-y-6 max-w-xl mx-auto">
       <h1 class="text-2xl font-semibold text-slate-900">Entrar</h1>
 
       <form @submit.prevent="submit" class="space-y-4">

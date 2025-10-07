@@ -54,15 +54,6 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
 
     Route::get('clients/{client}/modal', [ClientController::class, 'modal'])->name('clients.modal');
     Route::resource('clients', ClientController::class);
-
-    // Rota de exemplo para Inertia (só registra se o pacote estiver instalado)
-    if (class_exists(\Inertia\Inertia::class)) {
-        Route::get('/inertia-demo', function () {
-            return \Inertia\Inertia::render('Demo/Hello', [
-                'title' => 'Inertia Demo',
-            ]);
-        })->name('inertia.demo');
-    }
 });
 
 // Fallback para 404 dentro do grupo 'web', garantindo sessão e autenticação disponíveis

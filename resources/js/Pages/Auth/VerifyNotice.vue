@@ -17,7 +17,7 @@ const resend = async () => {
 
 <template>
   <PublicLayout>
-    <section class="card space-y-6 max-w-xl">
+    <section class="card space-y-6 max-w-xl mx-auto">
       <h1 class="text-2xl font-semibold mb-4">Confirme seu e-mail</h1>
       <p class="mb-4">Verificamos seu cadastro. Por favor, verifique seu e-mail e clique no link de confirmação enviado para você.</p>
       <div class="flex gap-3">

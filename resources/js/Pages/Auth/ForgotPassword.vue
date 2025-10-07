@@ -17,7 +17,7 @@ const submit = () => form.post('/forgot-password');
           <input type="email" v-model="form.email" required class="form-input" />
           <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
         </label>
-        <div class="flex gap-3">
+        <div class="flex gap-3 items-center">
           <button class="btn-primary" :disabled="form.processing">Enviar link</button>
           <Link class="text-sm text-slate-500" href="/login">Voltar ao login</Link>
         </div>
