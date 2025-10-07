@@ -114,7 +114,7 @@ class ClientController extends Controller
         ]));
 
         return redirect()
-            ->route('clients.show', $client)
+            ->route('clients.index')
             ->with('status', 'Cliente cadastrado com sucesso.');
     }
 
@@ -247,7 +247,7 @@ class ClientController extends Controller
         $client->save();
 
         return redirect()
-            ->route('clients.show', $client)
+            ->route('clients.index')
             ->with('status', 'Cliente atualizado com sucesso.');
     }
 
