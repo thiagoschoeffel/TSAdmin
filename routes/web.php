@@ -35,6 +35,9 @@ Route::post('/email/verification-notification', [\App\Http\Controllers\Auth\Veri
 Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Auth\VerificationController::class, 'verify'])->middleware('signed')->name('verification.verify');
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): void {
+    Route::get('/', function () {
+        return redirect()->route('dashboard');
+    });
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
