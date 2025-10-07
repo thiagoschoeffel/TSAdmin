@@ -54,6 +54,16 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
+        // Tratar HttpException com status 403 (abort(403) gera HttpExceptionInterface)
+        app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, Request $request) {
+            if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
+                if ($e->getStatusCode() === 403) {
+                    $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
+                    return Inertia::render('Errors/403', array_merge($globals, ['url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(403);
+                }
+            }
+        });
+
         // Tratar Unauthenticated separadamente: redirecionar ao login (evita transformar em 500)
         app()->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)->renderable(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
             // Para requisições Inertia / HTML, redirecionar ao formulário de login

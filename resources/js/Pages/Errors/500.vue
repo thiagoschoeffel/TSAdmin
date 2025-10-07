@@ -1,13 +1,12 @@
 <template>
   <ErrorLayoutSelector>
-    <div class="flex items-center justify-center min-h-screen">
-      <div class="text-center">
-        <h1 class="text-6xl font-bold text-gray-700">500</h1>
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Erro interno</h2>
-        <p class="text-gray-600 mb-8">Ocorreu um erro interno. Tente novamente mais tarde.</p>
+    <section class="error-card">
+      <h1 class="error-title">Erro interno ({{ props.status }})</h1>
+      <p class="error-message">Ocorreu um erro interno. Tente novamente mais tarde.</p>
+      <div class="actions">
         <Link :href="backHref" class="btn-primary">Voltar ao início</Link>
       </div>
-    </div>
+    </section>
   </ErrorLayoutSelector>
 </template>
 
@@ -17,7 +16,7 @@ import { Link } from '@inertiajs/vue3'
 import { route } from '@/ziggy-client'
 import { computed } from 'vue'
 
-const props = defineProps({ url: { type: String, default: null } })
+const props = defineProps({ status: { type: Number, default: 500 }, url: { type: String, default: null } })
 
 const backHref = computed(() => {
   const u = props.url || (typeof window !== 'undefined' ? window.location.pathname : '/')
@@ -27,5 +26,9 @@ const backHref = computed(() => {
 </script>
 
 <style scoped>
-.btn-primary { background:#3b82f6;color:#fff;padding:.75rem 1.25rem;border-radius:.5rem;text-decoration:none }
+.error-card { border:1px solid #e2e8f0; background:#fff; border-radius:.75rem; padding:1.25rem; max-width:48rem; }
+.error-title { font-size:1.5rem; font-weight:700; color:#0f172a; }
+.error-message { margin-top:.5rem; color:#475569; }
+.actions { margin-top:1rem; display:flex; gap:.75rem; }
+.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
 </style>
