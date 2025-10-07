@@ -3,9 +3,11 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "dev": "vite",
-        "icons": "node ./scripts/copy-heroicons.js"
+        "build": "npm run ziggy && vite build",
+        "dev": "npm run ziggy && vite",
+        "icons": "node ./scripts/copy-heroicons.js",
+        "ziggy": "php artisan ziggy:generate",
+        "ziggy:check": "php artisan ziggy:generate && echo 'Ziggy routes updated'"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
