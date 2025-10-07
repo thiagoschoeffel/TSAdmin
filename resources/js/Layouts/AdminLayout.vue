@@ -43,8 +43,8 @@ watch(() => page.props.flash, (f) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-white text-slate-900">
-    <header class="bg-slate-900 text-white">
+  <div class="min-h-screen bg-slate-50 text-slate-900">
+    <header class="sticky top-0 z-50 bg-slate-900 text-white">
       <nav class="container-default flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
           <Link class="text-lg font-semibold tracking-tight text-white transition hover:text-blue-200" :href="route('dashboard')">
@@ -103,7 +103,7 @@ watch(() => page.props.flash, (f) => {
       </nav>
     </header>
 
-    <main class="container-default py-10">
+    <main class="container-default py-10 pt-20">
       <slot />
     </main>
 
