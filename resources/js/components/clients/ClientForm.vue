@@ -1,5 +1,6 @@
 <script setup>
 import Switch from '@/components/ui/Switch.vue';
+import { useToasts } from '@/components/toast/useToasts';
 
 const props = defineProps({
   form: { type: Object, required: true },
@@ -9,6 +10,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['submit']);
+
+const { error } = useToasts();
 
 const digitsOnly = (v = '') => String(v).replace(/\D+/g, '');
 const applyMask = (value, pattern) => {
@@ -31,6 +34,28 @@ const formatPhone = (key) => {
   const digits = digitsOnly(props.form[key]);
   const pattern = digits.length > 10 ? '(##) #####-####' : '(##) ####-####';
   props.form[key] = applyMask(digits, pattern);
+};
+
+const fetchAddress = async () => {
+  const cep = digitsOnly(props.form.postal_code);
+  if (cep.length !== 8) return;
+
+  try {
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const data = await response.json();
+
+    if (data.erro) {
+      error('CEP não encontrado. Verifique se o CEP é válido.');
+    } else {
+      props.form.address = data.logradouro || '';
+      props.form.neighborhood = data.bairro || '';
+      props.form.city = data.localidade || '';
+      props.form.state = data.uf || '';
+    }
+  } catch (err) {
+    console.error('Erro ao buscar CEP:', err);
+    error('Erro ao buscar CEP. Tente novamente mais tarde.');
+  }
 };
 
 const onSubmit = () => emit('submit');
@@ -81,7 +106,7 @@ const onSubmit = () => emit('submit');
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <label class="form-label">
           CEP
-          <input type="text" v-model="form.postal_code" required class="form-input" @input="formatPostalCode" />
+          <input type="text" v-model="form.postal_code" required class="form-input" @input="formatPostalCode" @blur="fetchAddress" />
           <span v-if="form.errors.postal_code" class="text-sm font-medium text-rose-600">{{ form.errors.postal_code }}</span>
         </label>
         <label class="form-label">
@@ -106,12 +131,12 @@ const onSubmit = () => emit('submit');
         </label>
         <label class="form-label">
           Cidade
-          <input type="text" v-model="form.city" required class="form-input" />
+          <input type="text" v-model="form.city" required class="form-input" disabled />
           <span v-if="form.errors.city" class="text-sm font-medium text-rose-600">{{ form.errors.city }}</span>
         </label>
         <label class="form-label">
           Estado (UF)
-          <select v-model="form.state" required class="form-select">
+          <select v-model="form.state" required class="form-select" disabled>
             <option value="">Selecione</option>
             <option v-for="uf in states" :key="uf" :value="uf">{{ uf }}</option>
           </select>

@@ -20,6 +20,9 @@ class StoreClientRequest extends FormRequest
             'contact_phone_primary' => $this->sanitiseDigits($this->input('contact_phone_primary')),
             'contact_phone_secondary' => $this->sanitiseDigits($this->input('contact_phone_secondary')),
         ]);
+
+        // Fetch address from ViaCEP to ensure city and state are correct
+        $this->fetchAndMergeAddress();
     }
 
     public function rules(): array
@@ -54,5 +57,29 @@ class StoreClientRequest extends FormRequest
     protected function sanitiseDigits(?string $value): ?string
     {
         return $value ? preg_replace('/\D+/', '', $value) : null;
+    }
+
+    protected function fetchAndMergeAddress(): void
+    {
+        $postalCode = $this->input('postal_code');
+        if (!$postalCode || strlen($postalCode) !== 8) {
+            return;
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::get("https://viacep.com.br/ws/{$postalCode}/json/");
+            $data = $response->json();
+
+            if ($data && !isset($data['erro'])) {
+                $this->merge([
+                    'address' => $data['logradouro'] ?? $this->input('address'),
+                    'neighborhood' => $data['bairro'] ?? $this->input('neighborhood'),
+                    'city' => $data['localidade'] ?? $this->input('city'),
+                    'state' => $data['uf'] ?? $this->input('state'),
+                ]);
+            }
+        } catch (\Exception $e) {
+            // If API fails, keep the submitted values
+        }
     }
 }

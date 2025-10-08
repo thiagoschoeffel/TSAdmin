@@ -115,28 +115,8 @@ class AppServiceProvider extends ServiceProvider
                 if ($e instanceof \Illuminate\Validation\ValidationException) {
                     // Flash validation errors as toast messages
                     if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
-                        foreach ($e->errors() as $field => $messages) {
-                            foreach ($messages as $message) {
-                                session()->flash('error', $message);
-                                session()->flash('flash_id', (string) Str::uuid());
-                            }
-                        }
-
-                        // Explicitly recreate flash messages for validation errors if they exist
-                        if ($errors = session('errors')) {
-                            foreach ($errors->getMessages() as $field => $messages) {
-                                foreach ($messages as $message) {
-                                    session()->flash('error', $message);
-                                    session()->flash('flash_id', (string) Str::uuid());
-                                }
-                            }
-                        }
-
-                        // Use the global session helper to reflash all session data
-                        session()->reflash();
-
-                        // Redirect back to the previous page
-                        return redirect()->back()->withInput();
+                        // Instead of flashing as toast, redirect back with errors so they appear inline
+                        return redirect()->back()->withErrors($e->validator)->withInput();
                     }
                 }
 
