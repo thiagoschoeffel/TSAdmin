@@ -21,7 +21,6 @@ const name = page.props.auth?.user?.name ?? 'usuário';
 </template>
 
 <style scoped>
-.card { border:1px solid #e2e8f0; background:#fff; border-radius:.75rem; padding:1.25rem; }
 .btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
 </style>
 

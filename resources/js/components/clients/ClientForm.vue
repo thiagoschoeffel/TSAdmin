@@ -188,7 +188,6 @@ const onSubmit = () => emit('submit');
 </template>
 
 <style scoped>
-.card { border:1px solid #e2e8f0; background:#fff; border-radius: .75rem; padding: 1.25rem; }
 .form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
 .form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
 .form-input:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }

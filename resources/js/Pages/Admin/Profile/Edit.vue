@@ -35,7 +35,7 @@ const destroyAccount = () => {
         <p class="text-sm text-slate-500">Atualize suas informações pessoais, e-mail e senha.</p>
       </div>
 
-      
+
 
       <form @submit.prevent="submit" class="space-y-4">
         <label class="form-label">
@@ -100,11 +100,10 @@ const destroyAccount = () => {
       </div>
     </section>
   </AdminLayout>
-  
+
 </template>
 
 <style scoped>
-.card { border:1px solid #e2e8f0; background:#fff; border-radius:.75rem; padding:1.25rem; }
 .form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
 .form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
 .btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }

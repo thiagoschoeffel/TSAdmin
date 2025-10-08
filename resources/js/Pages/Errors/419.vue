@@ -15,7 +15,7 @@ const backHref = computed(() => {
 
 <template>
   <ErrorLayoutSelector>
-    <section class="error-card">
+    <section class="card max-w-3xl mx-auto">
       <h1 class="error-title">Sessão expirada ({{ props.status }})</h1>
       <p class="error-message">Sua sessão expirou ou o token CSRF não é mais válido. Atualize a página ou faça login novamente.</p>
       <div class="actions">
@@ -27,7 +27,6 @@ const backHref = computed(() => {
 </template>
 
 <style scoped>
-.error-card { border:1px solid #e2e8f0; background:#fff; border-radius:.75rem; padding:1.25rem; max-width:48rem; }
 .error-title { font-size:1.5rem; font-weight:700; color:#0f172a; }
 .error-message { margin-top:.5rem; color:#475569; }
 .actions { margin-top:1rem; display:flex; gap:.75rem; }
