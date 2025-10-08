@@ -88,8 +88,15 @@ function formatPhone(phone) {
   return phone;
 }
 
-const createdBy = computed(() => payload.value?.createdBy?.name ?? 'Conta removida');
-const updatedBy = computed(() => payload.value?.updatedBy?.name ?? 'Nunca atualizado');
+const createdBy = computed(() => payload.value?.created_by ?? 'Conta removida');
+const lastUpdatedAt = computed(() => {
+  if (payload.value?.updated_at === payload.value?.created_at) return null;
+  return payload.value?.updated_at;
+});
+const updatedBy = computed(() => {
+  if (payload.value?.updated_at === payload.value?.created_at) return 'Nunca atualizado';
+  return payload.value?.updated_by ?? 'Conta removida';
+});
 </script>
 
 <template>
@@ -221,7 +228,7 @@ const updatedBy = computed(() => payload.value?.updatedBy?.name ?? 'Nunca atuali
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Última atualização</dt>
-            <dd class="text-sm text-slate-800">{{ formatDate(payload.updated_at) }}</dd>
+            <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Por</dt>

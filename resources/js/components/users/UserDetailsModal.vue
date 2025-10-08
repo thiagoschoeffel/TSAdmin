@@ -56,6 +56,11 @@ const groupedPermissions = computed(() => {
   });
 });
 
+const lastUpdatedAt = computed(() => {
+  if (payload.value?.updated_at === payload.value?.created_at) return null;
+  return payload.value?.updated_at;
+});
+
 function abilityLabel(key) {
   const map = {
     create: 'Criar',
@@ -182,7 +187,7 @@ function formatDate(value) {
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Atualizado em</dt>
-            <dd class="text-sm text-slate-800">{{ formatDate(payload.updated_at) }}</dd>
+            <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
           </div>
         </dl>
       </section>
