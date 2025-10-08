@@ -27,6 +27,15 @@ const formatDocument = () => {
     ? applyMask(digits, '##.###.###/####-##')
     : applyMask(digits, '###.###.###-##');
 };
+
+const clearContactFields = () => {
+  if (props.form.person_type === 'individual') {
+    props.form.contact_name = '';
+    props.form.contact_phone_primary = '';
+    props.form.contact_phone_secondary = '';
+    props.form.contact_email = '';
+  }
+};
 const formatPostalCode = () => {
   props.form.postal_code = applyMask(props.form.postal_code, '#####-###');
 };
@@ -72,7 +81,7 @@ const onSubmit = () => emit('submit');
 
       <label class="form-label">
         Tipo de pessoa
-        <select v-model="form.person_type" class="form-select" required @change="formatDocument">
+        <select v-model="form.person_type" class="form-select" required @change="formatDocument; clearContactFields">
           <option value="individual">Pessoa Física</option>
           <option value="company">Pessoa Jurídica</option>
         </select>
@@ -150,7 +159,7 @@ const onSubmit = () => emit('submit');
       <div class="grid gap-4 sm:grid-cols-2" id="contact_fields">
         <label class="form-label">
           Nome do contato
-          <input type="text" v-model="form.contact_name" :required="form.person_type === 'company'" class="form-input" />
+          <input type="text" v-model="form.contact_name" :required="form.person_type === 'company'" :disabled="form.person_type === 'individual'" class="form-input" />
           <span v-if="form.errors.contact_name" class="text-sm font-medium text-rose-600">{{ form.errors.contact_name }}</span>
         </label>
         <label class="form-label">
