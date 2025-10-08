@@ -269,12 +269,9 @@ class ClientController extends Controller
             ? strtolower($data['contact_email'])
             : null;
 
-        // For individual persons, clear contact fields
+        // For individual persons, clear only contact_name
         if ($data['person_type'] === 'individual') {
             $data['contact_name'] = null;
-            $data['contact_phone_primary'] = null;
-            $data['contact_phone_secondary'] = null;
-            $data['contact_email'] = null;
         }
 
         return $data;

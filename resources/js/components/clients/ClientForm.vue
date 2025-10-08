@@ -27,15 +27,6 @@ const formatDocument = () => {
     ? applyMask(digits, '##.###.###/####-##')
     : applyMask(digits, '###.###.###-##');
 };
-
-const clearContactFields = () => {
-  if (props.form.person_type === 'individual') {
-    props.form.contact_name = '';
-    props.form.contact_phone_primary = '';
-    props.form.contact_phone_secondary = '';
-    props.form.contact_email = '';
-  }
-};
 const formatPostalCode = () => {
   props.form.postal_code = applyMask(props.form.postal_code, '#####-###');
 };
@@ -81,7 +72,7 @@ const onSubmit = () => emit('submit');
 
       <label class="form-label">
         Tipo de pessoa
-        <select v-model="form.person_type" class="form-select" required @change="formatDocument; clearContactFields">
+        <select v-model="form.person_type" class="form-select" required @change="formatDocument">
           <option value="individual">Pessoa Física</option>
           <option value="company">Pessoa Jurídica</option>
         </select>
