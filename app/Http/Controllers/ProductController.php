@@ -104,7 +104,7 @@ class ProductController extends Controller
     public function modal(Product $product): JsonResponse
     {
         abort_unless(Auth::user()->canManage('products', 'view'), 403);
-        $product->load(['createdBy', 'updatedBy', 'components']);
+        $product->load(['createdBy', 'updatedBy', 'components.components']);
 
         return response()->json([
             'product' => [
@@ -131,7 +131,34 @@ class ProductController extends Controller
                         'updated_by' => $component->updatedBy?->name,
                     ];
                 }),
+                'component_tree' => $this->buildComponentTree($product),
             ],
         ]);
+    }
+
+    private function buildComponentTree(Product $product, $level = 0, $visited = []): array
+    {
+        if (in_array($product->id, $visited)) {
+            return []; // Evita loops infinitos
+        }
+
+        $visited[] = $product->id;
+        $tree = [];
+
+        foreach ($product->components as $component) {
+            $tree[] = [
+                'id' => $component->id,
+                'name' => $component->name,
+                'quantity' => $component->pivot->quantity,
+                'price' => $component->formattedPrice(),
+                'total' => 'R$ ' . number_format($component->price * $component->pivot->quantity, 2, ',', '.'),
+                'status' => $component->status,
+                'level' => $level,
+                'has_children' => $component->components->count() > 0,
+                'children' => $this->buildComponentTree($component, $level + 1, $visited),
+            ];
+        }
+
+        return $tree;
     }
 }

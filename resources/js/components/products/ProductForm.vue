@@ -256,7 +256,10 @@ const onSubmit = () => emit('submit');
 // Funções para operações no banco de dados (modo edição)
 const saveComponentToDatabase = async () => {
   try {
-    const componentData = { ...newComponent.value };
+    const componentData = {
+      component_id: newComponent.value.id,
+      quantity: newComponent.value.quantity
+    };
     let result;
 
     if (editingComponentIndex.value >= 0) {

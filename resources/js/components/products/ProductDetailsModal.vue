@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import Modal from '@/components/Modal.vue';
+import ProductTree from '@/components/products/ProductTree.vue';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -137,34 +138,8 @@ const updatedBy = computed(() => {
 
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-slate-900">Componentes</h2>
-        <div class="table-wrapper">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Quantidade</th>
-                <th>Preço unitário</th>
-                <th>Total</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="component in payload.components" :key="component.id">
-                <td>{{ component.name }}</td>
-                <td>{{ component.quantity }}</td>
-                <td>{{ component.price }}</td>
-                <td>{{ component.total }}</td>
-                <td class="table-actions">
-                  <span :class="component.status === 'active' ? 'badge-success' : 'badge-danger'">
-                    {{ component.status === 'active' ? 'Ativo' : 'Inativo' }}
-                  </span>
-                </td>
-              </tr>
-              <tr v-if="!payload.components || payload.components.length === 0">
-                <td colspan="5" class="table-empty">Este produto não possui componentes.</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+          <ProductTree :nodes="payload.component_tree" />
         </div>
       </section>
 
