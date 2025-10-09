@@ -5,6 +5,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { usePage } from '@inertiajs/vue3';
+import axios from 'axios';
 import { ref, computed, onMounted, nextTick } from 'vue';
 
 const page = usePage();
@@ -100,9 +101,12 @@ onMounted(() => {
   initializePriceInput();
 });
 
-// Computed para produtos disponíveis (excluindo o produto atual e componentes já adicionados)
+// Computed para produtos disponíveis (excluindo o produto atual e componentes já adicionados, exceto o que está sendo editado)
 const availableProducts = computed(() => {
-  const addedIds = props.form.components.map(c => c.id);
+  const addedIds = props.form.components
+    .map(c => c.id)
+    .filter((id, index) => index !== editingComponentIndex.value); // Excluir apenas o componente que não está sendo editado
+
   if (props.productId) {
     addedIds.push(props.productId);
   }
@@ -119,7 +123,7 @@ const hasCycle = (componentId, currentProductId = props.productId) => {
 };
 
 // Métodos para gerenciar componentes
-const addComponent = () => {
+const addComponent = async () => {
   // Validação dos campos obrigatórios
   const errors = {};
 
@@ -146,23 +150,37 @@ const addComponent = () => {
   // Limpa erros anteriores
   componentErrors.value = {};
 
-  if (editingComponentIndex.value >= 0) {
-    // Salvar edição
-    props.form.components[editingComponentIndex.value] = { ...newComponent.value };
-    editingComponentIndex.value = -1;
-    toastSuccess('Componente atualizado com sucesso!');
+  if (props.isEditing) {
+    // Modo edição: salvar diretamente no banco
+    await saveComponentToDatabase();
   } else {
-    // Adicionar novo
-    props.form.components.push({ ...newComponent.value, id: parseInt(newComponent.value.id) });
-    toastSuccess('Componente adicionado com sucesso!');
+    // Modo criação: adicionar à lista em memória
+    if (editingComponentIndex.value >= 0) {
+      // Salvar edição em memória
+      props.form.components[editingComponentIndex.value] = { ...newComponent.value };
+      editingComponentIndex.value = -1;
+      toastSuccess('Componente atualizado com sucesso!');
+    } else {
+      // Adicionar novo
+      props.form.components.push({ ...newComponent.value, id: parseInt(newComponent.value.id) });
+      toastSuccess('Componente adicionado com sucesso!');
+    }
+    resetNewComponent();
+    showAddForm.value = false;
   }
-  resetNewComponent();
-  showAddForm.value = false;
 };
 
 const editComponent = (index) => {
+  // No modo edição, só permite editar componentes que já existem no backend (id real)
+  if (props.isEditing && (!props.form.components[index].id || String(props.form.components[index].id).length > 10)) {
+    toastError('Salve o produto antes de editar este componente.');
+    return;
+  }
   editingComponentIndex.value = index;
-  newComponent.value = { ...props.form.components[index] };
+  newComponent.value = {
+    ...props.form.components[index],
+    id: String(props.form.components[index].id) // Garantir que seja string para o select
+  };
   componentErrors.value = {}; // Limpa erros ao editar
   showAddForm.value = true;
 };
@@ -174,24 +192,55 @@ const cancelEdit = () => {
 };
 
 const removeComponent = (index) => {
-  confirmDeleteComponent(index);
+  if (props.isEditing) {
+    // Modo edição: confirmar exclusão que será feita no banco
+    confirmDeleteComponent(index);
+  } else {
+    // Modo criação: remover da lista em memória
+    props.form.components.splice(index, 1);
+    if (editingComponentIndex.value === index) {
+      cancelEdit();
+    }
+  }
 };
 
 const confirmDeleteComponent = (index) => {
   deleteComponentState.value = { open: true, processing: false, componentIndex: index };
 };
 
-const performDeleteComponent = () => {
+const performDeleteComponent = async () => {
   if (deleteComponentState.value.componentIndex === null) return;
 
-  const index = deleteComponentState.value.componentIndex;
-  props.form.components.splice(index, 1);
-  if (editingComponentIndex.value === index) {
-    cancelEdit();
-  }
-  toastSuccess('Componente removido com sucesso!');
+  deleteComponentState.value.processing = true;
+  try {
+    const index = deleteComponentState.value.componentIndex;
+    const component = props.form.components[index];
 
-  deleteComponentState.value = { open: false, processing: false, componentIndex: null };
+    // Só deleta do backend se o id for real (não temporário)
+    const isRealId = component.id && String(component.id).length < 10 && Number.isInteger(Number(component.id));
+    if (props.isEditing && isRealId) {
+      // Modo edição: deletar do banco
+      await deleteComponentFromDatabase(component.id);
+    }
+
+    // Remover da lista (tanto em edição quanto criação)
+    props.form.components.splice(index, 1);
+    if (editingComponentIndex.value === index) {
+      cancelEdit();
+    }
+
+    if (!props.isEditing || !isRealId) {
+      toastSuccess('Componente removido com sucesso!');
+    }
+  } catch (error) {
+    // Se houve erro na deleção do banco, não remove da lista
+    console.error('Erro ao deletar componente:', error);
+    toastError('Erro ao remover componente. Tente novamente.');
+  } finally {
+    deleteComponentState.value.processing = false;
+    deleteComponentState.value.open = false;
+    deleteComponentState.value.componentIndex = null;
+  }
 };
 
 const resetNewComponent = () => {
@@ -203,6 +252,56 @@ const resetNewComponent = () => {
 };
 
 const onSubmit = () => emit('submit');
+
+// Funções para operações no banco de dados (modo edição)
+const saveComponentToDatabase = async () => {
+  try {
+    const componentData = { ...newComponent.value };
+    let result;
+
+    if (editingComponentIndex.value >= 0) {
+      // Editando componente existente
+      const componentId = props.form.components[editingComponentIndex.value].id;
+      const { data } = await axios.patch(`/admin/products/${props.productId}/components/${componentId}`, componentData);
+      result = data;
+    } else {
+      // Criando novo componente
+      const { data } = await axios.post(`/admin/products/${props.productId}/components`, componentData);
+      result = data;
+    }
+
+    if (editingComponentIndex.value >= 0) {
+      props.form.components[editingComponentIndex.value] = result.component;
+      editingComponentIndex.value = -1;
+      toastSuccess('Componente atualizado com sucesso!');
+    } else {
+      props.form.components.push(result.component);
+      toastSuccess('Componente adicionado com sucesso!');
+    }
+
+    resetNewComponent();
+    showAddForm.value = false;
+  } catch (error) {
+    console.error('Erro ao salvar componente:', error);
+    toastError(error.response?.data?.message || error.message || 'Erro ao salvar componente. Tente novamente.');
+  }
+};
+
+const deleteComponentFromDatabase = async (componentId) => {
+  try {
+    await axios.delete(`/admin/products/${props.productId}/components/${componentId}`);
+    toastSuccess('Componente excluído com sucesso!');
+  } catch (error) {
+    console.error('Erro ao excluir componente:', error);
+    // Se o componente não existe (404), trata como sucesso (já foi removido)
+    if (error.response?.status === 404) {
+      toastSuccess('Componente excluído com sucesso!');
+      return;
+    }
+    toastError(error.response?.data?.message || error.message || 'Erro ao excluir componente. Tente novamente.');
+    throw error; // Re-throw para impedir a remoção da lista se falhou no banco
+  }
+};
 
 // Computed para verificar se há erros nos componentes
 const hasComponentErrors = computed(() => {
@@ -268,7 +367,7 @@ const hasComponentErrors = computed(() => {
             <span v-if="componentErrors.quantity" class="text-sm font-medium text-rose-600">{{ componentErrors.quantity }}</span>
           </label>
           <div class="flex items-end gap-2 sm:col-span-2">
-            <button type="button" @click="addComponent" class="btn-primary text-sm">
+            <button v-if="canUpdateProducts" type="button" @click="addComponent" class="btn-primary text-sm">
               {{ editingComponentIndex >= 0 ? 'Salvar' : 'Adicionar' }}
             </button>
             <button type="button" @click="cancelEdit" class="btn-ghost text-sm">
@@ -306,11 +405,11 @@ const hasComponentErrors = computed(() => {
                     </button>
                   </template>
                   <template #default="{ close }">
-                    <button type="button" class="menu-panel-link" @click="editComponent(index); close()">
+                    <button v-if="canUpdateProducts" type="button" class="menu-panel-link" @click="editComponent(index); close()">
                       <HeroIcon name="pencil" class="h-4 w-4" />
                       <span>Editar</span>
                     </button>
-                    <button type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="removeComponent(index); close()">
+                    <button v-if="canUpdateProducts" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="removeComponent(index); close()">
                       <HeroIcon name="trash" class="h-4 w-4" />
                       <span>Excluir</span>
                     </button>
@@ -326,7 +425,7 @@ const hasComponentErrors = computed(() => {
       </div>
 
       <!-- Botão para adicionar novo componente -->
-      <div v-if="!showAddForm" class="flex justify-center pt-4">
+      <div v-if="!showAddForm && canUpdateProducts" class="flex justify-center pt-4">
         <button type="button" @click="showAddForm = true" class="btn-ghost text-sm">
           Adicionar componente
         </button>

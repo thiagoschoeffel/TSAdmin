@@ -62,6 +62,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
     Route::resource('products', \App\Http\Controllers\ProductController::class)->except(['show']);
     Route::get('products/{product}/modal', [\App\Http\Controllers\ProductController::class, 'modal'])->name('products.modal');
 
+    Route::prefix('products/{product}/components')->name('products.components.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\ProductComponentController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\ProductComponentController::class, 'store'])->name('store');
+        Route::patch('{componentId}', [\App\Http\Controllers\ProductComponentController::class, 'update'])->name('update');
+        Route::delete('{componentId}', [\App\Http\Controllers\ProductComponentController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('clients/{client}/addresses')->name('clients.addresses.')->group(function (): void {
         Route::get('/', [AddressController::class, 'index'])->name('index');
         Route::post('/', [AddressController::class, 'store'])->name('store');
