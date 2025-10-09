@@ -49,7 +49,10 @@ function onKeydown(e) {
 
 function onBackdrop(e) {
   if (!props.closeOnBackdrop) return;
-  if (e.target === e.currentTarget) close();
+  // Close if clicked on the backdrop, not on the modal content
+  const modalContent = e.currentTarget.querySelector('.relative.mx-auto.w-full');
+  if (modalContent && modalContent.contains(e.target)) return;
+  close();
 }
 
 let appliedLock = false;

@@ -93,7 +93,7 @@ const updatedBy = computed(() => {
 </script>
 
 <template>
-  <Modal v-model="open" title="Detalhes do cliente" size="lg" :lockScroll="true">
+  <Modal v-model="open" title="Detalhes do cliente" size="lg" :lockScroll="true" :closeOnBackdrop="true">
     <div v-if="loading" class="space-y-6" aria-hidden="true">
       <div class="space-y-3">
         <div class="skeleton h-6 w-48 rounded-md"></div>
