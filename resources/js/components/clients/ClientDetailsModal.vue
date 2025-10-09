@@ -73,13 +73,6 @@ function formatDocument(doc) {
   return doc;
 }
 
-function formatPostalCode(pc) {
-  if (!pc) return '—';
-  const digits = String(pc).replace(/\D/g, '');
-  if (digits.length === 8) return digits.replace(/(\d{5})(\d{3})/, '$1-$2');
-  return pc;
-}
-
 function formatPhone(phone) {
   if (!phone) return '—';
   const digits = String(phone).replace(/\D/g, '');
@@ -163,32 +156,6 @@ const updatedBy = computed(() => {
                 {{ payload.status === 'active' ? 'Ativo' : 'Inativo' }}
               </span>
             </dd>
-          </div>
-        </dl>
-      </section>
-
-      <section class="space-y-3">
-        <h2 class="text-lg font-semibold text-slate-900">Endereço</h2>
-        <dl class="grid gap-4 sm:grid-cols-2">
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">CEP</dt>
-            <dd class="text-sm text-slate-800">{{ formatPostalCode(payload.postal_code) }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Logradouro</dt>
-            <dd class="text-sm text-slate-800">{{ payload.address }}, nº {{ payload.address_number }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Complemento</dt>
-            <dd class="text-sm text-slate-800">{{ payload.address_complement || '—' }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Bairro</dt>
-            <dd class="text-sm text-slate-800">{{ payload.neighborhood }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Cidade/UF</dt>
-            <dd class="text-sm text-slate-800">{{ payload.city }} / {{ payload.state }}</dd>
           </div>
         </dl>
       </section>

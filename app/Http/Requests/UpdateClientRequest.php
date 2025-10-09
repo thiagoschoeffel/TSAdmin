@@ -16,13 +16,18 @@ class UpdateClientRequest extends FormRequest
     {
         $this->merge([
             'document' => $this->sanitiseDigits($this->input('document')),
-            'postal_code' => $this->sanitiseDigits($this->input('postal_code')),
             'contact_phone_primary' => $this->sanitiseDigits($this->input('contact_phone_primary')),
             'contact_phone_secondary' => $this->sanitiseDigits($this->input('contact_phone_secondary')),
         ]);
 
-        // Fetch address from ViaCEP to ensure city and state are correct
-        $this->fetchAndMergeAddress();
+        // Sanitize postal codes in addresses
+        $addresses = $this->input('addresses', []);
+        foreach ($addresses as $index => $address) {
+            if (isset($address['postal_code'])) {
+                $addresses[$index]['postal_code'] = $this->sanitiseDigits($address['postal_code']);
+            }
+        }
+        $this->merge(['addresses' => $addresses]);
     }
 
     public function rules(): array
@@ -40,47 +45,55 @@ class UpdateClientRequest extends FormRequest
                 Rule::unique('clients', 'document')->ignore($clientId),
             ],
             'observations' => ['nullable', 'string'],
-            'postal_code' => ['required', 'digits:8'],
-            'address' => ['required', 'string', 'max:255'],
-            'address_number' => ['required', 'string', 'max:20'],
-            'address_complement' => ['nullable', 'string', 'max:255'],
-            'neighborhood' => ['required', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:255'],
-            'state' => ['required', 'string', 'size:2'],
             'contact_name' => [$isCompany ? 'required' : 'nullable', 'string', 'max:255'],
             'contact_phone_primary' => [$isCompany ? 'required' : 'nullable', 'digits_between:10,11'],
             'contact_phone_secondary' => [$isCompany ? 'required' : 'nullable', 'digits_between:10,11'],
             'contact_email' => [$isCompany ? 'required' : 'nullable', 'email', 'max:255'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
+            'addresses' => ['required', 'array', 'min:1'],
+            'addresses.*.id' => ['nullable', 'integer'],
+            'addresses.*.description' => ['nullable', 'string', 'max:255'],
+            'addresses.*.postal_code' => ['required', 'digits:8'],
+            'addresses.*.address' => ['required', 'string', 'max:255'],
+            'addresses.*.address_number' => ['required', 'string', 'max:20'],
+            'addresses.*.address_complement' => ['nullable', 'string', 'max:255'],
+            'addresses.*.neighborhood' => ['required', 'string', 'max:255'],
+            'addresses.*.city' => ['required', 'string', 'max:255'],
+            'addresses.*.state' => ['required', 'string', 'size:2', Rule::in([
+                'AC',
+                'AL',
+                'AP',
+                'AM',
+                'BA',
+                'CE',
+                'DF',
+                'ES',
+                'GO',
+                'MA',
+                'MT',
+                'MS',
+                'MG',
+                'PA',
+                'PB',
+                'PR',
+                'PE',
+                'PI',
+                'RJ',
+                'RN',
+                'RS',
+                'RO',
+                'RR',
+                'SC',
+                'SP',
+                'SE',
+                'TO',
+            ])],
+            'addresses.*.status' => ['required', Rule::in(['active', 'inactive'])],
         ];
     }
 
     protected function sanitiseDigits(?string $value): ?string
     {
         return $value ? preg_replace('/\D+/', '', $value) : null;
-    }
-
-    protected function fetchAndMergeAddress(): void
-    {
-        $postalCode = $this->input('postal_code');
-        if (!$postalCode || strlen($postalCode) !== 8) {
-            return;
-        }
-
-        try {
-            $response = \Illuminate\Support\Facades\Http::get("https://viacep.com.br/ws/{$postalCode}/json/");
-            $data = $response->json();
-
-            if ($data && !isset($data['erro'])) {
-                $this->merge([
-                    'address' => $data['logradouro'] ?? $this->input('address'),
-                    'neighborhood' => $data['bairro'] ?? $this->input('neighborhood'),
-                    'city' => $data['localidade'] ?? $this->input('city'),
-                    'state' => $data['uf'] ?? $this->input('state'),
-                ]);
-            }
-        } catch (\Exception $e) {
-            // If API fails, keep the submitted values
-        }
     }
 }

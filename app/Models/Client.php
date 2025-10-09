@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Attribute;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Client extends Model
@@ -17,13 +18,6 @@ class Client extends Model
         'person_type',
         'document',
         'observations',
-        'postal_code',
-        'address',
-        'address_number',
-        'address_complement',
-        'neighborhood',
-        'city',
-        'state',
         'contact_name',
         'contact_phone_primary',
         'contact_phone_secondary',
@@ -41,28 +35,21 @@ class Client extends Model
     protected function document(): Attribute
     {
         return Attribute::make(
-            set: fn (?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
-        );
-    }
-
-    protected function postalCode(): Attribute
-    {
-        return Attribute::make(
-            set: fn (?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
+            set: fn(?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
         );
     }
 
     protected function contactPhonePrimary(): Attribute
     {
         return Attribute::make(
-            set: fn (?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
+            set: fn(?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
         );
     }
 
     protected function contactPhoneSecondary(): Attribute
     {
         return Attribute::make(
-            set: fn (?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
+            set: fn(?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
         );
     }
 
@@ -74,6 +61,11 @@ class Client extends Model
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by_id');
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
     }
 
     public function formattedDocument(): string
@@ -90,18 +82,6 @@ class Client extends Model
         return Str::of($digits)
             ->padLeft(11, '0')
             ->replaceMatches('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4')
-            ->value();
-    }
-
-    public function formattedPostalCode(): ?string
-    {
-        if (! $this->postal_code) {
-            return null;
-        }
-
-        return Str::of($this->postal_code)
-            ->padLeft(8, '0')
-            ->replaceMatches('/(\d{5})(\d{3})/', '$1-$2')
             ->value();
     }
 

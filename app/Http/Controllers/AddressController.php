@@ -1,0 +1,100 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreAddressRequest;
+use App\Http\Requests\UpdateAddressRequest;
+use App\Models\Address;
+use App\Models\Client;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+
+class AddressController extends Controller
+{
+    public function index(Client $client): JsonResponse
+    {
+        abort_unless(Auth::user()->canManage('clients', 'view'), 403);
+
+        return response()->json([
+            'addresses' => $client->addresses->map(function ($address) {
+                return [
+                    'id' => $address->id,
+                    'description' => $address->description,
+                    'postal_code' => $address->formattedPostalCode(),
+                    'address' => $address->address,
+                    'address_number' => $address->address_number,
+                    'address_complement' => $address->address_complement,
+                    'neighborhood' => $address->neighborhood,
+                    'city' => $address->city,
+                    'state' => $address->state,
+                    'status' => $address->status,
+                    'created_at' => $address->created_at?->format('d/m/Y H:i'),
+                    'updated_at' => $address->updated_at?->format('d/m/Y H:i'),
+                    'created_by' => $address->createdBy?->name,
+                    'updated_by' => $address->updatedBy?->name,
+                ];
+            }),
+        ]);
+    }
+
+    public function store(StoreAddressRequest $request): JsonResponse
+    {
+        $address = Address::create(array_merge($request->validated(), [
+            'created_by_id' => Auth::id(),
+        ]));
+
+        return response()->json([
+            'address' => [
+                'id' => $address->id,
+                'description' => $address->description,
+                'postal_code' => $address->formattedPostalCode(),
+                'address' => $address->address,
+                'address_number' => $address->address_number,
+                'address_complement' => $address->address_complement,
+                'neighborhood' => $address->neighborhood,
+                'city' => $address->city,
+                'state' => $address->state,
+                'status' => $address->status,
+                'created_at' => $address->created_at?->format('d/m/Y H:i'),
+                'updated_at' => $address->updated_at?->format('d/m/Y H:i'),
+                'created_by' => $address->createdBy?->name,
+                'updated_by' => $address->updatedBy?->name,
+            ],
+        ], 201);
+    }
+
+    public function update(UpdateAddressRequest $request, Address $address): JsonResponse
+    {
+        $address->fill($request->validated());
+        $address->updated_by_id = Auth::id();
+        $address->save();
+
+        return response()->json([
+            'address' => [
+                'id' => $address->id,
+                'description' => $address->description,
+                'postal_code' => $address->formattedPostalCode(),
+                'address' => $address->address,
+                'address_number' => $address->address_number,
+                'address_complement' => $address->address_complement,
+                'neighborhood' => $address->neighborhood,
+                'city' => $address->city,
+                'state' => $address->state,
+                'status' => $address->status,
+                'created_at' => $address->created_at?->format('d/m/Y H:i'),
+                'updated_at' => $address->updated_at?->format('d/m/Y H:i'),
+                'created_by' => $address->createdBy?->name,
+                'updated_by' => $address->updatedBy?->name,
+            ],
+        ]);
+    }
+
+    public function destroy(Address $address): JsonResponse
+    {
+        abort_unless(Auth::user()->canManage('clients', 'update'), 403);
+        $address->delete();
+
+        return response()->json(['message' => 'Endereço removido com sucesso.']);
+    }
+}

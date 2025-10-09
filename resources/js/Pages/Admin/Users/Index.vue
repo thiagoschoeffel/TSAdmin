@@ -122,21 +122,23 @@ const openDetails = (user) => {
                       <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
                     </button>
                   </template>
-                  <template v-if="u.id !== meId">
-                    <Link class="menu-panel-link" :href="`/admin/users/${u.id}/edit`">
-                      <HeroIcon name="pencil" class="h-4 w-4" />
-                      <span>Editar</span>
-                    </Link>
-                    <button type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(u)">
-                      <HeroIcon name="trash" class="h-4 w-4" />
-                      <span>Excluir</span>
-                    </button>
-                  </template>
-                  <template v-else>
-                    <Link class="menu-panel-link" :href="route('profile.edit')">
-                      <HeroIcon name="user-circle" class="h-4 w-4" />
-                      <span>Meu perfil</span>
-                    </Link>
+                  <template #default="{ close }">
+                    <template v-if="u.id !== meId">
+                      <Link class="menu-panel-link" :href="`/admin/users/${u.id}/edit`">
+                        <HeroIcon name="pencil" class="h-4 w-4" />
+                        <span>Editar</span>
+                      </Link>
+                      <button type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(u); close()">
+                        <HeroIcon name="trash" class="h-4 w-4" />
+                        <span>Excluir</span>
+                      </button>
+                    </template>
+                    <template v-else>
+                      <Link class="menu-panel-link" :href="route('profile.edit')">
+                        <HeroIcon name="user-circle" class="h-4 w-4" />
+                        <span>Meu perfil</span>
+                      </Link>
+                    </template>
                   </template>
                 </Dropdown>
               </td>

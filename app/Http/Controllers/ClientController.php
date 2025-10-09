@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -52,8 +53,6 @@ class ClientController extends Controller
                     'status' => $client->status,
                     'document' => $client->document,
                     'formatted_document' => $client->formattedDocument(),
-                    'city' => $client->city,
-                    'state' => $client->state,
                     'created_at' => optional($client->created_at)->format('d/m/Y H:i'),
                 ];
             });
@@ -99,7 +98,7 @@ class ClientController extends Controller
                 'SC',
                 'SP',
                 'SE',
-                'TO',
+                'TO'
             ],
         ]);
     }
@@ -108,52 +107,29 @@ class ClientController extends Controller
     {
         abort_unless($request->user()->canManage('clients', 'create'), 403);
         $data = $this->preparePayload($request->validated());
+        $addresses = $data['addresses'] ?? [];
+        unset($data['addresses']);
 
         $client = Client::create(array_merge($data, [
             'created_by_id' => Auth::id(),
         ]));
+
+        // Criar endereços
+        foreach ($addresses as $addressData) {
+            $client->addresses()->create(array_merge($addressData, [
+                'created_by_id' => Auth::id(),
+            ]));
+        }
 
         return redirect()
             ->route('clients.index')
             ->with('status', 'Cliente cadastrado com sucesso.');
     }
 
-    public function show(Client $client): Response
-    {
-        abort_unless(Auth::user()->canManage('clients', 'view'), 403);
-        $client->load(['createdBy', 'updatedBy']);
-
-        return Inertia::render('Admin/Clients/Show', [
-            'client' => [
-                'id' => $client->id,
-                'name' => $client->name,
-                'person_type' => $client->person_type,
-                'document' => $client->formattedDocument(),
-                'observations' => $client->observations,
-                'postal_code' => $client->formattedPostalCode(),
-                'address' => $client->address,
-                'address_number' => $client->address_number,
-                'address_complement' => $client->address_complement,
-                'neighborhood' => $client->neighborhood,
-                'city' => $client->city,
-                'state' => $client->state,
-                'contact_name' => $client->contact_name,
-                'contact_phone_primary' => $client->formattedPhone($client->contact_phone_primary),
-                'contact_phone_secondary' => $client->formattedPhone($client->contact_phone_secondary),
-                'contact_email' => $client->contact_email,
-                'status' => $client->status,
-                'created_at' => $client->created_at?->format('d/m/Y H:i'),
-                'updated_at' => $client->updated_at?->format('d/m/Y H:i'),
-                'created_by' => $client->createdBy?->name,
-                'updated_by' => $client->updatedBy?->name,
-            ],
-        ]);
-    }
-
     public function modal(Client $client): JsonResponse
     {
         abort_unless(Auth::user()->canManage('clients', 'view'), 403);
-        $client->load(['createdBy', 'updatedBy']);
+        $client->load(['createdBy', 'updatedBy', 'addresses']);
 
         return response()->json([
             'client' => [
@@ -162,13 +138,6 @@ class ClientController extends Controller
                 'person_type' => $client->person_type,
                 'document' => $client->formattedDocument(),
                 'observations' => $client->observations,
-                'postal_code' => $client->formattedPostalCode(),
-                'address' => $client->address,
-                'address_number' => $client->address_number,
-                'address_complement' => $client->address_complement,
-                'neighborhood' => $client->neighborhood,
-                'city' => $client->city,
-                'state' => $client->state,
                 'contact_name' => $client->contact_name,
                 'contact_phone_primary' => $client->formattedPhone($client->contact_phone_primary),
                 'contact_phone_secondary' => $client->formattedPhone($client->contact_phone_secondary),
@@ -178,6 +147,24 @@ class ClientController extends Controller
                 'updated_at' => $client->updated_at?->format('d/m/Y H:i'),
                 'created_by' => $client->createdBy?->name,
                 'updated_by' => $client->updatedBy?->name,
+                'addresses' => $client->addresses->map(function ($address) {
+                    return [
+                        'id' => $address->id,
+                        'description' => $address->description,
+                        'postal_code' => $address->formattedPostalCode(),
+                        'address' => $address->address,
+                        'address_number' => $address->address_number,
+                        'address_complement' => $address->address_complement,
+                        'neighborhood' => $address->neighborhood,
+                        'city' => $address->city,
+                        'state' => $address->state,
+                        'status' => $address->status,
+                        'created_at' => $address->created_at?->format('d/m/Y H:i'),
+                        'updated_at' => $address->updated_at?->format('d/m/Y H:i'),
+                        'created_by' => $address->createdBy?->name,
+                        'updated_by' => $address->updatedBy?->name,
+                    ];
+                }),
             ],
         ]);
     }
@@ -185,6 +172,8 @@ class ClientController extends Controller
     public function edit(Client $client): Response
     {
         abort_unless(Auth::user()->canManage('clients', 'update'), 403);
+        $client->load('addresses');
+
         return Inertia::render('Admin/Clients/Edit', [
             'states' => [
                 'AC',
@@ -213,7 +202,7 @@ class ClientController extends Controller
                 'SC',
                 'SP',
                 'SE',
-                'TO',
+                'TO'
             ],
             'client' => [
                 'id' => $client->id,
@@ -221,18 +210,25 @@ class ClientController extends Controller
                 'person_type' => $client->person_type,
                 'document' => $client->formattedDocument(),
                 'observations' => $client->observations,
-                'postal_code' => $client->formattedPostalCode(),
-                'address' => $client->address,
-                'address_number' => $client->address_number,
-                'address_complement' => $client->address_complement,
-                'neighborhood' => $client->neighborhood,
-                'city' => $client->city,
-                'state' => $client->state,
                 'contact_name' => $client->contact_name,
                 'contact_phone_primary' => $client->formattedPhone($client->contact_phone_primary),
                 'contact_phone_secondary' => $client->formattedPhone($client->contact_phone_secondary),
                 'contact_email' => $client->contact_email,
                 'status' => $client->status,
+                'addresses' => $client->addresses->map(function ($address) {
+                    return [
+                        'id' => $address->id,
+                        'description' => $address->description,
+                        'postal_code' => $address->postal_code,
+                        'address' => $address->address,
+                        'address_number' => $address->address_number,
+                        'address_complement' => $address->address_complement,
+                        'neighborhood' => $address->neighborhood,
+                        'city' => $address->city,
+                        'state' => $address->state,
+                        'status' => $address->status,
+                    ];
+                })->toArray(),
             ],
         ]);
     }
@@ -240,11 +236,45 @@ class ClientController extends Controller
     public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
         abort_unless(Auth::user()->canManage('clients', 'update'), 403);
+
         $data = $this->preparePayload($request->validated());
+        $addresses = $data['addresses'] ?? [];
+        unset($data['addresses']);
 
         $client->fill($data);
         $client->updated_by_id = Auth::id();
         $client->save();
+
+        // Sincronizar endereços
+        $existingAddressIds = $client->addresses()->pluck('id')->toArray();
+        $submittedAddressIds = collect($addresses)->pluck('id')->filter()->toArray();
+
+        // Remover endereços que não estão mais na lista
+        $addressesToDelete = array_diff($existingAddressIds, $submittedAddressIds);
+        if (!empty($addressesToDelete)) {
+            $client->addresses()->whereIn('id', $addressesToDelete)->delete();
+        }
+
+        // Atualizar ou criar endereços
+        foreach ($addresses as $addressData) {
+            $addressId = $addressData['id'] ?? null;
+
+            // Check if this is an existing address (ID exists in database) or a new one (temporary ID or no ID)
+            $isExistingAddress = $addressId && $client->addresses()->where('id', $addressId)->exists();
+
+            if ($isExistingAddress) {
+                // Atualizar endereço existente
+                $client->addresses()->where('id', $addressId)->update(array_merge($addressData, [
+                    'updated_by_id' => Auth::id(),
+                ]));
+            } else {
+                // Criar novo endereço
+                unset($addressData['id']); // Remove temporary ID
+                $client->addresses()->create(array_merge($addressData, [
+                    'created_by_id' => Auth::id(),
+                ]));
+            }
+        }
 
         return redirect()
             ->route('clients.index')
@@ -263,8 +293,6 @@ class ClientController extends Controller
 
     protected function preparePayload(array $data): array
     {
-        $data['state'] = strtoupper($data['state']);
-
         $data['contact_email'] = isset($data['contact_email']) && $data['contact_email'] !== ''
             ? strtolower($data['contact_email'])
             : null;

@@ -12,18 +12,12 @@ const form = useForm({
   person_type: 'individual',
   document: '',
   observations: '',
-  postal_code: '',
-  address: '',
-  address_number: '',
-  address_complement: '',
-  neighborhood: '',
-  city: '',
-  state: '',
   contact_name: '',
   contact_phone_primary: '',
   contact_phone_secondary: '',
   contact_email: '',
   status: 'active',
+  addresses: [],
 });
 
 const submit = () => {

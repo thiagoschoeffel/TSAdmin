@@ -13,18 +13,12 @@ const form = useForm({
   person_type: props.client.person_type || 'individual',
   document: props.client.document || '',
   observations: props.client.observations || '',
-  postal_code: props.client.postal_code || '',
-  address: props.client.address || '',
-  address_number: props.client.address_number || '',
-  address_complement: props.client.address_complement || '',
-  neighborhood: props.client.neighborhood || '',
-  city: props.client.city || '',
-  state: props.client.state || '',
   contact_name: props.client.contact_name || '',
   contact_phone_primary: props.client.contact_phone_primary || '',
   contact_phone_secondary: props.client.contact_phone_secondary || '',
   contact_email: props.client.contact_email || '',
   status: props.client.status || 'active',
+  addresses: props.client.addresses || [],
 });
 
 const submit = () => {

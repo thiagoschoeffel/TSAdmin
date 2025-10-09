@@ -28,15 +28,6 @@ class ClientFactory extends Factory
             'document' => $document,
             'observations' => fake()->optional()->paragraph(),
             'status' => fake()->randomElement(['active', 'inactive']),
-            'postal_code' => fake()->numerify('########'),
-            'address' => fake()->streetAddress(),
-            'address_number' => (string) fake()->numberBetween(1, 9999),
-            'address_complement' => fake()->optional()->secondaryAddress(),
-            'neighborhood' => fake()->streetName(),
-            'city' => fake()->city(),
-            'state' => Str::upper(fake()->randomElement([
-                'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
-            ])),
             'contact_name' => $personType === 'company' ? fake()->name() : null,
             'contact_phone_primary' => fake()->numerify('###########'),
             'contact_phone_secondary' => fake()->optional()->numerify('###########'),
@@ -44,5 +35,52 @@ class ClientFactory extends Factory
             'created_by_id' => User::factory(),
             'updated_by_id' => null,
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Client $client) {
+            // Criar pelo menos um endereço para cada cliente
+            $client->addresses()->create([
+                'description' => fake()->optional()->sentence(2),
+                'postal_code' => fake()->numerify('########'),
+                'address' => fake()->streetAddress(),
+                'address_number' => (string) fake()->numberBetween(1, 9999),
+                'address_complement' => fake()->optional()->secondaryAddress(),
+                'neighborhood' => fake()->streetName(),
+                'city' => fake()->city(),
+                'state' => Str::upper(fake()->randomElement([
+                    'AC',
+                    'AL',
+                    'AP',
+                    'AM',
+                    'BA',
+                    'CE',
+                    'DF',
+                    'ES',
+                    'GO',
+                    'MA',
+                    'MT',
+                    'MS',
+                    'MG',
+                    'PA',
+                    'PB',
+                    'PR',
+                    'PE',
+                    'PI',
+                    'RJ',
+                    'RN',
+                    'RS',
+                    'RO',
+                    'RR',
+                    'SC',
+                    'SP',
+                    'SE',
+                    'TO',
+                ])),
+                'status' => fake()->randomElement(['active', 'inactive']),
+                'created_by_id' => $client->created_by_id,
+            ]);
+        });
     }
 }

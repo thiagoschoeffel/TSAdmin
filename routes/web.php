@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
 // use Inertia\Inertia; // evitamos usar diretamente antes de instalar a dependência
 
@@ -56,7 +57,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
     });
 
     Route::get('clients/{client}/modal', [ClientController::class, 'modal'])->name('clients.modal');
-    Route::resource('clients', ClientController::class);
+    Route::resource('clients', ClientController::class)->except(['show']);
+
+    Route::prefix('clients/{client}/addresses')->name('clients.addresses.')->group(function (): void {
+        Route::get('/', [AddressController::class, 'index'])->name('index');
+        Route::post('/', [AddressController::class, 'store'])->name('store');
+        Route::patch('{address}', [AddressController::class, 'update'])->name('update');
+        Route::delete('{address}', [AddressController::class, 'destroy'])->name('destroy');
+    });
 });
 
 // Fallback para 404 dentro do grupo 'web', garantindo sessão e autenticação disponíveis

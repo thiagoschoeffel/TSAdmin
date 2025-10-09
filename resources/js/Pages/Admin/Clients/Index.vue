@@ -98,7 +98,6 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
               <th>Tipo</th>
               <th>Status</th>
               <th>Documento</th>
-              <th>Cidade/UF</th>
               <th>Cadastrado em</th>
               <th class="w-24">Ações</th>
             </tr>
@@ -116,7 +115,6 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
                 </span>
               </td>
               <td>{{ c.formatted_document }}</td>
-              <td>{{ c.city }}/{{ c.state }}</td>
               <td>{{ c.created_at }}</td>
               <td class="whitespace-nowrap">
                 <Dropdown>
@@ -125,22 +123,24 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
                       <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
                     </button>
                   </template>
-                  <template v-if="canUpdate || canDelete">
-                    <Link v-if="canUpdate" class="menu-panel-link" :href="`/admin/clients/${c.id}/edit`">
-                      <HeroIcon name="pencil" class="h-4 w-4" />
-                      <span>Editar</span>
-                    </Link>
-                    <button v-if="canDelete" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(c)">
-                      <HeroIcon name="trash" class="h-4 w-4" />
-                      <span>Excluir</span>
-                    </button>
+                  <template #default="{ close }">
+                    <template v-if="canUpdate || canDelete">
+                      <Link v-if="canUpdate" class="menu-panel-link" :href="`/admin/clients/${c.id}/edit`">
+                        <HeroIcon name="pencil" class="h-4 w-4" />
+                        <span>Editar</span>
+                      </Link>
+                      <button v-if="canDelete" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(c); close()">
+                        <HeroIcon name="trash" class="h-4 w-4" />
+                        <span>Excluir</span>
+                      </button>
+                    </template>
+                    <span v-else class="menu-panel-link pointer-events-none text-slate-400">Nenhuma ação disponível</span>
                   </template>
-                  <span v-else class="menu-panel-link pointer-events-none text-slate-400">Nenhuma ação disponível</span>
                 </Dropdown>
               </td>
             </tr>
             <tr v-if="!clients.data || clients.data.length === 0">
-              <td colspan="7" class="table-empty">Nenhum cliente cadastrado até o momento.</td>
+              <td colspan="6" class="table-empty">Nenhum cliente cadastrado até o momento.</td>
             </tr>
           </tbody>
         </table>
