@@ -237,11 +237,11 @@ const updatedBy = computed(() => {
             <dt class="text-sm font-semibold text-slate-500">Criado em</dt>
             <dd class="text-sm text-slate-800">{{ formatDate(payload.created_at) }}</dd>
           </div>
-          <div v-if="lastUpdatedAt" class="space-y-1">
+          <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Atualizado por</dt>
             <dd class="text-sm text-slate-800">{{ updatedBy }}</dd>
           </div>
-          <div v-if="lastUpdatedAt" class="space-y-1">
+          <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Atualizado em</dt>
             <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
           </div>
