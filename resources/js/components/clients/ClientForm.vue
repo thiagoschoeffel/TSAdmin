@@ -6,6 +6,14 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { ref, computed, nextTick } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user || null);
+const isAdmin = computed(() => user.value?.role === 'admin');
+const canCreateAddresses = computed(() => isAdmin.value || !!user.value?.permissions?.clients?.create);
+const canUpdateAddresses = computed(() => isAdmin.value || !!user.value?.permissions?.clients?.update);
+const canDeleteAddresses = computed(() => isAdmin.value || !!user.value?.permissions?.clients?.delete);
 
 const props = defineProps({
   form: { type: Object, required: true },
@@ -446,7 +454,7 @@ const hasAddressErrors = computed(() => {
             </span>
           </div>
           <div class="flex items-end gap-2 lg:col-span-3">
-            <button type="button" @click="addAddress" class="btn-primary text-sm">
+            <button v-if="canCreateAddresses || canUpdateAddresses" type="button" @click="addAddress" class="btn-primary text-sm">
               {{ editingAddressIndex >= 0 ? 'Salvar' : 'Adicionar' }}
             </button>
             <button type="button" @click="cancelEdit" class="btn-ghost text-sm">
@@ -491,11 +499,11 @@ const hasAddressErrors = computed(() => {
                     </button>
                   </template>
                   <template #default="{ close }">
-                    <button type="button" class="menu-panel-link" @click="editAddress(index); close()">
+                    <button v-if="canUpdateAddresses" type="button" class="menu-panel-link" @click="editAddress(index); close()">
                       <HeroIcon name="pencil" class="h-4 w-4" />
                       <span>Editar</span>
                     </button>
-                    <button type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDeleteAddress(index); close()">
+                    <button v-if="canDeleteAddresses" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDeleteAddress(index); close()">
                       <HeroIcon name="trash" class="h-4 w-4" />
                       <span>Excluir</span>
                     </button>
@@ -511,7 +519,7 @@ const hasAddressErrors = computed(() => {
       </div>
 
       <!-- Botão para adicionar novo endereço -->
-      <div v-if="!showAddForm" class="flex justify-center pt-4">
+      <div v-if="!showAddForm && canCreateAddresses" class="flex justify-center pt-4">
         <button type="button" @click="showAddForm = true; focusFirstAddressField()" class="btn-ghost text-sm">
           Adicionar novo endereço
         </button>
