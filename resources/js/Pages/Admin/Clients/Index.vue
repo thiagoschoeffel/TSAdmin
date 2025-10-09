@@ -51,7 +51,10 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
     <section class="card space-y-8">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Clientes</h1>
+          <h1 class="text-2xl font-semibold text-slate-900 flex items-center gap-2">
+            <HeroIcon name="identification" outline class="h-7 w-7 text-slate-700" />
+            Clientes
+          </h1>
           <p class="mt-2 text-sm text-slate-500">Gerencie os cadastros de clientes existentes ou adicione novos registros.</p>
         </div>
   <Link v-if="canCreate" class="btn-primary" :href="route('clients.create')">Novo cliente</Link>
@@ -96,9 +99,8 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
             <tr>
               <th>Nome</th>
               <th>Tipo</th>
-              <th>Status</th>
               <th>Documento</th>
-              <th>Cadastrado em</th>
+              <th>Status</th>
               <th class="w-24">Ações</th>
             </tr>
           </thead>
@@ -109,13 +111,12 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
                 <span v-else class="text-slate-900">{{ c.name }}</span>
               </td>
               <td>{{ c.person_type === 'company' ? 'Jurídica' : 'Física' }}</td>
+              <td>{{ c.formatted_document }}</td>
               <td class="table-actions">
                 <span :class="c.status === 'active' ? 'badge-success' : 'badge-danger'">
                   {{ c.status === 'active' ? 'Ativo' : 'Inativo' }}
                 </span>
               </td>
-              <td>{{ c.formatted_document }}</td>
-              <td>{{ c.created_at }}</td>
               <td class="whitespace-nowrap">
                 <Dropdown>
                   <template #trigger="{ toggle }">
@@ -140,7 +141,7 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
               </td>
             </tr>
             <tr v-if="!clients.data || clients.data.length === 0">
-              <td colspan="6" class="table-empty">Nenhum cliente cadastrado até o momento.</td>
+              <td colspan="5" class="table-empty text-center">Nenhum cliente cadastrado até o momento.</td>
             </tr>
           </tbody>
         </table>
@@ -159,4 +160,14 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
                   @confirm="performDelete" />
   </AdminLayout>
 </template>
+
+<style scoped>
+.table-wrapper { overflow:auto }
+.table { width:100%; border-collapse:separate; border-spacing:0; }
+.table th, .table td { padding:.75rem; border-bottom:1px solid #e2e8f0; }
+.table thead th { font-size:.875rem; font-weight:700; color:#334155 }
+.badge-success { display:inline-flex; align-items:center; gap:.375rem; background:#ecfeff; color:#047857; font-weight:700; padding:.125rem .5rem; border-radius:.375rem; }
+.badge-danger { display:inline-flex; align-items:center; gap:.375rem; background:#fff1f2; color:#b91c1c; font-weight:700; padding:.125rem .5rem; border-radius:.375rem; }
+/* Usa estilos globais definidos em resources/css/app.css para menu-trigger e menu-panel-link */
+</style>
 

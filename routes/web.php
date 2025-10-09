@@ -59,6 +59,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
     Route::get('clients/{client}/modal', [ClientController::class, 'modal'])->name('clients.modal');
     Route::resource('clients', ClientController::class)->except(['show']);
 
+    Route::resource('products', \App\Http\Controllers\ProductController::class)->except(['show']);
+
     Route::prefix('clients/{client}/addresses')->name('clients.addresses.')->group(function (): void {
         Route::get('/', [AddressController::class, 'index'])->name('index');
         Route::post('/', [AddressController::class, 'store'])->name('store');

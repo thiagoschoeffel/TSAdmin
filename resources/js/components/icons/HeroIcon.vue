@@ -11,6 +11,7 @@ import {
   PencilIcon,
   TrashIcon,
   XMarkIcon,
+  CubeIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -29,6 +30,7 @@ const map = {
   'pencil': PencilIcon,
   'trash': TrashIcon,
   'x-mark': XMarkIcon,
+  'cube': CubeIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);

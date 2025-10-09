@@ -59,7 +59,10 @@ const openDetails = (user) => {
     <section class="card space-y-8">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Usuários</h1>
+          <h1 class="text-2xl font-semibold text-slate-900 flex items-center gap-2">
+            <HeroIcon name="users" outline class="h-7 w-7 text-slate-700" />
+            Usuários
+          </h1>
           <p class="mt-2 text-sm text-slate-500">Gerencie os usuários do sistema ou cadastre novos membros.</p>
         </div>
   <Link class="btn-primary" :href="route('users.create')">Novo usuário</Link>
@@ -149,7 +152,7 @@ const openDetails = (user) => {
               </td>
             </tr>
             <tr v-if="!users.data || users.data.length === 0">
-              <td colspan="5" class="table-empty">Nenhum usuário encontrado.</td>
+              <td colspan="5" class="table-empty text-center">Nenhum usuário encontrado.</td>
             </tr>
           </tbody>
         </table>
@@ -173,9 +176,8 @@ const openDetails = (user) => {
 <style scoped>
 .table-wrapper { overflow:auto }
 .table { width:100%; border-collapse:separate; border-spacing:0; }
-.table th, .table td { padding:.75rem; border-bottom:1px solid #e2e8f0; text-align:left; }
+.table th, .table td { padding:.75rem; border-bottom:1px solid #e2e8f0; }
 .table thead th { font-size:.875rem; font-weight:700; color:#334155 }
-.table-empty { text-align:center; color:#64748b; padding:1rem }
 .badge-success { display:inline-flex; align-items:center; gap:.375rem; background:#ecfeff; color:#047857; font-weight:700; padding:.125rem .5rem; border-radius:.375rem; }
 .badge-danger { display:inline-flex; align-items:center; gap:.375rem; background:#fff1f2; color:#b91c1c; font-weight:700; padding:.125rem .5rem; border-radius:.375rem; }
 /* Usa estilos globais definidos em resources/css/app.css para menu-trigger e menu-panel-link */

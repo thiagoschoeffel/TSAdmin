@@ -69,6 +69,12 @@ watch(() => page.props.flash, (f) => {
                 <span>Clientes</span>
               </span>
             </Link>
+            <Link class="group transition hover:text-white" :href="route('products.index')">
+              <span class="inline-flex items-center gap-2">
+                <HeroIcon name="cube" outline class="h-4 w-4 transition-colors group-hover:text-white" />
+                <span>Produtos</span>
+              </span>
+            </Link>
           </div>
         </div>
 
