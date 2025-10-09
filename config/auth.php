@@ -112,4 +112,24 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Email Verification
+    |--------------------------------------------------------------------------
+    |
+    | These configuration options specify the behavior of Laravel's email
+    | verification functionality, including the table utilized for token
+    | storage and the user provider that is invoked to actually retrieve
+    | users.
+    |
+    | The expiry time is the number of minutes that each verification token
+    | will be considered valid. This security feature keeps tokens short-lived
+    | so they have less time to be guessed.
+    |
+    */
+
+    'verification' => [
+        'expire' => 60,
+    ],
+
 ];

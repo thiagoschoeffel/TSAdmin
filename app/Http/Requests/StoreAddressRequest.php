@@ -11,7 +11,7 @@ class StoreAddressRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->canManage('clients', 'create');
+        return $this->user()->canManage('clients', 'create') || $this->user()->canManage('clients', 'update');
     }
 
     /**

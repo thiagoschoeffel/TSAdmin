@@ -70,6 +70,9 @@ class UserManagementController extends Controller
             $request->input('modules', [])
         );
 
+        // Usuários criados pelo admin não precisam verificar e-mail
+        $data['email_verified_at'] = now();
+
         User::create($data);
 
         return redirect()
@@ -111,6 +114,11 @@ class UserManagementController extends Controller
 
         if ($request->filled('password')) {
             $user->password = $request->validated('password');
+        }
+
+        // Garantir que usuários criados/editados pelo admin tenham e-mail verificado
+        if (!$user->hasVerifiedEmail()) {
+            $user->email_verified_at = now();
         }
 
         $user->save();
