@@ -50,7 +50,7 @@ class StoreClientRequest extends FormRequest
             'contact_email' => [$isCompany ? 'required' : 'nullable', 'email', 'max:255'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
             'addresses' => ['required', 'array', 'min:1'],
-            'addresses.*.description' => ['nullable', 'string', 'max:255'],
+            'addresses.*.description' => ['required', 'string', 'min:4', 'max:255'],
             'addresses.*.postal_code' => ['required', 'digits:8'],
             'addresses.*.address' => ['required', 'string', 'max:255'],
             'addresses.*.address_number' => ['required', 'string', 'max:20'],

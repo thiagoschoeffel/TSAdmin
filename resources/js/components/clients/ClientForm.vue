@@ -3,7 +3,8 @@ import Switch from '@/components/ui/Switch.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
-import { ref, computed } from 'vue';
+import { useToasts } from '@/components/toast/useToasts.js';
+import { ref, computed, nextTick } from 'vue';
 
 const props = defineProps({
   form: { type: Object, required: true },
@@ -13,6 +14,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['submit']);
+
+// Sistema de toasts
+const { error: toastError } = useToasts();
 
 // Estado para edição inline de endereços
 const editingAddressIndex = ref(-1);
@@ -37,6 +41,16 @@ const deleteAddressState = ref({ open: false, processing: false, addressIndex: n
 if (!props.form.addresses) {
   props.form.addresses = [];
 }
+
+// Função auxiliar para focar no primeiro campo do formulário de endereço
+const focusFirstAddressField = () => {
+  nextTick(() => {
+    const descriptionField = document.querySelector('input[placeholder="Ex: Sede, Filial Centro"]');
+    if (descriptionField) {
+      descriptionField.focus();
+    }
+  });
+};
 
 const digitsOnly = (v = '') => String(v).replace(/\D+/g, '');
 const applyMask = (value, pattern) => {
@@ -66,6 +80,10 @@ const formatPostalCode = (value) => {
 const addAddress = () => {
   // Validação dos campos obrigatórios
   const errors = {};
+
+  if (!newAddress.value.description || newAddress.value.description.trim().length < 4) {
+    errors.description = 'Descrição é obrigatória e deve ter pelo menos 4 caracteres';
+  }
 
   if (!newAddress.value.postal_code || digitsOnly(newAddress.value.postal_code).length !== 8) {
     errors.postal_code = 'CEP é obrigatório e deve ter 8 dígitos';
@@ -121,6 +139,7 @@ const editAddress = (index) => {
   newAddress.value = { ...props.form.addresses[index] };
   addressErrors.value = {}; // Limpa erros ao editar
   showAddForm.value = true;
+  focusFirstAddressField();
 };
 
 const cancelEdit = () => {
@@ -185,14 +204,18 @@ const fetchAddress = async () => {
     const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
     const data = await response.json();
 
-    if (!data.erro) {
-      newAddress.value.address = data.logradouro || '';
-      newAddress.value.neighborhood = data.bairro || '';
-      newAddress.value.city = data.localidade || '';
-      newAddress.value.state = data.uf || '';
+    if (data.erro) {
+      toastError('CEP não encontrado', { title: 'Erro na busca' });
+      return;
     }
+
+    newAddress.value.address = data.logradouro || '';
+    newAddress.value.neighborhood = data.bairro || '';
+    newAddress.value.city = data.localidade || '';
+    newAddress.value.state = data.uf || '';
   } catch (error) {
     console.error('Erro ao buscar CEP:', error);
+    toastError('Erro ao consultar CEP. Tente novamente.', { title: 'Erro na integração' });
   }
 };
 
@@ -250,32 +273,6 @@ const hasAddressErrors = computed(() => {
     </label>
 
     <fieldset class="space-y-3">
-      <legend class="text-sm font-semibold text-slate-700">Contato</legend>
-      <div class="grid gap-4 sm:grid-cols-2" id="contact_fields">
-        <label class="form-label">
-          Nome do contato
-          <input type="text" v-model="form.contact_name" :required="form.person_type === 'company'" :disabled="form.person_type === 'individual'" class="form-input" />
-          <span v-if="form.errors.contact_name" class="text-sm font-medium text-rose-600">{{ form.errors.contact_name }}</span>
-        </label>
-        <label class="form-label">
-          Telefone principal
-          <input type="text" v-model="form.contact_phone_primary" :required="form.person_type === 'company'" class="form-input" @input="formatPhone('contact_phone_primary')" />
-          <span v-if="form.errors.contact_phone_primary" class="text-sm font-medium text-rose-600">{{ form.errors.contact_phone_primary }}</span>
-        </label>
-        <label class="form-label">
-          Telefone secundário
-          <input type="text" v-model="form.contact_phone_secondary" :required="form.person_type === 'company'" class="form-input" @input="formatPhone('contact_phone_secondary')" />
-          <span v-if="form.errors.contact_phone_secondary" class="text-sm font-medium text-rose-600">{{ form.errors.contact_phone_secondary }}</span>
-        </label>
-        <label class="form-label">
-          E-mail
-          <input type="email" v-model="form.contact_email" :required="form.person_type === 'company'" class="form-input" />
-          <span v-if="form.errors.contact_email" class="text-sm font-medium text-rose-600">{{ form.errors.contact_email }}</span>
-        </label>
-      </div>
-    </fieldset>
-
-    <fieldset class="space-y-3">
       <legend class="text-sm font-semibold text-slate-700">Endereços</legend>
 
       <!-- Formulário inline para adicionar/editar endereço -->
@@ -283,11 +280,12 @@ const hasAddressErrors = computed(() => {
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label class="form-label">
             Descrição
-            <input type="text" v-model="newAddress.description" placeholder="Ex: Sede, Filial Centro" class="form-input" />
+            <input type="text" v-model="newAddress.description" placeholder="Ex: Sede, Filial Centro" required class="form-input" />
+            <span v-if="addressErrors.description" class="text-sm font-medium text-rose-600">{{ addressErrors.description }}</span>
           </label>
           <label class="form-label">
             CEP
-            <input type="text" v-model="newAddress.postal_code" class="form-input" @input="newAddress.postal_code = formatPostalCode(newAddress.postal_code)" @blur="fetchAddress" />
+            <input type="text" v-model="newAddress.postal_code" required class="form-input" @input="newAddress.postal_code = formatPostalCode(newAddress.postal_code)" @blur="fetchAddress" />
             <span v-if="addressErrors.postal_code" class="text-sm font-medium text-rose-600">{{ addressErrors.postal_code }}</span>
           </label>
           <label class="form-label">
@@ -313,11 +311,13 @@ const hasAddressErrors = computed(() => {
             Cidade
             <input type="text" v-model="newAddress.city" readonly class="form-input" />
             <span v-if="addressErrors.city" class="text-sm font-medium text-rose-600">{{ addressErrors.city }}</span>
+            <span class="text-xs text-slate-500">Preenchido automaticamente via CEP</span>
           </label>
           <label class="form-label">
             Estado (UF)
             <input type="text" v-model="newAddress.state" readonly class="form-input" />
             <span v-if="addressErrors.state" class="text-sm font-medium text-rose-600">{{ addressErrors.state }}</span>
+            <span class="text-xs text-slate-500">Preenchido automaticamente via CEP</span>
           </label>
           <div class="switch-field lg:col-span-3">
             <span class="switch-label">Status do endereço</span>
@@ -393,12 +393,38 @@ const hasAddressErrors = computed(() => {
 
       <!-- Botão para adicionar novo endereço -->
       <div v-if="!showAddForm" class="flex justify-center pt-4">
-        <button type="button" @click="showAddForm = true" class="btn-ghost text-sm">
-          + Adicionar novo endereço
+        <button type="button" @click="showAddForm = true; focusFirstAddressField()" class="btn-ghost text-sm">
+          Adicionar novo endereço
         </button>
       </div>
 
       <span v-if="hasAddressErrors" class="text-sm font-medium text-rose-600">Verifique os erros nos endereços.</span>
+    </fieldset>
+
+    <fieldset class="space-y-3">
+      <legend class="text-sm font-semibold text-slate-700">Contato</legend>
+      <div class="grid gap-4 sm:grid-cols-2" id="contact_fields">
+        <label class="form-label">
+          Nome do contato
+          <input type="text" v-model="form.contact_name" :required="form.person_type === 'company'" :disabled="form.person_type === 'individual'" class="form-input" />
+          <span v-if="form.errors.contact_name" class="text-sm font-medium text-rose-600">{{ form.errors.contact_name }}</span>
+        </label>
+        <label class="form-label">
+          Telefone principal
+          <input type="text" v-model="form.contact_phone_primary" :required="form.person_type === 'company'" class="form-input" @input="formatPhone('contact_phone_primary')" />
+          <span v-if="form.errors.contact_phone_primary" class="text-sm font-medium text-rose-600">{{ form.errors.contact_phone_primary }}</span>
+        </label>
+        <label class="form-label">
+          Telefone secundário
+          <input type="text" v-model="form.contact_phone_secondary" :required="form.person_type === 'company'" class="form-input" @input="formatPhone('contact_phone_secondary')" />
+          <span v-if="form.errors.contact_phone_secondary" class="text-sm font-medium text-rose-600">{{ form.errors.contact_phone_secondary }}</span>
+        </label>
+        <label class="form-label">
+          E-mail
+          <input type="email" v-model="form.contact_email" :required="form.person_type === 'company'" class="form-input" />
+          <span v-if="form.errors.contact_email" class="text-sm font-medium text-rose-600">{{ form.errors.contact_email }}</span>
+        </label>
+      </div>
     </fieldset>
 
     <div class="flex flex-wrap gap-3">
