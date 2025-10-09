@@ -11,12 +11,14 @@ const props = defineProps({
   states: { type: Array, required: true },
   submitLabel: { type: String, default: 'Salvar' },
   cancelHref: { type: String, required: true },
+  isEditing: { type: Boolean, default: false },
+  clientId: { type: [Number, String, null], default: null },
 });
 
 const emit = defineEmits(['submit']);
 
 // Sistema de toasts
-const { error: toastError } = useToasts();
+const { error: toastError, success: toastSuccess } = useToasts();
 
 // Estado para edição inline de endereços
 const editingAddressIndex = ref(-1);
@@ -34,6 +36,14 @@ const newAddress = ref({
 });
 const addressErrors = ref({});
 
+// Computed para CEP formatado
+const formattedPostalCode = computed({
+  get: () => newAddress.value.postal_code,
+  set: (value) => {
+    newAddress.value.postal_code = formatPostalCode(value);
+  }
+});
+
 // Estado para confirmação de exclusão de endereço
 const deleteAddressState = ref({ open: false, processing: false, addressIndex: null });
 
@@ -42,7 +52,46 @@ if (!props.form.addresses) {
   props.form.addresses = [];
 }
 
-// Função auxiliar para focar no primeiro campo do formulário de endereço
+// Função para buscar endereço via CEP
+const fetchAddress = async () => {
+  const cep = digitsOnly(newAddress.value.postal_code);
+  if (cep.length !== 8) return;
+
+  try {
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    if (!response.ok) {
+      throw new Error('Erro na consulta do CEP');
+    }
+
+    const data = await response.json();
+
+    if (data.erro) {
+      toastError('CEP não encontrado. Verifique se o CEP está correto.');
+      return;
+    }
+
+    // Preencher os campos automaticamente
+    newAddress.value.address = data.logradouro || '';
+    newAddress.value.neighborhood = data.bairro || '';
+    newAddress.value.city = data.localidade || '';
+    newAddress.value.state = data.uf || '';
+    // O CEP já está formatado pelo computed, não precisamos alterar
+
+    // Focar no campo número após preencher
+    nextTick(() => {
+      const numberField = document.querySelector('input[placeholder="Número"]');
+      if (numberField) {
+        numberField.focus();
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro ao buscar CEP:', error);
+    toastError('Erro ao consultar CEP. Verifique sua conexão e tente novamente.');
+  }
+};
+
+// Função auxiliar para focar no campo descrição do endereço
 const focusFirstAddressField = () => {
   nextTick(() => {
     const descriptionField = document.querySelector('input[placeholder="Ex: Sede, Filial Centro"]');
@@ -77,7 +126,7 @@ const formatPostalCode = (value) => {
 };
 
 // Métodos para gerenciar endereços
-const addAddress = () => {
+const addAddress = async () => {
   // Validação dos campos obrigatórios
   const errors = {};
 
@@ -113,30 +162,41 @@ const addAddress = () => {
     errors.status = 'Status é obrigatório';
   }
 
-  // Se há erros, não adiciona o endereço
+  // Se há erros, mostrar toast e não adiciona o endereço
   if (Object.keys(errors).length > 0) {
     addressErrors.value = errors;
+    toastError('Verifique os campos obrigatórios do endereço.');
     return;
   }
 
   // Limpa erros anteriores
   addressErrors.value = {};
 
-  if (editingAddressIndex.value >= 0) {
-    // Salvar edição
-    props.form.addresses[editingAddressIndex.value] = { ...newAddress.value };
-    editingAddressIndex.value = -1;
+  if (props.isEditing) {
+    // Modo edição: salvar diretamente no banco
+    await saveAddressToDatabase();
   } else {
-    // Adicionar novo
-    props.form.addresses.push({ ...newAddress.value, id: Date.now() }); // ID temporário
+    // Modo criação: adicionar à lista em memória
+    if (editingAddressIndex.value >= 0) {
+      // Salvar edição
+      props.form.addresses[editingAddressIndex.value] = { ...newAddress.value };
+      editingAddressIndex.value = -1;
+      toastSuccess('Endereço atualizado com sucesso!');
+    } else {
+      // Adicionar novo
+      props.form.addresses.push({ ...newAddress.value, id: Date.now() }); // ID temporário
+      toastSuccess('Endereço adicionado com sucesso!');
+    }
+    resetNewAddress();
+    showAddForm.value = false;
   }
-  resetNewAddress();
-  showAddForm.value = false;
 };
 
 const editAddress = (index) => {
   editingAddressIndex.value = index;
   newAddress.value = { ...props.form.addresses[index] };
+  // Garantir que o CEP seja formatado corretamente
+  newAddress.value.postal_code = formatPostalCode(newAddress.value.postal_code);
   addressErrors.value = {}; // Limpa erros ao editar
   showAddForm.value = true;
   focusFirstAddressField();
@@ -149,29 +209,48 @@ const cancelEdit = () => {
 };
 
 const removeAddress = (index) => {
-  props.form.addresses.splice(index, 1);
-  if (editingAddressIndex.value === index) {
-    cancelEdit();
+  if (props.isEditing) {
+    // Modo edição: confirmar exclusão que será feita no banco
+    confirmDeleteAddress(index);
+  } else {
+    // Modo criação: remover da lista em memória
+    props.form.addresses.splice(index, 1);
+    if (editingAddressIndex.value === index) {
+      cancelEdit();
+    }
   }
-  // Não mostrar automaticamente o formulário quando remove endereços
 };
 
 const confirmDeleteAddress = (index) => {
   deleteAddressState.value = { open: true, processing: false, addressIndex: index };
 };
 
-const performDeleteAddress = () => {
+const performDeleteAddress = async () => {
   if (deleteAddressState.value.addressIndex === null) return;
 
   deleteAddressState.value.processing = true;
   try {
     const index = deleteAddressState.value.addressIndex;
+    const address = props.form.addresses[index];
+
+    if (props.isEditing && address.id) {
+      // Modo edição: deletar do banco
+      await deleteAddressFromDatabase(address.id);
+    }
+
+    // Remover da lista (tanto em edição quanto criação)
     props.form.addresses.splice(index, 1);
     if (editingAddressIndex.value === index) {
       cancelEdit();
     }
-    // Não mostrar automaticamente o formulário quando remove o último endereço
-    // O usuário pode usar o botão "Adicionar novo endereço"
+
+    if (!props.isEditing) {
+      toastSuccess('Endereço removido com sucesso!');
+    }
+  } catch (error) {
+    // Se houve erro na deleção do banco, não remove da lista
+    console.error('Erro ao deletar endereço:', error);
+    toastError('Erro ao remover endereço. Tente novamente.');
   } finally {
     deleteAddressState.value.processing = false;
     deleteAddressState.value.open = false;
@@ -194,28 +273,82 @@ const resetNewAddress = () => {
   addressErrors.value = {}; // Limpa erros ao resetar
 };
 
-// Buscar endereço via CEP
-const fetchAddress = async () => {
-  const cep = digitsOnly(newAddress.value.postal_code);
-
-  if (!cep || cep.length !== 8) return;
-
+// Funções para operações no banco de dados (modo edição)
+const saveAddressToDatabase = async () => {
   try {
-    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-    const data = await response.json();
+    const addressData = { ...newAddress.value };
+    let response;
 
-    if (data.erro) {
-      toastError('CEP não encontrado', { title: 'Erro na busca' });
-      return;
+    if (editingAddressIndex.value >= 0) {
+      // Editando endereço existente
+      const addressId = props.form.addresses[editingAddressIndex.value].id;
+      response = await fetch(`/admin/clients/${props.clientId}/addresses/${addressId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(addressData)
+      });
+    } else {
+      // Criando novo endereço
+      response = await fetch(`/admin/clients/${props.clientId}/addresses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(addressData)
+      });
     }
 
-    newAddress.value.address = data.logradouro || '';
-    newAddress.value.neighborhood = data.bairro || '';
-    newAddress.value.city = data.localidade || '';
-    newAddress.value.state = data.uf || '';
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Erro ao salvar endereço');
+    }
+
+    const result = await response.json();
+
+    if (editingAddressIndex.value >= 0) {
+      // Atualizar endereço existente na lista
+      props.form.addresses[editingAddressIndex.value] = result.address;
+      editingAddressIndex.value = -1;
+    } else {
+      // Adicionar novo endereço à lista
+      props.form.addresses.push(result.address);
+    }
+
+    resetNewAddress();
+    showAddForm.value = false;
+    toastSuccess('Endereço salvo com sucesso!');
   } catch (error) {
-    console.error('Erro ao buscar CEP:', error);
-    toastError('Erro ao consultar CEP. Tente novamente.', { title: 'Erro na integração' });
+    console.error('Erro ao salvar endereço:', error);
+    toastError(error.message || 'Erro ao salvar endereço. Tente novamente.');
+  }
+};
+
+const deleteAddressFromDatabase = async (addressId) => {
+  try {
+    const response = await fetch(`/admin/clients/${props.clientId}/addresses/${addressId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Erro ao excluir endereço');
+    }
+
+    toastSuccess('Endereço excluído com sucesso!');
+  } catch (error) {
+    console.error('Erro ao excluir endereço:', error);
+    toastError(error.message || 'Erro ao excluir endereço. Tente novamente.');
+    throw error; // Re-throw para impedir a remoção da lista se falhou no banco
   }
 };
 
@@ -285,7 +418,7 @@ const hasAddressErrors = computed(() => {
           </label>
           <label class="form-label">
             CEP
-            <input type="text" v-model="newAddress.postal_code" required class="form-input" @input="newAddress.postal_code = formatPostalCode(newAddress.postal_code)" @blur="fetchAddress" />
+            <input type="text" v-model="formattedPostalCode" required class="form-input" @blur="fetchAddress" />
             <span v-if="addressErrors.postal_code" class="text-sm font-medium text-rose-600">{{ addressErrors.postal_code }}</span>
           </label>
           <label class="form-label">
