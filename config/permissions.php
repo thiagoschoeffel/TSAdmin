@@ -11,6 +11,14 @@ return [
                 'delete' => 'Excluir clientes',
             ],
         ],
+        'products' => [
+            'label' => 'Gestão de produtos',
+            'abilities' => [
+                'view' => 'Visualizar produtos',
+                'create' => 'Criar produtos',
+                'update' => 'Editar produtos',
+                'delete' => 'Excluir produtos',
+            ],
+        ],
     ],
 ];
-
