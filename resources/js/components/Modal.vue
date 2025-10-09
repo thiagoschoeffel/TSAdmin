@@ -109,7 +109,7 @@ onBeforeUnmount(() => {
       <div class="absolute inset-0 bg-slate-900/50"></div>
       <div class="relative mx-auto w-full" :class="panelSize" :style="{ zIndex: zIndexPanel }">
         <div ref="container" class="rounded-xl border border-slate-200 bg-white shadow-2xl flex flex-col overflow-hidden">
-          <div class="flex items-start justify-between gap-4 border-b border-slate-200 p-4">
+          <div class="flex items-center justify-between gap-4 border-b border-slate-200 p-4">
             <h3 class="text-base font-semibold text-slate-900">{{ title }}</h3>
             <button v-if="showClose" type="button" class="rounded-md p-1 text-slate-500 hover:bg-slate-100" @click="handleCloseClick" aria-label="Fechar">
               ✕

@@ -129,6 +129,14 @@ const updatedBy = computed(() => {
           </div>
         </div>
       </div>
+      <div class="space-y-4">
+        <div class="skeleton h-5 w-24 rounded-md"></div>
+        <div class="space-y-3">
+          <div class="skeleton h-4 w-48 rounded-md"></div>
+          <div class="skeleton h-4 w-64 rounded-md"></div>
+          <div class="skeleton h-4 w-56 rounded-md"></div>
+        </div>
+      </div>
       <span class="sr-only">Carregando detalhes do cliente...</span>
     </div>
 
@@ -183,23 +191,59 @@ const updatedBy = computed(() => {
       </section>
 
       <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-slate-900">Endereços</h2>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Endereço</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="address in payload.addresses" :key="address.id">
+                <td>
+                  {{ address.description || 'Sem descrição' }}
+                </td>
+                <td>
+                  {{ address.address }}, {{ address.address_number }}
+                  <span v-if="address.address_complement"> - {{ address.address_complement }}</span>
+                  <br>
+                  <span class="text-slate-500">{{ address.neighborhood }}, {{ address.city }}/{{ address.state }}</span>
+                </td>
+                <td class="table-actions">
+                  <span :class="address.status === 'active' ? 'badge-success' : 'badge-danger'">
+                    {{ address.status === 'active' ? 'Ativo' : 'Inativo' }}
+                  </span>
+                </td>
+              </tr>
+              <tr v-if="!payload.addresses || payload.addresses.length === 0">
+                <td colspan="3" class="table-empty">Nenhum endereço cadastrado para este cliente.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="space-y-3">
         <h2 class="text-lg font-semibold text-slate-900">Auditoria</h2>
         <dl class="grid gap-4 sm:grid-cols-2">
           <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Cadastrado em</dt>
-            <dd class="text-sm text-slate-800">{{ formatDate(payload.created_at) }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Por</dt>
+            <dt class="text-sm font-semibold text-slate-500">Criado por</dt>
             <dd class="text-sm text-slate-800">{{ createdBy }}</dd>
           </div>
           <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Última atualização</dt>
-            <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
+            <dt class="text-sm font-semibold text-slate-500">Criado em</dt>
+            <dd class="text-sm text-slate-800">{{ formatDate(payload.created_at) }}</dd>
           </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Por</dt>
+          <div v-if="lastUpdatedAt" class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Atualizado por</dt>
             <dd class="text-sm text-slate-800">{{ updatedBy }}</dd>
+          </div>
+          <div v-if="lastUpdatedAt" class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Atualizado em</dt>
+            <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
           </div>
         </dl>
       </section>

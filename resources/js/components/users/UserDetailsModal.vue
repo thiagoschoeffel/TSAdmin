@@ -179,20 +179,6 @@ function formatDate(value) {
       </section>
 
       <section class="space-y-3">
-        <h3 class="text-lg font-semibold text-slate-900">Auditoria</h3>
-        <dl class="grid gap-4 sm:grid-cols-2">
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Criado em</dt>
-            <dd class="text-sm text-slate-800">{{ formatDate(payload.created_at) }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Atualizado em</dt>
-            <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
-          </div>
-        </dl>
-      </section>
-
-      <section class="space-y-3">
         <h3 class="text-lg font-semibold text-slate-900">Permissões</h3>
         <div v-if="isAdmin" class="text-sm text-slate-600">Administrador: todas as permissões habilitadas.</div>
         <div v-else>
@@ -208,6 +194,20 @@ function formatDate(value) {
             </template>
           </dl>
         </div>
+      </section>
+
+      <section class="space-y-3">
+        <h3 class="text-lg font-semibold text-slate-900">Auditoria</h3>
+        <dl class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Criado em</dt>
+            <dd class="text-sm text-slate-800">{{ formatDate(payload.created_at) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Atualizado em</dt>
+            <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
+          </div>
+        </dl>
       </section>
     </div>
   </Modal>
