@@ -4,12 +4,15 @@ import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 
+const props = defineProps({
+  user: Object,
+});
+
 const page = usePage();
-const user = page.props.auth?.user || {};
 
 const form = useForm({
-  name: user.name || '',
-  email: user.email || '',
+  name: props.user?.name || '',
+  email: props.user?.email || '',
   current_password: '',
   password: '',
   password_confirmation: '',
@@ -45,14 +48,19 @@ const destroyAccount = () => {
         </label>
 
         <label class="form-label">
-          E-mail
+          <span class="flex items-center gap-2">
+            E-mail
+            <span :class="props.user?.email_verified_at ? 'badge-success' : 'badge-danger'">
+              {{ props.user?.email_verified_at ? 'Verificado' : 'Não verificado' }}
+            </span>
+          </span>
           <input type="email" v-model="form.email" required autocomplete="email" class="form-input" />
           <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
         </label>
 
         <label class="form-label">
           Perfil de acesso
-          <input type="text" :value="user.role === 'admin' ? 'Administrador' : 'Usuário comum'" class="form-input" disabled readonly />
+          <input type="text" :value="props.user?.role === 'admin' ? 'Administrador' : 'Usuário comum'" class="form-input" disabled readonly />
         </label>
 
         <div class="h-px bg-slate-200"></div>
@@ -110,4 +118,6 @@ const destroyAccount = () => {
 .btn-danger { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#e11d48; color:#fff; font-weight:600; }
 .status { border:1px solid #cbd5e1; background:#f8fafc; border-radius:.5rem; padding:.5rem .75rem; }
 .status-danger { border-color:#fecaca; background:#fff1f2; color:#b91c1c; }
+.badge-success { display:inline-flex; align-items:center; gap:.375rem; background:#ecfeff; color:#047857; font-weight:700; padding:.125rem .5rem; border-radius:.375rem; }
+.badge-danger { display:inline-flex; align-items:center; gap:.375rem; background:#fff1f2; color:#b91c1c; font-weight:700; padding:.125rem .5rem; border-radius:.375rem; }
 </style>

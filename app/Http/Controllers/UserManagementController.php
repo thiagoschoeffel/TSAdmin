@@ -41,6 +41,7 @@ class UserManagementController extends Controller
                     'email' => $user->email,
                     'role' => $user->role,
                     'status' => $user->status,
+                    'email_verified_at' => $user->email_verified_at,
                 ];
             });
 
@@ -154,6 +155,7 @@ class UserManagementController extends Controller
                 'role' => $user->role,
                 'status' => $user->status,
                 'permissions' => $user->permissions ?? [],
+                'email_verified_at' => $user->email_verified_at,
                 'created_at' => $user->created_at?->format('d/m/Y H:i'),
                 'updated_at' => $user->updated_at?->format('d/m/Y H:i'),
             ],

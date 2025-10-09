@@ -108,7 +108,12 @@ const openDetails = (user) => {
               <td>
                 <button type="button" class="link" @click="openDetails(u)">{{ u.name }}</button>
               </td>
-              <td>{{ u.email }}</td>
+              <td>
+                {{ u.email }}
+                <span :class="u.email_verified_at ? 'badge-success' : 'badge-danger'" class="ml-2">
+                  {{ u.email_verified_at ? 'Verificado' : 'Não verificado' }}
+                </span>
+              </td>
               <td>{{ u.role === 'admin' ? 'Administrador' : 'Usuário comum' }}</td>
               <td class="table-actions">
                 <span :class="u.status === 'active' ? 'badge-success' : 'badge-danger'">
