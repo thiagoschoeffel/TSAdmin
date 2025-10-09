@@ -6,10 +6,17 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProductRequest extends FormRequest
 {
-    public function authorize(): bool
+    public function rules(): array
     {
-        // Ajuste conforme política de permissão
-        return true;
+        return [
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'price' => 'required|numeric|min:0',
+            'status' => 'required|in:active,inactive',
+            'components' => 'nullable|array',
+            'components.*.id' => 'required|integer|exists:products,id',
+            'components.*.quantity' => 'required|numeric|min:0.01',
+        ];
     }
 
     public function withValidator($validator)

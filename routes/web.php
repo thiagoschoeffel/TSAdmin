@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
     Route::resource('clients', ClientController::class)->except(['show']);
 
     Route::resource('products', \App\Http\Controllers\ProductController::class)->except(['show']);
+    Route::get('products/{product}/modal', [\App\Http\Controllers\ProductController::class, 'modal'])->name('products.modal');
 
     Route::prefix('clients/{client}/addresses')->name('clients.addresses.')->group(function (): void {
         Route::get('/', [AddressController::class, 'index'])->name('index');

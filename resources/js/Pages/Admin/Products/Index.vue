@@ -3,6 +3,10 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
+import Dropdown from '@/components/Dropdown.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
+import Pagination from '@/components/Pagination.vue';
+import ProductDetailsModal from '@/components/products/ProductDetailsModal.vue';
 
 const props = defineProps({
   products: { type: Object, required: true },
@@ -13,6 +17,9 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
 const isAdmin = computed(() => user.value?.role === 'admin');
 const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.products?.create);
+const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.products?.update);
+const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.products?.delete);
+const canView = computed(() => isAdmin.value || !!user.value?.permissions?.products?.view);
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
@@ -23,6 +30,36 @@ const submitFilters = () => {
   router.get('/admin/products', { search: search.value, status: status.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
 };
 const resetFilters = () => { search.value = ''; status.value = ''; submitFilters(); };
+
+// Estado para confirmação de exclusão
+const deleteState = ref({ open: false, processing: false, product: null });
+
+const confirmDelete = (product) => {
+  deleteState.value = { open: true, processing: false, product };
+};
+
+const performDelete = async () => {
+  if (!deleteState.value.product) return;
+
+  deleteState.value.processing = true;
+  try {
+    await router.delete(`/admin/products/${deleteState.value.product.id}`, {
+      onSuccess: () => {
+        deleteState.value = { open: false, processing: false, product: null };
+      },
+      onError: () => {
+        deleteState.value.processing = false;
+      }
+    });
+  } catch (error) {
+    deleteState.value.processing = false;
+    console.error('Erro ao excluir produto:', error);
+  }
+};
+
+// Estado para modal de detalhes
+const details = ref({ open: false, productId: null });
+const openDetails = (product) => { details.value.productId = product.id; details.value.open = true; };
 </script>
 
 <template>
@@ -78,7 +115,10 @@ const resetFilters = () => { search.value = ''; status.value = ''; submitFilters
           </thead>
           <tbody>
             <tr v-for="p in products.data" :key="p.id">
-              <td>{{ p.name }}</td>
+              <td>
+                <button v-if="canView" type="button" class="link" @click="openDetails(p)">{{ p.name }}</button>
+                <span v-else class="text-slate-900">{{ p.name }}</span>
+              </td>
               <td>{{ p.description }}</td>
               <td>R$ {{ Number(p.price).toFixed(2) }}</td>
               <td class="table-actions">
@@ -87,10 +127,26 @@ const resetFilters = () => { search.value = ''; status.value = ''; submitFilters
                 </span>
               </td>
               <td class="whitespace-nowrap">
-                <Link class="menu-panel-link" :href="route('products.edit', p.id)">
-                  <HeroIcon name="pencil" class="h-4 w-4" />
-                  <span>Editar</span>
-                </Link>
+                <Dropdown>
+                  <template #trigger="{ toggle }">
+                    <button type="button" class="menu-trigger" @click="toggle" aria-label="Abrir menu de ações">
+                      <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
+                    </button>
+                  </template>
+                  <template #default="{ close }">
+                    <template v-if="canUpdate || canDelete">
+                      <Link v-if="canUpdate" class="menu-panel-link" :href="route('products.edit', p.id)">
+                        <HeroIcon name="pencil" class="h-4 w-4" />
+                        <span>Editar</span>
+                      </Link>
+                      <button v-if="canDelete" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(p); close()">
+                        <HeroIcon name="trash" class="h-4 w-4" />
+                        <span>Excluir</span>
+                      </button>
+                    </template>
+                    <span v-else class="menu-panel-link pointer-events-none text-slate-400">Nenhuma ação disponível</span>
+                  </template>
+                </Dropdown>
               </td>
             </tr>
             <tr v-if="!products.data || products.data.length === 0">
@@ -99,7 +155,19 @@ const resetFilters = () => { search.value = ''; status.value = ''; submitFilters
           </tbody>
         </table>
       </div>
+
+      <Pagination v-if="products && products.total" :paginator="products" />
     </section>
+
+    <ConfirmModal v-model="deleteState.open"
+                  :processing="deleteState.processing"
+                  title="Excluir produto"
+                  :message="deleteState.product ? `Deseja realmente remover ${deleteState.product.name}?` : ''"
+                  confirm-text="Excluir"
+                  variant="danger"
+                  @confirm="performDelete" />
+
+    <ProductDetailsModal v-model="details.open" :product-id="details.productId" />
   </AdminLayout>
 </template>
 

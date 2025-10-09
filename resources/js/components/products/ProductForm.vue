@@ -48,34 +48,35 @@ const rawPriceDigits = ref('');
 
 // Método para formatar preço em tempo real
 const formatPriceInput = (event) => {
-  const input = event.target;
-  const value = input.value;
-
-  // Se o valor já está formatado (contém R$), não processa
-  if (value.includes('R$')) {
-    return;
-  }
-
-  // Remove tudo exceto dígitos
-  const digits = value.replace(/\D/g, '');
-
-  // Atualiza os dígitos crus
-  rawPriceDigits.value = digits;
-
-  if (digits === '') {
-    input.value = '';
+  let value = event.target.value.replace(/\D/g, ''); // Remove tudo exceto dígitos
+  if (value === '') {
+    priceInput.value = '';
     props.form.price = '';
     return;
   }
 
-  // Trata como reais (inteiro)
-  const numericValue = parseFloat(digits);
+  // Garante no máximo 12 dígitos (até trilhões)
+  value = value.slice(0, 12);
+
+  // Adiciona zeros à esquerda para garantir pelo menos 3 dígitos
+  while (value.length < 3) {
+    value = '0' + value;
+  }
+
+  // Separa centavos
+  const cents = value.slice(-2);
+  const reais = value.slice(0, -2);
+  const numericValue = parseFloat(reais + '.' + cents);
+
+  // Formata para BRL
   const formatted = numericValue.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 
-  input.value = formatted;
+  priceInput.value = formatted;
   props.form.price = numericValue;
 };
 

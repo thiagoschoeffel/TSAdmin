@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -51,7 +53,7 @@ class ProductController extends Controller
             'description' => $data['description'] ?? null,
             'price' => $data['price'],
             'status' => $data['status'] ?? 'active',
-            'created_by' => auth()->id(),
+            'created_by' => Auth::id(),
         ]);
         if (!empty($data['components'])) {
             $syncData = collect($data['components'])->mapWithKeys(function ($item) {
@@ -80,7 +82,7 @@ class ProductController extends Controller
             'description' => $data['description'] ?? null,
             'price' => $data['price'],
             'status' => $data['status'] ?? 'active',
-            'updated_by' => auth()->id(),
+            'updated_by' => Auth::id(),
         ]);
         if (!empty($data['components'])) {
             $syncData = collect($data['components'])->mapWithKeys(function ($item) {
@@ -97,5 +99,39 @@ class ProductController extends Controller
     {
         $product->delete();
         return redirect()->route('products.index')->with('status', 'Produto removido com sucesso!');
+    }
+
+    public function modal(Product $product): JsonResponse
+    {
+        abort_unless(Auth::user()->canManage('products', 'view'), 403);
+        $product->load(['createdBy', 'updatedBy', 'components']);
+
+        return response()->json([
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->formattedPrice(),
+                'status' => $product->status,
+                'created_at' => $product->created_at?->format('d/m/Y H:i'),
+                'updated_at' => $product->updated_at?->format('d/m/Y H:i'),
+                'created_by' => $product->createdBy?->name,
+                'updated_by' => $product->updatedBy?->name,
+                'components' => $product->components->map(function ($component) {
+                    return [
+                        'id' => $component->id,
+                        'name' => $component->name,
+                        'quantity' => $component->pivot->quantity,
+                        'price' => $component->formattedPrice(),
+                        'total' => 'R$ ' . number_format($component->price * $component->pivot->quantity, 2, ',', '.'),
+                        'status' => $component->status,
+                        'created_at' => $component->created_at?->format('d/m/Y H:i'),
+                        'updated_at' => $component->updated_at?->format('d/m/Y H:i'),
+                        'created_by' => $component->createdBy?->name,
+                        'updated_by' => $component->updatedBy?->name,
+                    ];
+                }),
+            ],
+        ]);
     }
 }
