@@ -169,28 +169,6 @@ const updatedBy = computed(() => {
       </section>
 
       <section class="space-y-3">
-        <h2 class="text-lg font-semibold text-slate-900">Contato</h2>
-        <dl class="grid gap-4 sm:grid-cols-2">
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Nome do contato</dt>
-            <dd class="text-sm text-slate-800">{{ payload.contact_name || '—' }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Telefone principal</dt>
-            <dd class="text-sm text-slate-800">{{ formatPhone(payload.contact_phone_primary) }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Telefone secundário</dt>
-            <dd class="text-sm text-slate-800">{{ formatPhone(payload.contact_phone_secondary) }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">E-mail</dt>
-            <dd class="text-sm text-slate-800">{{ payload.contact_email || '—' }}</dd>
-          </div>
-        </dl>
-      </section>
-
-      <section class="space-y-3">
         <h2 class="text-lg font-semibold text-slate-900">Endereços</h2>
         <div class="table-wrapper">
           <table class="table">
@@ -224,6 +202,28 @@ const updatedBy = computed(() => {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold text-slate-900">Contato</h2>
+        <dl class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Nome do contato</dt>
+            <dd class="text-sm text-slate-800">{{ payload.contact_name || '—' }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Telefone principal</dt>
+            <dd class="text-sm text-slate-800">{{ formatPhone(payload.contact_phone_primary) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Telefone secundário</dt>
+            <dd class="text-sm text-slate-800">{{ formatPhone(payload.contact_phone_secondary) }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">E-mail</dt>
+            <dd class="text-sm text-slate-800">{{ payload.contact_email || '—' }}</dd>
+          </div>
+        </dl>
       </section>
 
       <section class="space-y-3">
