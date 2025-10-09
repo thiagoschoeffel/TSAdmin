@@ -238,43 +238,13 @@ class ClientController extends Controller
         abort_unless(Auth::user()->canManage('clients', 'update'), 403);
 
         $data = $this->preparePayload($request->validated());
-        $addresses = $data['addresses'] ?? [];
         unset($data['addresses']);
 
         $client->fill($data);
         $client->updated_by_id = Auth::id();
         $client->save();
 
-        // Sincronizar endereços
-        $existingAddressIds = $client->addresses()->pluck('id')->toArray();
-        $submittedAddressIds = collect($addresses)->pluck('id')->filter()->toArray();
-
-        // Remover endereços que não estão mais na lista
-        $addressesToDelete = array_diff($existingAddressIds, $submittedAddressIds);
-        if (!empty($addressesToDelete)) {
-            $client->addresses()->whereIn('id', $addressesToDelete)->delete();
-        }
-
-        // Atualizar ou criar endereços
-        foreach ($addresses as $addressData) {
-            $addressId = $addressData['id'] ?? null;
-
-            // Check if this is an existing address (ID exists in database) or a new one (temporary ID or no ID)
-            $isExistingAddress = $addressId && $client->addresses()->where('id', $addressId)->exists();
-
-            if ($isExistingAddress) {
-                // Atualizar endereço existente
-                $client->addresses()->where('id', $addressId)->update(array_merge($addressData, [
-                    'updated_by_id' => Auth::id(),
-                ]));
-            } else {
-                // Criar novo endereço
-                unset($addressData['id']); // Remove temporary ID
-                $client->addresses()->create(array_merge($addressData, [
-                    'created_by_id' => Auth::id(),
-                ]));
-            }
-        }
+        // Na edição, não manipula endereços. Eles são gerenciados separadamente.
 
         return redirect()
             ->route('clients.index')

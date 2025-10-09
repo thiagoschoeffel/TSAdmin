@@ -39,7 +39,7 @@ const submit = () => {
   <Link class="btn-ghost" :href="route('clients.index')">Voltar para lista</Link>
       </div>
 
-  <ClientForm :form="form" :states="props.states" :submit-label="'Salvar alterações'" :cancel-href="route('clients.index')" @submit="submit" />
+  <ClientForm :form="form" :states="props.states" :submit-label="'Salvar alterações'" :cancel-href="route('clients.index')" :is-editing="true" :client-id="props.client.id" @submit="submit" />
     </section>
   </AdminLayout>
 </template>

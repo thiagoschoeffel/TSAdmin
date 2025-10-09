@@ -9,6 +9,7 @@ use App\Models\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AddressController extends Controller
 {
@@ -38,9 +39,10 @@ class AddressController extends Controller
         ]);
     }
 
-    public function store(StoreAddressRequest $request): JsonResponse
+    public function store(StoreAddressRequest $request, Client $client): JsonResponse
     {
         $address = Address::create(array_merge($request->validated(), [
+            'client_id' => $client->id,
             'created_by_id' => Auth::id(),
         ]));
 
@@ -64,10 +66,14 @@ class AddressController extends Controller
         ], 201);
     }
 
-    public function update(UpdateAddressRequest $request, Address $address): JsonResponse
+    public function update(UpdateAddressRequest $request, Client $client, $addressId): JsonResponse
     {
+        $address = $client->addresses()->findOrFail($addressId);
+
         $address->fill($request->validated());
         $address->updated_by_id = Auth::id();
+        $address->updated_at = now();
+
         $address->save();
 
         return response()->json([
@@ -90,9 +96,10 @@ class AddressController extends Controller
         ]);
     }
 
-    public function destroy(Address $address): JsonResponse
+    public function destroy(Client $client, $addressId): JsonResponse
     {
         abort_unless(Auth::user()->canManage('clients', 'update'), 403);
+        $address = $client->addresses()->findOrFail($addressId);
         $address->delete();
 
         return response()->json(['message' => 'Endereço removido com sucesso.']);

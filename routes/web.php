@@ -62,8 +62,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
     Route::prefix('clients/{client}/addresses')->name('clients.addresses.')->group(function (): void {
         Route::get('/', [AddressController::class, 'index'])->name('index');
         Route::post('/', [AddressController::class, 'store'])->name('store');
-        Route::patch('{address}', [AddressController::class, 'update'])->name('update');
-        Route::delete('{address}', [AddressController::class, 'destroy'])->name('destroy');
+        Route::patch('{addressId}', [AddressController::class, 'update'])->name('update');
+        Route::delete('{addressId}', [AddressController::class, 'destroy'])->name('destroy');
     });
 });
 

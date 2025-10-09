@@ -1,4 +1,5 @@
 <script setup>
+import axios from 'axios';
 import Switch from '@/components/ui/Switch.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -178,10 +179,15 @@ const addAddress = async () => {
   } else {
     // Modo criação: adicionar à lista em memória
     if (editingAddressIndex.value >= 0) {
-      // Salvar edição
-      props.form.addresses[editingAddressIndex.value] = { ...newAddress.value };
-      editingAddressIndex.value = -1;
-      toastSuccess('Endereço atualizado com sucesso!');
+      // Salvar edição em memória
+      // Só permite editar endereços que não têm id real (ou seja, só em memória)
+      if (!props.form.addresses[editingAddressIndex.value].id || String(props.form.addresses[editingAddressIndex.value].id).length > 10) {
+        props.form.addresses[editingAddressIndex.value] = { ...newAddress.value };
+        editingAddressIndex.value = -1;
+        toastSuccess('Endereço atualizado com sucesso!');
+      } else {
+        toastError('Não é possível editar endereços já salvos no banco antes de salvar o cliente.');
+      }
     } else {
       // Adicionar novo
       props.form.addresses.push({ ...newAddress.value, id: Date.now() }); // ID temporário
@@ -193,10 +199,16 @@ const addAddress = async () => {
 };
 
 const editAddress = (index) => {
+  // No modo edição, só permite editar endereços que já existem no backend (id real)
+  if (props.isEditing && (!props.form.addresses[index].id || String(props.form.addresses[index].id).length > 10)) {
+    toastError('Salve o cliente antes de editar este endereço.');
+    return;
+  }
   editingAddressIndex.value = index;
   newAddress.value = { ...props.form.addresses[index] };
-  // Garantir que o CEP seja formatado corretamente
-  newAddress.value.postal_code = formatPostalCode(newAddress.value.postal_code);
+  // Garantir que o CEP seja formatado corretamente (remover máscara se já estiver aplicada)
+  const cleanPostalCode = newAddress.value.postal_code.replace(/\D/g, '');
+  newAddress.value.postal_code = formatPostalCode(cleanPostalCode);
   addressErrors.value = {}; // Limpa erros ao editar
   showAddForm.value = true;
   focusFirstAddressField();
@@ -233,7 +245,9 @@ const performDeleteAddress = async () => {
     const index = deleteAddressState.value.addressIndex;
     const address = props.form.addresses[index];
 
-    if (props.isEditing && address.id) {
+    // Só deleta do backend se o id for real (não temporário)
+    const isRealId = address.id && String(address.id).length < 10 && Number.isInteger(Number(address.id));
+    if (props.isEditing && isRealId) {
       // Modo edição: deletar do banco
       await deleteAddressFromDatabase(address.id);
     }
@@ -244,7 +258,7 @@ const performDeleteAddress = async () => {
       cancelEdit();
     }
 
-    if (!props.isEditing) {
+    if (!props.isEditing || !isRealId) {
       toastSuccess('Endereço removido com sucesso!');
     }
   } catch (error) {
@@ -277,52 +291,31 @@ const resetNewAddress = () => {
 const saveAddressToDatabase = async () => {
   try {
     const addressData = { ...newAddress.value };
-    let response;
+    addressData.postal_code = addressData.postal_code.replace(/\D/g, '');
+    let result;
 
     if (editingAddressIndex.value >= 0) {
       // Editando endereço existente
       const addressId = props.form.addresses[editingAddressIndex.value].id;
-      response = await fetch(`/admin/clients/${props.clientId}/addresses/${addressId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(addressData)
-      });
+      const { data } = await axios.patch(`/admin/clients/${props.clientId}/addresses/${addressId}`, addressData);
+      result = data;
     } else {
       // Criando novo endereço
-      response = await fetch(`/admin/clients/${props.clientId}/addresses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(addressData)
-      });
+      const { data } = await axios.post(`/admin/clients/${props.clientId}/addresses`, addressData);
+      result = data;
     }
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Erro ao salvar endereço');
-    }
-
-    const result = await response.json();
 
     if (editingAddressIndex.value >= 0) {
-      // Atualizar endereço existente na lista
       props.form.addresses[editingAddressIndex.value] = result.address;
       editingAddressIndex.value = -1;
+      toastSuccess('Endereço atualizado com sucesso!');
     } else {
-      // Adicionar novo endereço à lista
       props.form.addresses.push(result.address);
+      toastSuccess('Endereço adicionado com sucesso!');
     }
 
     resetNewAddress();
     showAddForm.value = false;
-    toastSuccess('Endereço salvo com sucesso!');
   } catch (error) {
     console.error('Erro ao salvar endereço:', error);
     toastError(error.message || 'Erro ao salvar endereço. Tente novamente.');
@@ -331,23 +324,16 @@ const saveAddressToDatabase = async () => {
 
 const deleteAddressFromDatabase = async (addressId) => {
   try {
-    const response = await fetch(`/admin/clients/${props.clientId}/addresses/${addressId}`, {
-      method: 'DELETE',
-      headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Erro ao excluir endereço');
-    }
-
+    await axios.delete(`/admin/clients/${props.clientId}/addresses/${addressId}`);
     toastSuccess('Endereço excluído com sucesso!');
   } catch (error) {
     console.error('Erro ao excluir endereço:', error);
-    toastError(error.message || 'Erro ao excluir endereço. Tente novamente.');
+    // Se o endereço não existe (404), trata como sucesso (já foi removido)
+    if (error.response?.status === 404) {
+      toastSuccess('Endereço excluído com sucesso!');
+      return;
+    }
+    toastError(error.response?.data?.message || error.message || 'Erro ao excluir endereço. Tente novamente.');
     throw error; // Re-throw para impedir a remoção da lista se falhou no banco
   }
 };
