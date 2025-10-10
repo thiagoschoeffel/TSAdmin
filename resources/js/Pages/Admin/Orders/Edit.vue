@@ -7,7 +7,6 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts';
 import Button from '@/components/Button.vue';
 import OrderForm from '@/components/orders/OrderForm.vue';
-import RecentOrders from '@/components/orders/RecentOrders.vue';
 import OrderModal from '@/components/orders/OrderModal.vue';
 import { formatQuantity } from '@/utils/formatters';
 
@@ -39,15 +38,15 @@ const totalItemsQuantity = computed(() => {
 // Sistema de toasts
 const { error: toastError, success: toastSuccess } = useToasts();
 
-const originalQuantity = ref(0);
-
 // Persistência da quantidade no commit (blur) vindo do InputNumber
-const commitItemQuantity = async (index, value) => {
+const commitItemQuantity = async (index, value, originalValue) => {
   const item = items.value[index];
   let newQuantity = Number(value);
   if (!isFinite(newQuantity) || newQuantity <= 0) newQuantity = 0.01;
   newQuantity = Math.round(newQuantity * 100) / 100;
-  if (Math.abs(newQuantity - originalQuantity.value) > 0.001) {
+
+  // Comparar com valor original passado pelo OrderForm
+  if (Math.abs(newQuantity - originalValue) > 0.001) {
     // Atualização otimista local; total é derivado reativamente no template
     item.quantity = newQuantity;
     try {
@@ -57,12 +56,13 @@ const commitItemQuantity = async (index, value) => {
     } catch (error) {
       console.error('Erro ao atualizar quantidade:', error);
       toastError('Erro ao atualizar quantidade do item');
-      item.quantity = originalQuantity.value;
+      item.quantity = originalValue; // Reverter para valor original
     }
   }
+  // Se valor não mudou, não faz nada
 };
 
-const addItem = async (product, quantity) => {
+const addItem = async ({ product, quantity }) => {
   const price = Number(product.price);
   const qty = Number(quantity);
 
@@ -230,12 +230,13 @@ const getStatusLabel = (status) => {
         v-model="items"
         :total="total"
         :total-items-quantity="totalItemsQuantity"
+        :recent-orders="recentOrders"
         @add-item="addItem"
         @commit-quantity="commitItemQuantity"
         @remove-item="removeItem"
       />
 
-      <RecentOrders :recent-orders="recentOrders" />
+      <!-- RecentOrders removido - agora está dentro do OrderForm -->
     </section>
 
     <OrderModal

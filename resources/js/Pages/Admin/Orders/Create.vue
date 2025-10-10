@@ -6,7 +6,6 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Button from '@/components/Button.vue';
 import OrderForm from '@/components/orders/OrderForm.vue';
 import OrderModal from '@/components/orders/OrderModal.vue';
-import RecentOrders from '@/components/orders/RecentOrders.vue';
 import { useToasts } from '@/components/toast/useToasts';
 import { formatQuantity } from '@/utils/formatters';
 
@@ -146,12 +145,13 @@ onMounted(() => {
         v-model="items"
         :total="total"
         :total-items-quantity="totalItemsQuantity"
+        :recent-orders="recentOrders"
         @add-item="addItem"
         @commit-quantity="commitItemQuantity"
         @remove-item="removeItem"
       />
 
-      <RecentOrders :recent-orders="recentOrders" />
+      <!-- RecentOrders removido - agora está dentro do OrderForm -->
     </section>
 
     <OrderModal

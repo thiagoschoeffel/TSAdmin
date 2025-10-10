@@ -6,12 +6,14 @@ import InputText from '@/components/InputText.vue';
 import InputNumber from '@/components/InputNumber.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { formatCurrency, formatQuantity } from '@/utils/formatters';
+import RecentOrders from '@/components/orders/RecentOrders.vue';
 
 const props = defineProps({
   products: { type: Array, required: true },
   modelValue: { type: Array, default: () => [] },
   total: { type: Number, default: 0 },
   totalItemsQuantity: { type: Number, default: 0 },
+  recentOrders: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(['update:modelValue', 'add-item', 'commit-quantity', 'remove-item']);
@@ -78,8 +80,21 @@ const addItem = () => {
 };
 
 // Items management
+const originalQuantities = ref({}); // Armazenar valor original por index
+
+const handleQuantityFocus = (index, event) => {
+  // Captura o valor atual quando o campo ganha foco
+  originalQuantities.value[index] = Number(items.value[index].quantity);
+};
+
 const commitItemQuantity = (index, value) => {
-  emit('commit-quantity', index, value);
+  const originalValue = originalQuantities.value[index];
+  const newValue = Number(value);
+
+  // Só emite se valor realmente mudou
+  if (Math.abs(newValue - originalValue) > 0.001) {
+    emit('commit-quantity', index, value, originalValue);
+  }
 };
 
 const removeItem = (index) => {
@@ -168,6 +183,7 @@ const performDelete = () => {
                   :data-quantity-index="index"
                   v-model="items[index].quantity"
                   :formatted="true"
+                  @focus="(event) => handleQuantityFocus(index, event)"
                   @commit="(val) => commitItemQuantity(index, val)"
                   size="sm"
                   class="w-20"
@@ -206,6 +222,9 @@ const performDelete = () => {
           </div>
         </div>
       </div>
+
+      <!-- Recent Orders -->
+      <RecentOrders :recent-orders="recentOrders" />
     </div>
   </div>
 
