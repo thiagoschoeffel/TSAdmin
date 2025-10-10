@@ -20,5 +20,14 @@ return [
                 'delete' => 'Excluir produtos',
             ],
         ],
+        'orders' => [
+            'label' => 'Gestão de pedidos',
+            'abilities' => [
+                'view' => 'Visualizar pedidos',
+                'create' => 'Criar pedidos',
+                'update' => 'Editar pedidos',
+                'delete' => 'Excluir pedidos',
+            ],
+        ],
     ],
 ];

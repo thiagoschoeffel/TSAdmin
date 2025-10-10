@@ -13,6 +13,7 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
 const isAdmin = computed(() => user.value?.role === 'admin');
 const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions?.clients?.view);
+const canViewOrders = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.view);
 
 // Logout modal state and action
 const logoutOpen = ref(false);
@@ -73,6 +74,12 @@ watch(() => page.props.flash, (f) => {
               <span class="inline-flex items-center gap-2">
                 <HeroIcon name="cube" outline class="h-4 w-4 transition-colors group-hover:text-white" />
                 <span>Produtos</span>
+              </span>
+            </Link>
+            <Link v-if="canViewOrders" class="group transition hover:text-white" :href="route('orders.index')">
+              <span class="inline-flex items-center gap-2">
+                <HeroIcon name="shopping-bag" class="h-4 w-4 transition-colors group-hover:text-white" />
+                <span>Pedidos</span>
               </span>
             </Link>
           </div>
