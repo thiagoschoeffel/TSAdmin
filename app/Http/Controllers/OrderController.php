@@ -142,6 +142,8 @@ class OrderController extends Controller
             'address_id' => $request->delivery_type === 'pickup' ? null : $request->address_id,
             'total' => collect($request->items)->sum(fn($item) => $item['quantity'] * Product::find($item['product_id'])->price),
             'ordered_at' => now(),
+            'created_by_id' => Auth::id(),
+            'updated_by_id' => Auth::id(),
         ]);
 
         foreach ($request->items as $item) {
@@ -264,6 +266,7 @@ class OrderController extends Controller
             'payment_method' => $request->payment_method,
             'delivery_type' => $request->delivery_type,
             'address_id' => $request->delivery_type === 'pickup' ? null : $request->address_id,
+            'updated_by_id' => Auth::id(),
             // Total is already updated when items are modified individually
         ]);
 
@@ -311,6 +314,7 @@ class OrderController extends Controller
         // Recalculate order total
         $order->update([
             'total' => $order->items()->sum('total'),
+            'updated_by_id' => Auth::id(),
         ]);
 
         return response()->json([
@@ -337,6 +341,7 @@ class OrderController extends Controller
         // Recalculate order total
         $order->update([
             'total' => $order->items()->sum('total'),
+            'updated_by_id' => Auth::id(),
         ]);
 
         return response()->json([
@@ -391,6 +396,7 @@ class OrderController extends Controller
         $itemsTotal = $order->items()->sum('total');
         $order->update([
             'total' => $itemsTotal,
+            'updated_by_id' => Auth::id(),
         ]);
 
         return response()->json([
