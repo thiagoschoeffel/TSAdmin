@@ -1,14 +1,16 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import { useToasts } from '@/components/toast/useToasts';
 
 const props = defineProps({
   user: Object,
 });
 
 const page = usePage();
+const { error: toastError } = useToasts();
 
 const form = useForm({
   name: props.user?.name || '',
@@ -26,6 +28,13 @@ const confirmDelete = ref(false);
 const destroyAccount = () => {
   confirmDelete.value = true;
 };
+
+// Verificar erros de perfil ao montar o componente
+onMounted(() => {
+  if (page.props.errors?.profile) {
+    toastError(page.props.errors.profile);
+  }
+});
 </script>
 
 <template>
