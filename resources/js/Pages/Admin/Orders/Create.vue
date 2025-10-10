@@ -304,7 +304,7 @@ const performDelete = () => {
     deleteState.value.open = false;
     deleteState.value.item = null;
     deleteState.value.index = null;
-    toastError(`${itemName} removido do pedido`);
+    toastSuccess(`${itemName} removido do pedido`);
   }, 100);
 };
 
