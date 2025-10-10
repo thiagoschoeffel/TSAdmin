@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
   variant: {
@@ -59,7 +60,7 @@ const classes = computed(() => {
 </script>
 
 <template>
-  <component :is="href ? 'a' : 'button'" :class="classes" :type="!href ? type : undefined" :href="href" :disabled="!href && (disabled || loading)">
+  <component :is="href ? Link : 'button'" :class="classes" :type="!href ? type : undefined" :href="href" :disabled="!href && (disabled || loading)">
     <slot v-if="!loading" />
     <span v-else class="animate-spin">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24">
