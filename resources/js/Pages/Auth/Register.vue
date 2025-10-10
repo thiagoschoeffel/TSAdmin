@@ -1,5 +1,6 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import Button from '@/components/Button.vue';
 import { Link, useForm } from '@inertiajs/vue3';
 const form = useForm({
   name: '',
@@ -43,11 +44,11 @@ const submit = () => {
         </label>
 
         <div class="flex flex-wrap items-center gap-3">
-          <button type="submit" :disabled="form.processing" class="btn-primary">
+          <Button variant="primary" :loading="form.processing" type="submit">
             <span v-if="!form.processing">Cadastrar</span>
             <span v-else>Enviando…</span>
-          </button>
-          <Link class="btn-ghost" :href="route('login')">Já tenho conta</Link>
+          </Button>
+          <Button variant="ghost" :href="route('login')">Já tenho conta</Button>
         </div>
       </form>
     </section>
@@ -58,6 +59,4 @@ const submit = () => {
 <style scoped>
 .form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
 .form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
-.btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>

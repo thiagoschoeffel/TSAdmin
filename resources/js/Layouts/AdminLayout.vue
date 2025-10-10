@@ -128,6 +128,5 @@ watch(() => page.props.flash, (f) => {
 
 <style scoped>
 .container-default { max-width: 72rem; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; }
-.btn-inverse { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#fff; color:#0f172a; font-weight:600; }
 .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>

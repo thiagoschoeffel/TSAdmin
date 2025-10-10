@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useToasts } from '@/components/toast/useToasts';
 import AddressForm from './AddressForm.vue';
+import Button from '@/components/Button.vue';
 
 const props = defineProps({
   clientId: { type: Number, required: true },
@@ -147,7 +148,7 @@ onMounted(loadAddresses);
   <div class="space-y-6">
     <div class="flex justify-between items-center">
       <h3 class="text-lg font-semibold text-slate-700">Endereços</h3>
-      <button @click="openCreateForm" class="btn-primary">Adicionar Endereço</button>
+      <Button @click="openCreateForm" variant="primary">Adicionar Endereço</Button>
     </div>
 
     <div v-if="addresses.length === 0" class="text-center py-8 text-slate-500">
@@ -172,8 +173,8 @@ onMounted(loadAddresses);
             </p>
           </div>
           <div class="flex gap-2">
-            <button @click="openEditForm(address)" class="btn-ghost text-sm">Editar</button>
-            <button @click="deleteAddress(address)" class="btn-ghost text-sm text-red-600">Excluir</button>
+            <Button @click="openEditForm(address)" variant="ghost" size="sm">Editar</Button>
+            <Button @click="deleteAddress(address)" variant="outline-danger" size="sm">Excluir</Button>
           </div>
         </div>
       </div>
@@ -192,13 +193,13 @@ onMounted(loadAddresses);
           cancel-href="#"
           @submit="submitForm"
         />
-        <button @click="closeForm" class="mt-4 btn-ghost">Fechar</button>
+        <div class="mt-4 flex justify-end">
+          <Button @click="closeForm" variant="ghost">Fechar</Button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
-.btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>

@@ -1,5 +1,6 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import Button from '@/components/Button.vue';
 import { computed } from 'vue';
 import { usePage, Link } from '@inertiajs/vue3';
 
@@ -16,8 +17,8 @@ const isAuth = computed(() => !!page.props.auth?.user);
       </p>
 
       <div v-if="!isAuth" class="flex flex-wrap gap-3">
-  <Link class="btn-primary" :href="route('login')">Entrar</Link>
-  <Link class="link" :href="route('register')">Criar uma conta</Link>
+        <Button variant="primary" :href="route('login')">Entrar</Button>
+        <Button variant="ghost" :href="route('register')">Criar uma conta</Button>
       </div>
       <p v-else class="font-semibold text-slate-700">
   Você já está autenticado. Acesse o seu <Link class="link" :href="route('dashboard')">dashboard</Link>.
@@ -28,6 +29,5 @@ const isAuth = computed(() => !!page.props.auth?.user);
 </template>
 
 <style scoped>
-.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
 .link { color:#2563eb; text-decoration: underline; }
 </style>

@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue';
 import { usePage, Link } from '@inertiajs/vue3';
 import { route } from '@/ziggy-client';
+import Button from '@/components/Button.vue';
 import ToastContainer from '@/components/toast/ToastContainer.vue';
 import { useToasts } from '@/components/toast/useToasts';
 
@@ -33,11 +34,11 @@ watch(() => page.props.flash, (f) => {
         </div>
         <div class="flex flex-wrap items-center gap-3 sm:justify-end">
           <template v-if="!isAuth">
-            <Link class="text-sm font-semibold text-slate-200 transition hover:text-white" :href="route('login')">Entrar</Link>
-            <Link class="btn-inverse" :href="route('register')">Registrar</Link>
+            <Button variant="ghost-inverse" :href="route('login')">Entrar</Button>
+            <Button variant="inverse" :href="route('register')">Registrar</Button>
           </template>
           <template v-else>
-            <Link class="btn-inverse" :href="route('dashboard')">Acessar painel</Link>
+            <Button variant="inverse" :href="route('dashboard')">Acessar painel</Button>
           </template>
         </div>
       </nav>
@@ -56,5 +57,4 @@ watch(() => page.props.flash, (f) => {
 
 <style scoped>
 .container-default { max-width: 72rem; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; }
-.btn-inverse { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#fff; color:#0f172a; font-weight:600; }
 </style>

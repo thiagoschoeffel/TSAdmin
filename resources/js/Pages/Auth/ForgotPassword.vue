@@ -1,6 +1,7 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
-import { useForm, Link } from '@inertiajs/vue3';
+import Button from '@/components/Button.vue';
+import { useForm } from '@inertiajs/vue3';
 
 const form = useForm({ email: '' });
 const submit = () => form.post('/forgot-password');
@@ -18,8 +19,8 @@ const submit = () => form.post('/forgot-password');
           <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
         </label>
         <div class="flex gap-3 items-center">
-          <button class="btn-primary" :disabled="form.processing">Enviar link</button>
-          <Link class="text-sm text-slate-500" href="/login">Voltar ao login</Link>
+          <Button variant="primary" :loading="form.processing" type="submit">Enviar link</Button>
+          <Button variant="ghost" :href="route('login')">Voltar ao login</Button>
         </div>
       </form>
     </section>

@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Button from '@/components/Button.vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -97,7 +98,7 @@ onMounted(() => {
           <input type="password" v-model="form.password_confirmation" autocomplete="new-password" class="form-input" />
         </label>
 
-        <button type="submit" class="btn-primary" :disabled="form.processing">Salvar alterações</button>
+        <Button variant="primary" :loading="form.processing" type="submit">Salvar alterações</Button>
       </form>
 
       <div class="h-px bg-slate-200"></div>
@@ -107,7 +108,7 @@ onMounted(() => {
           <h2 class="text-lg font-semibold text-rose-700">Excluir conta</h2>
           <p class="text-sm text-rose-600">Esta ação é permanente. Ao confirmar, sua conta será removida e você será desconectado imediatamente.</p>
         </div>
-        <button type="button" class="btn-danger" :disabled="form.processing" @click="destroyAccount">Excluir minha conta</button>
+        <Button variant="danger" :loading="form.processing" @click="destroyAccount">Excluir minha conta</Button>
         <ConfirmModal v-model="confirmDelete"
                       title="Excluir conta"
                       message="Tem certeza que deseja remover sua conta? Esta ação não pode ser desfeita."
@@ -124,8 +125,6 @@ onMounted(() => {
 <style scoped>
 .form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
 .form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
-.btn-danger { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#e11d48; color:#fff; font-weight:600; }
 .status { border:1px solid #cbd5e1; background:#f8fafc; border-radius:.5rem; padding:.5rem .75rem; }
 .status-danger { border-color:#fecaca; background:#fff1f2; color:#b91c1c; }
 </style>

@@ -1,5 +1,6 @@
 <script setup>
 import Switch from '@/components/ui/Switch.vue';
+import Button from '@/components/Button.vue';
 import { useToasts } from '@/components/toast/useToasts';
 
 const props = defineProps({
@@ -114,8 +115,8 @@ const onSubmit = () => emit('submit');
     </fieldset>
 
     <div class="flex flex-wrap gap-3">
-      <button type="submit" class="btn-primary" :disabled="form.processing">{{ submitLabel }}</button>
-      <a class="btn-ghost" :href="cancelHref">Cancelar</a>
+      <Button type="submit" variant="primary" :loading="form.processing">{{ submitLabel }}</Button>
+      <Button :href="cancelHref" variant="ghost">Cancelar</Button>
     </div>
   </form>
 </template>
@@ -126,6 +127,4 @@ const onSubmit = () => emit('submit');
 .form-input:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
 .form-select { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
 .form-select:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
-.btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>

@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Button from '@/components/Button.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import Dropdown from '@/components/Dropdown.vue';
@@ -66,7 +67,7 @@ const openDetails = (user) => {
           </h1>
           <p class="mt-2 text-sm text-slate-500">Gerencie os usuários do sistema ou cadastre novos membros.</p>
         </div>
-  <Link class="btn-primary" :href="route('users.create')">Novo usuário</Link>
+        <Button variant="primary" :href="route('users.create')">Novo usuário</Button>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">
@@ -85,12 +86,12 @@ const openDetails = (user) => {
           </label>
         </div>
         <div class="flex flex-wrap gap-3">
-          <button type="submit" class="btn-primary" :disabled="filtering">
+          <Button variant="primary" :loading="filtering" type="submit">
             <HeroIcon name="funnel" class="h-5 w-5" />
             <span v-if="!filtering">Filtrar</span>
             <span v-else>Filtrando…</span>
-          </button>
-          <button type="button" class="btn-ghost" @click="resetFilters">Limpar filtros</button>
+          </Button>
+          <Button variant="ghost" @click="resetFilters">Limpar filtros</Button>
         </div>
       </form>
 
@@ -127,9 +128,9 @@ const openDetails = (user) => {
               <td class="whitespace-nowrap">
                 <Dropdown>
                   <template #trigger="{ toggle }">
-                    <button type="button" class="menu-trigger" @click="toggle" aria-label="Abrir menu de ações">
+                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
                       <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </button>
+                    </Button>
                   </template>
                   <template #default="{ close }">
                     <template v-if="u.id !== meId">

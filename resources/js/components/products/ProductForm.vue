@@ -2,6 +2,7 @@
 import Switch from '@/components/ui/Switch.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import Button from '@/components/Button.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { usePage } from '@inertiajs/vue3';
@@ -370,12 +371,12 @@ const hasComponentErrors = computed(() => {
             <span v-if="componentErrors.quantity" class="text-sm font-medium text-rose-600">{{ componentErrors.quantity }}</span>
           </label>
           <div class="flex items-end gap-2 sm:col-span-2">
-            <button v-if="canUpdateProducts" type="button" @click="addComponent" class="btn-primary text-sm">
+            <Button v-if="canUpdateProducts" type="button" @click="addComponent" variant="primary" size="sm">
               {{ editingComponentIndex >= 0 ? 'Salvar' : 'Adicionar' }}
-            </button>
-            <button type="button" @click="cancelEdit" class="btn-ghost text-sm">
+            </Button>
+            <Button type="button" @click="cancelEdit" variant="ghost" size="sm">
               Cancelar
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -403,9 +404,9 @@ const hasComponentErrors = computed(() => {
               <td class="whitespace-nowrap">
                 <Dropdown>
                   <template #trigger="{ toggle }">
-                    <button type="button" class="menu-trigger" @click="toggle" aria-label="Abrir menu de ações">
+                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
                       <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </button>
+                    </Button>
                   </template>
                   <template #default="{ close }">
                     <button v-if="canUpdateProducts" type="button" class="menu-panel-link" @click="editComponent(index); close()">
@@ -429,17 +430,17 @@ const hasComponentErrors = computed(() => {
 
       <!-- Botão para adicionar novo componente -->
       <div v-if="!showAddForm && canUpdateProducts" class="flex justify-center pt-4">
-        <button type="button" @click="showAddForm = true" class="btn-ghost text-sm">
+        <Button type="button" @click="showAddForm = true" variant="ghost" size="sm">
           Adicionar componente
-        </button>
+        </Button>
       </div>
 
       <span v-if="hasComponentErrors" class="text-sm font-medium text-rose-600">Verifique os erros nos componentes.</span>
     </fieldset>
 
     <div class="flex flex-wrap gap-3">
-      <button type="submit" class="btn-primary" :disabled="form.processing">{{ submitLabel }}</button>
-      <a class="btn-ghost" :href="cancelHref">Cancelar</a>
+      <Button type="submit" variant="primary" :loading="form.processing">{{ submitLabel }}</Button>
+      <Button :href="cancelHref" variant="ghost">Cancelar</Button>
     </div>
   </form>
 
@@ -460,6 +461,4 @@ const hasComponentErrors = computed(() => {
 .form-select { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
 .form-select:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
 .form-textarea { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
-.btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>

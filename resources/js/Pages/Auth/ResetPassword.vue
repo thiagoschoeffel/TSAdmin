@@ -1,5 +1,6 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import Button from '@/components/Button.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -26,7 +27,7 @@ const submit = () => form.post('/reset-password');
           <input type="password" v-model="form.password_confirmation" required class="form-input" />
         </label>
         <div class="flex gap-3">
-          <button class="btn-primary" :disabled="form.processing">Redefinir senha</button>
+          <Button variant="primary" :loading="form.processing" type="submit">Redefinir senha</Button>
         </div>
       </form>
     </section>
