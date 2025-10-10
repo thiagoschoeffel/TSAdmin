@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -39,6 +39,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  list: {
+    type: String,
+    default: ''
+  },
   error: {
     type: Boolean,
     default: false
@@ -54,6 +58,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue', 'input', 'blur', 'focus', 'change'])
+
+const inputRef = ref(null)
 
 const inputClasses = computed(() => {
   const baseClasses = [
@@ -130,10 +136,17 @@ const handleFocus = (event) => {
 const handleChange = (event) => {
   emit('change', event)
 }
+
+// Expose focus method
+defineExpose({
+  focus: () => inputRef.value?.focus(),
+  blur: () => inputRef.value?.blur()
+})
 </script>
 
 <template>
   <input
+    ref="inputRef"
     :type="type"
     :value="modelValue"
     :placeholder="placeholder"
@@ -142,6 +155,7 @@ const handleChange = (event) => {
     :readonly="readonly"
     :autocomplete="autocomplete"
     :inputmode="inputmode"
+    :list="list"
     :class="finalClasses"
     @input="handleInput"
     @blur="handleBlur"

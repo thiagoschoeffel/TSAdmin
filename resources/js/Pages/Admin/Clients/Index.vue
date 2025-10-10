@@ -1,6 +1,8 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
+import InputSelect from '@/components/InputSelect.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import Dropdown from '@/components/Dropdown.vue';
@@ -66,23 +68,23 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label class="form-label">
             Buscar por nome ou documento
-            <input type="text" v-model="search" placeholder="Digite para buscar" class="form-input" />
+            <InputText v-model="search" placeholder="Digite para buscar" />
           </label>
           <label class="form-label">
             Tipo de pessoa
-            <select v-model="personType" class="form-select">
-              <option value="">Todos</option>
-              <option value="individual">Pessoa Física</option>
-              <option value="company">Pessoa Jurídica</option>
-            </select>
+            <InputSelect v-model="personType" :options="[
+              { value: '', label: 'Todos' },
+              { value: 'individual', label: 'Pessoa Física' },
+              { value: 'company', label: 'Pessoa Jurídica' }
+            ]" />
           </label>
           <label class="form-label">
             Status
-            <select v-model="status" class="form-select">
-              <option value="">Todos</option>
-              <option value="active">Ativos</option>
-              <option value="inactive">Inativos</option>
-            </select>
+            <InputSelect v-model="status" :options="[
+              { value: '', label: 'Todos' },
+              { value: 'active', label: 'Ativos' },
+              { value: 'inactive', label: 'Inativos' }
+            ]" />
           </label>
         </div>
         <div class="flex flex-wrap gap-3">

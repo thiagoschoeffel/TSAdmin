@@ -9,6 +9,8 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import { useToasts } from '@/components/toast/useToasts';
 import Badge from '@/components/Badge.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
+import InputSelect from '@/components/InputSelect.vue';
 
 const props = defineProps({
   order: { type: Object, required: true },
@@ -681,7 +683,7 @@ const getStatusLabel = (status) => {
             <div class="space-y-4">
               <label class="form-label">
                 Produto
-                <input
+                <InputText
                   ref="productInputRef"
                   v-model="productInput"
                   @input="handleProductInput"
@@ -690,7 +692,7 @@ const getStatusLabel = (status) => {
                   type="text"
                   list="products"
                   placeholder="Digite o nome ou código do produto..."
-                  class="form-input text-lg py-3"
+                  size="lg"
                 />
                 <datalist id="products">
                   <option v-for="product in productSuggestions" :key="product.id" :value="product.name">
@@ -702,7 +704,7 @@ const getStatusLabel = (status) => {
               <div class="grid grid-cols-2 gap-4">
                 <label class="form-label">
                   Quantidade
-                  <input
+                  <InputText
                     ref="quantityInputRef"
                     :value="isEditingProductQuantity ? formatFromDigitString(productRawQuantityDigits) : formatQuantityDisplay(quantityInput)"
                     @input="onProductQuantityInput"
@@ -711,12 +713,11 @@ const getStatusLabel = (status) => {
                     @keydown="handleQuantityKeydown"
                     type="text"
                     inputmode="decimal"
-                    class="form-input text-lg py-3"
+                    size="lg"
                   />
                 </label>
                 <div class="flex items-end">
                   <Button @click="addItem" variant="primary" size="lg" class="w-full">
-                    <HeroIcon name="plus" class="h-5 w-5" />
                     Adicionar (Enter)
                   </Button>
                 </div>
@@ -734,7 +735,7 @@ const getStatusLabel = (status) => {
                     <div class="flex items-center gap-2 text-sm text-slate-600">
                     <span>{{ formatCurrency(item.unit_price) }}</span>
                     <span>x</span>
-                    <input
+                    <InputText
                       :data-quantity-index="index"
                       :value="editingQuantityIndex === index ? formatQuantityInput({ target: { value: rawQuantityDigits ?? '' } }) : formatQuantityDisplay(item.quantity)"
                       @input="(e) => {
@@ -747,7 +748,8 @@ const getStatusLabel = (status) => {
                       @blur="stopEditingQuantity(index)"
                       @keydown="(e) => handleItemQuantityKeydown(e, index)"
                       type="text"
-                      class="form-input w-20 text-center py-2"
+                      size="sm"
+                      class="w-20 text-center"
                     />
                   </div>
                 </div>
@@ -820,7 +822,7 @@ const getStatusLabel = (status) => {
       <div class="space-y-4">
         <label class="form-label">
           Cliente
-          <input
+          <InputText
             ref="clientInputRef"
             v-model="clientInput"
             @input="handleClientInput"
@@ -829,7 +831,6 @@ const getStatusLabel = (status) => {
             type="text"
             list="clients"
             placeholder="Digite o nome do cliente..."
-            class="form-input"
           />
           <datalist id="clients">
             <option v-for="client in clientSuggestions" :key="client.id" :value="client.name">
@@ -840,23 +841,22 @@ const getStatusLabel = (status) => {
 
         <label class="form-label">
           Status do Pedido
-          <select v-model="orderStatus" class="form-select">
-            <option value="pending">Pendente</option>
-            <option value="confirmed">Confirmado</option>
-            <option value="shipped">Enviado</option>
-            <option value="delivered">Entregue</option>
-            <option value="cancelled">Cancelado</option>
-          </select>
+          <InputSelect v-model="orderStatus" :options="[
+            { value: 'pending', label: 'Pendente' },
+            { value: 'confirmed', label: 'Confirmado' },
+            { value: 'shipped', label: 'Enviado' },
+            { value: 'delivered', label: 'Entregue' },
+            { value: 'cancelled', label: 'Cancelado' }
+          ]" />
         </label>
 
         <label class="form-label">
           Forma de Pagamento
-          <select ref="paymentMethodRef" v-model="paymentMethod" @keydown="handlePaymentMethodKeydown" class="form-select">
-            <option value="">Selecionar...</option>
-            <option value="cash">Dinheiro</option>
-            <option value="card">Cartão</option>
-            <option value="pix">PIX</option>
-          </select>
+          <InputSelect ref="paymentMethodRef" v-model="paymentMethod" @keydown="handlePaymentMethodKeydown" :options="[
+            { value: 'cash', label: 'Dinheiro' },
+            { value: 'card', label: 'Cartão' },
+            { value: 'pix', label: 'PIX' }
+          ]" />
         </label>
 
         <div>
@@ -886,12 +886,10 @@ const getStatusLabel = (status) => {
         <div>
           <label class="form-label">
             Endereço de Entrega
-            <select v-model="selectedAddressId" class="form-select" :disabled="deliveryType === 'pickup'">
-              <option value="">Selecionar endereço...</option>
-              <option v-for="address in clientAddresses" :key="address.id" :value="address.id">
-                {{ address.description }} - {{ address.address }}, {{ address.address_number }} - {{ address.city }}/{{ address.state }}
-              </option>
-            </select>
+            <InputSelect v-model="selectedAddressId" :options="clientAddresses.map(address => ({
+              value: address.id,
+              label: `${address.description} - ${address.address}, ${address.address_number} - ${address.city}/${address.state}`
+            }))" :disabled="deliveryType === 'pickup'" />
           </label>
         </div>
       </div>

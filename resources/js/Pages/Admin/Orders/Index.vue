@@ -1,6 +1,8 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
+import InputSelect from '@/components/InputSelect.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
@@ -108,18 +110,18 @@ const getStatusLabel = (status) => {
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label class="form-label">
             Buscar por cliente
-            <input type="text" v-model="search" placeholder="Digite para buscar" class="form-input" />
+            <InputText v-model="search" placeholder="Digite para buscar" />
           </label>
           <label class="form-label">
             Status
-            <select v-model="status" class="form-select">
-              <option value="">Todos</option>
-              <option value="pending">Pendente</option>
-              <option value="confirmed">Confirmado</option>
-              <option value="shipped">Enviado</option>
-              <option value="delivered">Entregue</option>
-              <option value="cancelled">Cancelado</option>
-            </select>
+            <InputSelect v-model="status" :options="[
+              { value: '', label: 'Todos' },
+              { value: 'pending', label: 'Pendente' },
+              { value: 'confirmed', label: 'Confirmado' },
+              { value: 'shipped', label: 'Enviado' },
+              { value: 'delivered', label: 'Entregue' },
+              { value: 'cancelled', label: 'Cancelado' }
+            ]" />
           </label>
         </div>
         <div class="flex flex-wrap gap-3">

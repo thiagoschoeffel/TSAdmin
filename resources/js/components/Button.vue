@@ -34,14 +34,14 @@ const classes = computed(() => {
   const baseClasses = 'inline-flex items-center justify-center gap-2 font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 
   const variantClasses = {
-    primary: 'rounded-lg px-4 py-2 text-sm text-white bg-blue-600 shadow-sm hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-lg focus-visible:outline-blue-500',
-    secondary: 'rounded-lg px-4 py-2 text-sm text-white bg-slate-900 shadow-sm hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-lg focus-visible:outline-slate-900',
-    danger: 'rounded-lg px-4 py-2 text-sm text-white bg-rose-600 shadow-sm hover:-translate-y-0.5 hover:bg-rose-500 hover:shadow-lg focus-visible:outline-rose-500',
-    'outline-danger': 'rounded-lg px-4 py-2 text-sm text-rose-600 border border-rose-600 hover:bg-rose-50 hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-rose-500',
-    outline: 'rounded-lg px-4 py-2 text-sm text-slate-600 border border-slate-200 hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-slate-500',
-    ghost: 'rounded-lg px-4 py-2 text-sm text-slate-500 bg-slate-50 hover:text-slate-700 focus-visible:outline-blue-500',
-    'ghost-inverse': 'rounded-lg px-4 py-2 text-sm text-slate-200 hover:text-white focus-visible:outline-white',
-    inverse: 'rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm text-white shadow-sm hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-lg focus-visible:outline-white'
+    primary: 'rounded-lg text-white bg-blue-600 shadow-sm hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-lg focus-visible:outline-blue-500',
+    secondary: 'rounded-lg text-white bg-slate-900 shadow-sm hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-lg focus-visible:outline-slate-900',
+    danger: 'rounded-lg text-white bg-rose-600 shadow-sm hover:-translate-y-0.5 hover:bg-rose-500 hover:shadow-lg focus-visible:outline-rose-500',
+    'outline-danger': 'rounded-lg text-rose-600 border border-rose-600 hover:bg-rose-50 hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-rose-500',
+    outline: 'rounded-lg text-slate-600 border border-slate-200 hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-slate-500',
+    ghost: 'rounded-lg text-slate-500 bg-slate-50 hover:text-slate-700 focus-visible:outline-blue-500',
+    'ghost-inverse': 'rounded-lg text-slate-200 hover:text-white focus-visible:outline-white',
+    inverse: 'rounded-lg border border-white/30 bg-white/10 text-white shadow-sm hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-lg focus-visible:outline-white'
   };
 
   const sizeClasses = {

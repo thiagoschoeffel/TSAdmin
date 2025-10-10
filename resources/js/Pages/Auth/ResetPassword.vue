@@ -1,6 +1,7 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -16,15 +17,15 @@ const submit = () => form.post('/reset-password');
       <form @submit.prevent="submit" class="space-y-4">
         <label class="form-label">
           E-mail
-          <input type="email" v-model="form.email" required class="form-input" />
+          <InputText type="email" v-model="form.email" required />
         </label>
         <label class="form-label">
           Nova senha
-          <input type="password" v-model="form.password" required class="form-input" />
+          <InputText type="password" v-model="form.password" required />
         </label>
         <label class="form-label">
           Confirmar senha
-          <input type="password" v-model="form.password_confirmation" required class="form-input" />
+          <InputText type="password" v-model="form.password_confirmation" required />
         </label>
         <div class="flex gap-3">
           <Button variant="primary" :loading="form.processing" type="submit">Redefinir senha</Button>
