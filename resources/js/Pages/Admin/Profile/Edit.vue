@@ -1,6 +1,7 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -54,7 +55,14 @@ onMounted(() => {
       <form @submit.prevent="submit" class="space-y-4">
         <label class="form-label">
           Nome
-          <input type="text" v-model="form.name" required autocomplete="name" class="form-input" />
+          <InputText
+            v-model="form.name"
+            type="text"
+            required
+            autocomplete="name"
+            :error="!!form.errors.name"
+            placeholder="Digite seu nome completo"
+          />
           <span v-if="form.errors.name" class="text-sm font-medium text-rose-600">{{ form.errors.name }}</span>
         </label>
 
@@ -65,13 +73,24 @@ onMounted(() => {
               {{ props.user?.email_verified_at ? 'Verificado' : 'Não verificado' }}
             </Badge>
           </span>
-          <input type="email" v-model="form.email" required autocomplete="email" class="form-input" />
+          <InputText
+            v-model="form.email"
+            type="email"
+            required
+            autocomplete="email"
+            :error="!!form.errors.email"
+            placeholder="Digite seu e-mail"
+          />
           <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
         </label>
 
         <label class="form-label">
           Perfil de acesso
-          <input type="text" :value="props.user?.role === 'admin' ? 'Administrador' : 'Usuário comum'" class="form-input" disabled readonly />
+          <InputText
+            :model-value="props.user?.role === 'admin' ? 'Administrador' : 'Usuário comum'"
+            disabled
+            readonly
+          />
         </label>
 
         <div class="h-px bg-slate-200"></div>
@@ -83,19 +102,36 @@ onMounted(() => {
 
         <label class="form-label">
           Senha atual
-          <input type="password" v-model="form.current_password" autocomplete="current-password" class="form-input" />
+          <InputText
+            v-model="form.current_password"
+            type="password"
+            autocomplete="current-password"
+            :error="!!form.errors.current_password"
+            placeholder="Digite sua senha atual"
+          />
           <span v-if="form.errors.current_password" class="text-sm font-medium text-rose-600">{{ form.errors.current_password }}</span>
         </label>
 
         <label class="form-label">
           Nova senha
-          <input type="password" v-model="form.password" autocomplete="new-password" class="form-input" />
+          <InputText
+            v-model="form.password"
+            type="password"
+            autocomplete="new-password"
+            :error="!!form.errors.password"
+            placeholder="Digite sua nova senha"
+          />
           <span v-if="form.errors.password" class="text-sm font-medium text-rose-600">{{ form.errors.password }}</span>
         </label>
 
         <label class="form-label">
           Confirmar nova senha
-          <input type="password" v-model="form.password_confirmation" autocomplete="new-password" class="form-input" />
+          <InputText
+            v-model="form.password_confirmation"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Confirme sua nova senha"
+          />
         </label>
 
         <Button variant="primary" :loading="form.processing" type="submit">Salvar alterações</Button>
@@ -121,10 +157,3 @@ onMounted(() => {
   </AdminLayout>
 
 </template>
-
-<style scoped>
-.form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
-.form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.status { border:1px solid #cbd5e1; background:#f8fafc; border-radius:.5rem; padding:.5rem .75rem; }
-.status-danger { border-color:#fecaca; background:#fff1f2; color:#b91c1c; }
-</style>
