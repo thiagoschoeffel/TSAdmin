@@ -2,6 +2,8 @@
 import Switch from '@/components/ui/Switch.vue';
 import Button from '@/components/Button.vue';
 import PermissionsMatrix from '@/components/users/PermissionsMatrix.vue';
+import InputText from '@/components/InputText.vue';
+import InputSelect from '@/components/InputSelect.vue';
 
 const props = defineProps({
   form: { type: Object, required: true },
@@ -21,13 +23,13 @@ const onSubmit = () => emit('submit');
     <div class="grid gap-4 sm:grid-cols-2">
       <label class="form-label">
         Nome
-        <input type="text" v-model="form.name" required autocomplete="name" class="form-input" />
+        <InputText v-model="form.name" required autocomplete="name" :error="!!form.errors.name" />
         <span v-if="form.errors.name" class="text-sm font-medium text-rose-600">{{ form.errors.name }}</span>
       </label>
 
       <label class="form-label">
         E-mail
-        <input type="email" v-model="form.email" required autocomplete="email" class="form-input" />
+        <InputText type="email" v-model="form.email" required autocomplete="email" :error="!!form.errors.email" />
         <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
       </label>
 
@@ -46,12 +48,12 @@ const onSubmit = () => emit('submit');
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="form-label">
           Senha
-          <input type="password" v-model="form.password" required autocomplete="new-password" class="form-input" />
+          <InputText type="password" v-model="form.password" required autocomplete="new-password" :error="!!form.errors.password" />
           <span v-if="form.errors.password" class="text-sm font-medium text-rose-600">{{ form.errors.password }}</span>
         </label>
         <label class="form-label">
           Confirmar senha
-          <input type="password" v-model="form.password_confirmation" required autocomplete="new-password" class="form-input" />
+          <InputText type="password" v-model="form.password_confirmation" required autocomplete="new-password" />
         </label>
       </div>
     </fieldset>
@@ -61,12 +63,12 @@ const onSubmit = () => emit('submit');
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="form-label">
           Nova senha
-          <input type="password" v-model="form.password" autocomplete="new-password" class="form-input" />
+          <InputText type="password" v-model="form.password" autocomplete="new-password" :error="!!form.errors.password" />
           <span v-if="form.errors.password" class="text-sm font-medium text-rose-600">{{ form.errors.password }}</span>
         </label>
         <label class="form-label">
           Confirmar senha
-          <input type="password" v-model="form.password_confirmation" autocomplete="new-password" class="form-input" />
+          <InputText type="password" v-model="form.password_confirmation" autocomplete="new-password" />
         </label>
       </div>
       <p class="text-sm text-slate-500">Preencha apenas se desejar definir uma nova senha para o usuário.</p>
@@ -77,10 +79,10 @@ const onSubmit = () => emit('submit');
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="form-label">
           Função
-          <select v-model="form.role" class="form-select" required>
-            <option value="user">Usuário comum</option>
-            <option value="admin">Administrador</option>
-          </select>
+          <InputSelect v-model="form.role" :options="[
+            { value: 'user', label: 'Usuário comum' },
+            { value: 'admin', label: 'Administrador' }
+          ]" placeholder="" required :error="!!form.errors.role" />
         </label>
         <p class="text-sm text-slate-500">
           Administradores podem gerenciar usuários. Demais perfis possuem acesso restrito às próprias operações.

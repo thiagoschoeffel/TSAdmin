@@ -1,6 +1,7 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
 import { useForm } from '@inertiajs/vue3';
 
 const form = useForm({ email: '' });
@@ -15,7 +16,13 @@ const submit = () => form.post('/forgot-password');
       <form @submit.prevent="submit" class="space-y-4">
         <label class="form-label">
           E-mail
-          <input type="email" v-model="form.email" required class="form-input" />
+          <InputText
+            type="email"
+            v-model="form.email"
+            placeholder="Digite seu e-mail"
+            :error="!!form.errors.email"
+            required
+          />
           <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
         </label>
         <div class="flex gap-3 items-center">

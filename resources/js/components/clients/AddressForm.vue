@@ -1,6 +1,8 @@
 <script setup>
 import Switch from '@/components/ui/Switch.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
+import InputSelect from '@/components/InputSelect.vue';
 import { useToasts } from '@/components/toast/useToasts';
 
 const props = defineProps({
@@ -56,7 +58,7 @@ const onSubmit = () => emit('submit');
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <label class="form-label">
         Descrição
-        <input type="text" v-model="form.description" required class="form-input" placeholder="Ex: Escritório, Filial Centro" />
+        <InputText v-model="form.description" required placeholder="Ex: Escritório, Filial Centro" :error="!!form.errors.description" />
         <span v-if="form.errors.description" class="text-sm font-medium text-rose-600">{{ form.errors.description }}</span>
       </label>
 
@@ -75,40 +77,37 @@ const onSubmit = () => emit('submit');
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <label class="form-label">
           CEP
-          <input type="text" v-model="form.postal_code" required class="form-input" @input="formatPostalCode" @blur="fetchAddress" />
+          <InputText v-model="form.postal_code" required :error="!!form.errors.postal_code" @input="formatPostalCode" @blur="fetchAddress" />
           <span v-if="form.errors.postal_code" class="text-sm font-medium text-rose-600">{{ form.errors.postal_code }}</span>
         </label>
         <label class="form-label">
           Logradouro
-          <input type="text" v-model="form.address" required class="form-input" />
+          <InputText v-model="form.address" required :error="!!form.errors.address" />
           <span v-if="form.errors.address" class="text-sm font-medium text-rose-600">{{ form.errors.address }}</span>
         </label>
         <label class="form-label">
           Número
-          <input type="text" v-model="form.address_number" required class="form-input" />
+          <InputText v-model="form.address_number" required :error="!!form.errors.address_number" />
           <span v-if="form.errors.address_number" class="text-sm font-medium text-rose-600">{{ form.errors.address_number }}</span>
         </label>
         <label class="form-label">
           Complemento
-          <input type="text" v-model="form.address_complement" class="form-input" />
+          <InputText v-model="form.address_complement" :error="!!form.errors.address_complement" />
           <span v-if="form.errors.address_complement" class="text-sm font-medium text-rose-600">{{ form.errors.address_complement }}</span>
         </label>
         <label class="form-label">
           Bairro
-          <input type="text" v-model="form.neighborhood" required class="form-input" />
+          <InputText v-model="form.neighborhood" required :error="!!form.errors.neighborhood" />
           <span v-if="form.errors.neighborhood" class="text-sm font-medium text-rose-600">{{ form.errors.neighborhood }}</span>
         </label>
         <label class="form-label">
           Cidade
-          <input type="text" v-model="form.city" required class="form-input" disabled />
+          <InputText v-model="form.city" required readonly :error="!!form.errors.city" />
           <span v-if="form.errors.city" class="text-sm font-medium text-rose-600">{{ form.errors.city }}</span>
         </label>
         <label class="form-label">
           Estado (UF)
-          <select v-model="form.state" required class="form-select" disabled>
-            <option value="">Selecione</option>
-            <option v-for="uf in states" :key="uf" :value="uf">{{ uf }}</option>
-          </select>
+          <InputSelect v-model="form.state" :options="states.map(uf => ({ value: uf, label: uf }))" required readonly :error="!!form.errors.state" />
           <span v-if="form.errors.state" class="text-sm font-medium text-rose-600">{{ form.errors.state }}</span>
         </label>
       </div>
@@ -123,8 +122,4 @@ const onSubmit = () => emit('submit');
 
 <style scoped>
 .form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
-.form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.form-input:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-.form-select { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.form-select:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
 </style>

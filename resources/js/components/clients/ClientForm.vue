@@ -4,6 +4,9 @@ import Switch from '@/components/ui/Switch.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
+import InputSelect from '@/components/InputSelect.vue';
+import InputTextarea from '@/components/InputTextarea.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { ref, computed, nextTick } from 'vue';
@@ -369,22 +372,22 @@ const hasAddressErrors = computed(() => {
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <label class="form-label">
         Nome
-        <input type="text" v-model="form.name" required class="form-input" />
+        <InputText v-model="form.name" required :error="!!form.errors.name" />
         <span v-if="form.errors.name" class="text-sm font-medium text-rose-600">{{ form.errors.name }}</span>
       </label>
 
       <label class="form-label">
         Tipo de pessoa
-        <select v-model="form.person_type" class="form-select" required @change="formatDocument">
-          <option value="individual">Pessoa Física</option>
-          <option value="company">Pessoa Jurídica</option>
-        </select>
+        <InputSelect v-model="form.person_type" :options="[
+          { value: 'individual', label: 'Pessoa Física' },
+          { value: 'company', label: 'Pessoa Jurídica' }
+        ]" placeholder="" required :error="!!form.errors.person_type" @change="formatDocument" />
         <span v-if="form.errors.person_type" class="text-sm font-medium text-rose-600">{{ form.errors.person_type }}</span>
       </label>
 
       <label class="form-label">
         CPF/CNPJ
-        <input type="text" v-model="form.document" required class="form-input" @input="formatDocument" />
+        <InputText v-model="form.document" required :error="!!form.errors.document" @input="formatDocument" />
         <span v-if="form.errors.document" class="text-sm font-medium text-rose-600">{{ form.errors.document }}</span>
       </label>
 
@@ -400,7 +403,7 @@ const hasAddressErrors = computed(() => {
 
         <label class="form-label">
       Observações
-      <textarea v-model="form.observations" rows="4" class="form-textarea" />
+      <InputTextarea v-model="form.observations" :error="!!form.errors.observations" />
       <span v-if="form.errors.observations" class="text-sm font-medium text-rose-600">{{ form.errors.observations }}</span>
     </label>
 
@@ -412,42 +415,42 @@ const hasAddressErrors = computed(() => {
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label class="form-label">
             Descrição
-            <input type="text" v-model="newAddress.description" placeholder="Ex: Sede, Filial Centro" required class="form-input" />
+            <InputText v-model="newAddress.description" placeholder="Ex: Sede, Filial Centro" required :error="!!addressErrors.description" />
             <span v-if="addressErrors.description" class="text-sm font-medium text-rose-600">{{ addressErrors.description }}</span>
           </label>
           <label class="form-label">
             CEP
-            <input type="text" v-model="formattedPostalCode" required class="form-input" @blur="fetchAddress" />
+            <InputText v-model="formattedPostalCode" required :error="!!addressErrors.postal_code" @blur="fetchAddress" />
             <span v-if="addressErrors.postal_code" class="text-sm font-medium text-rose-600">{{ addressErrors.postal_code }}</span>
           </label>
           <label class="form-label">
             Logradouro
-            <input type="text" v-model="newAddress.address" class="form-input" />
+            <InputText v-model="newAddress.address" :error="!!addressErrors.address" />
             <span v-if="addressErrors.address" class="text-sm font-medium text-rose-600">{{ addressErrors.address }}</span>
           </label>
           <label class="form-label">
             Número
-            <input type="text" v-model="newAddress.address_number" class="form-input" />
+            <InputText v-model="newAddress.address_number" :error="!!addressErrors.address_number" />
             <span v-if="addressErrors.address_number" class="text-sm font-medium text-rose-600">{{ addressErrors.address_number }}</span>
           </label>
           <label class="form-label">
             Complemento
-            <input type="text" v-model="newAddress.address_complement" class="form-input" />
+            <InputText v-model="newAddress.address_complement" />
           </label>
           <label class="form-label">
             Bairro
-            <input type="text" v-model="newAddress.neighborhood" class="form-input" />
+            <InputText v-model="newAddress.neighborhood" :error="!!addressErrors.neighborhood" />
             <span v-if="addressErrors.neighborhood" class="text-sm font-medium text-rose-600">{{ addressErrors.neighborhood }}</span>
           </label>
           <label class="form-label">
             Cidade
-            <input type="text" v-model="newAddress.city" readonly class="form-input" />
+            <InputText v-model="newAddress.city" readonly :error="!!addressErrors.city" />
             <span v-if="addressErrors.city" class="text-sm font-medium text-rose-600">{{ addressErrors.city }}</span>
             <span class="text-xs text-slate-500">Preenchido automaticamente via CEP</span>
           </label>
           <label class="form-label">
             Estado (UF)
-            <input type="text" v-model="newAddress.state" readonly class="form-input" />
+            <InputText v-model="newAddress.state" readonly :error="!!addressErrors.state" />
             <span v-if="addressErrors.state" class="text-sm font-medium text-rose-600">{{ addressErrors.state }}</span>
             <span class="text-xs text-slate-500">Preenchido automaticamente via CEP</span>
           </label>
@@ -538,22 +541,22 @@ const hasAddressErrors = computed(() => {
       <div class="grid gap-4 sm:grid-cols-2" id="contact_fields">
         <label class="form-label">
           Nome do contato
-          <input type="text" v-model="form.contact_name" :required="form.person_type === 'company'" :disabled="form.person_type === 'individual'" class="form-input" />
+          <InputText v-model="form.contact_name" :required="form.person_type === 'company'" :disabled="form.person_type === 'individual'" :error="!!form.errors.contact_name" />
           <span v-if="form.errors.contact_name" class="text-sm font-medium text-rose-600">{{ form.errors.contact_name }}</span>
         </label>
         <label class="form-label">
           Telefone principal
-          <input type="text" v-model="form.contact_phone_primary" :required="form.person_type === 'company'" class="form-input" @input="formatPhone('contact_phone_primary')" />
+          <InputText v-model="form.contact_phone_primary" :required="form.person_type === 'company'" :error="!!form.errors.contact_phone_primary" @input="formatPhone('contact_phone_primary')" />
           <span v-if="form.errors.contact_phone_primary" class="text-sm font-medium text-rose-600">{{ form.errors.contact_phone_primary }}</span>
         </label>
         <label class="form-label">
           Telefone secundário
-          <input type="text" v-model="form.contact_phone_secondary" :required="form.person_type === 'company'" class="form-input" @input="formatPhone('contact_phone_secondary')" />
+          <InputText v-model="form.contact_phone_secondary" :required="form.person_type === 'company'" :error="!!form.errors.contact_phone_secondary" @input="formatPhone('contact_phone_secondary')" />
           <span v-if="form.errors.contact_phone_secondary" class="text-sm font-medium text-rose-600">{{ form.errors.contact_phone_secondary }}</span>
         </label>
         <label class="form-label">
           E-mail
-          <input type="email" v-model="form.contact_email" :required="form.person_type === 'company'" class="form-input" />
+          <InputText type="email" v-model="form.contact_email" :required="form.person_type === 'company'" :error="!!form.errors.contact_email" />
           <span v-if="form.errors.contact_email" class="text-sm font-medium text-rose-600">{{ form.errors.contact_email }}</span>
         </label>
       </div>
@@ -576,11 +579,5 @@ const hasAddressErrors = computed(() => {
 
 <style scoped>
 .form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
-.form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.form-input:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-.form-input[readonly] { background-color: #e2e8f0; color: #475569; cursor: not-allowed; }
-.form-select { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.form-select:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-.form-textarea { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
 </style>
 

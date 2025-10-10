@@ -2,6 +2,7 @@
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import Button from '@/components/Button.vue';
 import { Link, useForm } from '@inertiajs/vue3';
+import InputText from '@/components/InputText.vue';
 const form = useForm({
   name: '',
   email: '',
@@ -22,25 +23,52 @@ const submit = () => {
       <form @submit.prevent="submit" class="space-y-4">
         <label class="form-label">
           Nome
-          <input type="text" v-model="form.name" required autocomplete="name" class="form-input" />
+          <InputText
+            v-model="form.name"
+            type="text"
+            required
+            autocomplete="name"
+            :error="!!form.errors.name"
+            placeholder="Digite seu nome completo"
+          />
           <span v-if="form.errors.name" class="text-sm font-medium text-rose-600">{{ form.errors.name }}</span>
         </label>
 
         <label class="form-label">
           E-mail
-          <input type="email" v-model="form.email" required autocomplete="email" class="form-input" />
+          <InputText
+            v-model="form.email"
+            type="email"
+            required
+            autocomplete="email"
+            :error="!!form.errors.email"
+            placeholder="Digite seu e-mail"
+          />
           <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
         </label>
 
         <label class="form-label">
           Senha
-          <input type="password" v-model="form.password" required autocomplete="new-password" class="form-input" />
+          <InputText
+            v-model="form.password"
+            type="password"
+            required
+            autocomplete="new-password"
+            :error="!!form.errors.password"
+            placeholder="Digite sua senha"
+          />
           <span v-if="form.errors.password" class="text-sm font-medium text-rose-600">{{ form.errors.password }}</span>
         </label>
 
         <label class="form-label">
           Confirmar senha
-          <input type="password" v-model="form.password_confirmation" required autocomplete="new-password" class="form-input" />
+          <InputText
+            v-model="form.password_confirmation"
+            type="password"
+            required
+            autocomplete="new-password"
+            placeholder="Confirme sua senha"
+          />
         </label>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -55,8 +83,3 @@ const submit = () => {
   </PublicLayout>
 
 </template>
-
-<style scoped>
-.form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
-.form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-</style>

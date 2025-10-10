@@ -3,11 +3,16 @@ import Switch from '@/components/ui/Switch.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
+import InputSelect from '@/components/InputSelect.vue';
+import InputTextarea from '@/components/InputTextarea.vue';
+import InputCurrency from '@/components/InputCurrency.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref, computed, onMounted, nextTick } from 'vue';
+import { formatPriceInput, initializePriceDisplay } from '@/utils/formatters';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -42,64 +47,9 @@ const componentErrors = ref({});
 // Estado para confirmação de exclusão de componente
 const deleteComponentState = ref({ open: false, processing: false, componentIndex: null });
 
-// Estado para o valor formatado do preço
-const priceInput = ref('');
-
-// Variável para armazenar os dígitos digitados
-const rawPriceDigits = ref('');
-
-// Método para formatar preço em tempo real
-const formatPriceInput = (event) => {
-  let value = event.target.value.replace(/\D/g, ''); // Remove tudo exceto dígitos
-  if (value === '') {
-    priceInput.value = '';
-    props.form.price = '';
-    return;
-  }
-
-  // Garante no máximo 12 dígitos (até trilhões)
-  value = value.slice(0, 12);
-
-  // Adiciona zeros à esquerda para garantir pelo menos 3 dígitos
-  while (value.length < 3) {
-    value = '0' + value;
-  }
-
-  // Separa centavos
-  const cents = value.slice(-2);
-  const reais = value.slice(0, -2);
-  const numericValue = parseFloat(reais + '.' + cents);
-
-  // Formata para BRL
-  const formatted = numericValue.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  priceInput.value = formatted;
-  props.form.price = numericValue;
-};
-
-// Método para inicializar o input de preço
-const initializePriceInput = () => {
-  if (props.form.price) {
-    const numericValue = parseFloat(props.form.price);
-    priceInput.value = numericValue.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
-    rawPriceDigits.value = numericValue.toString();
-  } else {
-    priceInput.value = '';
-    rawPriceDigits.value = '';
-  }
-};
-
 // Inicializar quando o componente for montado
 onMounted(() => {
-  initializePriceInput();
+  // Preço agora é gerenciado pelo InputCurrency
 });
 
 // Computed para produtos disponíveis (excluindo o produto atual e componentes já adicionados, exceto o que está sendo editado)
@@ -323,13 +273,13 @@ const hasComponentErrors = computed(() => {
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <label class="form-label">
         Nome
-        <input type="text" v-model="form.name" required class="form-input" />
+        <InputText v-model="form.name" required :error="!!form.errors.name" />
         <span v-if="form.errors.name" class="text-sm font-medium text-rose-600">{{ form.errors.name }}</span>
       </label>
 
       <label class="form-label">
         Preço
-        <input type="text" :value="priceInput" @input="formatPriceInput" required class="form-input" placeholder="R$ 0,00" />
+        <InputCurrency v-model="form.price" required :error="!!form.errors.price" placeholder="R$ 0,00" />
         <span v-if="form.errors.price" class="text-sm font-medium text-rose-600">{{ form.errors.price }}</span>
       </label>
 
@@ -345,7 +295,7 @@ const hasComponentErrors = computed(() => {
 
     <label class="form-label">
       Descrição
-      <textarea v-model="form.description" rows="4" class="form-textarea" />
+      <InputTextarea v-model="form.description" :error="!!form.errors.description" />
       <span v-if="form.errors.description" class="text-sm font-medium text-rose-600">{{ form.errors.description }}</span>
     </label>
 
@@ -357,17 +307,15 @@ const hasComponentErrors = computed(() => {
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="form-label">
             Produto
-            <select v-model="newComponent.id" required class="form-select">
-              <option value="">Selecione um produto</option>
-              <option v-for="product in availableProducts" :key="product.id" :value="product.id">
-                {{ product.name }} - R$ {{ Number(product.price).toFixed(2) }}
-              </option>
-            </select>
+            <InputSelect v-model="newComponent.id" :options="availableProducts.map(product => ({
+              value: product.id,
+              label: `${product.name} - R$ ${Number(product.price).toFixed(2)}`
+            }))" required :error="!!componentErrors.id" />
             <span v-if="componentErrors.id" class="text-sm font-medium text-rose-600">{{ componentErrors.id }}</span>
           </label>
           <label class="form-label">
             Quantidade
-            <input type="number" v-model="newComponent.quantity" step="0.01" min="0.01" required class="form-input" />
+            <InputText v-model="newComponent.quantity" type="number" step="0.01" min="0.01" required :error="!!componentErrors.quantity" />
             <span v-if="componentErrors.quantity" class="text-sm font-medium text-rose-600">{{ componentErrors.quantity }}</span>
           </label>
           <div class="flex items-end gap-2 sm:col-span-2">
@@ -455,10 +403,4 @@ const hasComponentErrors = computed(() => {
 
 <style scoped>
 .form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
-.form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.form-input:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-.form-input[readonly] { background-color: #e2e8f0; color: #475569; cursor: not-allowed; }
-.form-select { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.form-select:disabled { background-color: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-.form-textarea { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
 </style>

@@ -1,6 +1,8 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/components/Button.vue';
+import InputText from '@/components/InputText.vue';
+import InputSelect from '@/components/InputSelect.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import Dropdown from '@/components/Dropdown.vue';
@@ -74,15 +76,22 @@ const openDetails = (user) => {
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label class="form-label">
             Buscar por nome ou e-mail
-            <input type="text" v-model="search" placeholder="Digite para buscar" class="form-input" />
+            <InputText
+              v-model="search"
+              type="text"
+              placeholder="Digite para buscar"
+            />
           </label>
           <label class="form-label">
             Status
-            <select v-model="status" class="form-select">
-              <option value="">Todos</option>
-              <option value="active">Ativos</option>
-              <option value="inactive">Inativos</option>
-            </select>
+            <InputSelect
+              v-model="status"
+              :options="[
+                { value: '', label: 'Todos' },
+                { value: 'active', label: 'Ativos' },
+                { value: 'inactive', label: 'Inativos' }
+              ]"
+            />
           </label>
         </div>
         <div class="flex flex-wrap gap-3">
@@ -174,11 +183,3 @@ const openDetails = (user) => {
 
   <UserDetailsModal v-model="details.open" :user-id="details.userId" />
 </template>
-
-<style scoped>
-.table-wrapper { overflow:auto }
-.table { width:100%; border-collapse:separate; border-spacing:0; }
-.table th, .table td { padding:.75rem; border-bottom:1px solid #e2e8f0; }
-.table thead th { font-size:.875rem; font-weight:700; color:#334155 }
-/* Usa estilos globais definidos em resources/css/app.css para menu-trigger e menu-panel-link */
-</style>

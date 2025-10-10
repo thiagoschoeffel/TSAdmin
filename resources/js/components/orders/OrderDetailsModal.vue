@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import Modal from '@/components/Modal.vue';
 import Badge from '@/components/Badge.vue';
 import Button from '@/components/Button.vue';
+import { formatCurrency, formatQuantity } from '@/utils/formatters';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -62,25 +63,7 @@ function formatDate(value) {
   }
 }
 
-function formatCurrency(value) {
-  if (value === null || value === undefined) return 'R$ 0,00';
-  const numericValue = parseFloat(value);
-  if (isNaN(numericValue)) return 'R$ 0,00';
-  return numericValue.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-}
 
-function formatQuantity(value) {
-  if (value === null || value === undefined) return '0,00';
-  const numericValue = parseFloat(value);
-  if (isNaN(numericValue)) return '0,00';
-  return numericValue.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
 
 const getStatusLabel = (status) => {
   const labels = {
