@@ -14,6 +14,7 @@ import {
   CubeIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  ShoppingBagIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -35,6 +36,7 @@ const map = {
   'cube': CubeIcon,
   'chevron-down': ChevronDownIcon,
   'chevron-right': ChevronRightIcon,
+  'shopping-bag': ShoppingBagIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);

@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,8 +6,9 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 }
 
 @keyframes skeleton-shimmer {
@@ -21,16 +22,21 @@
         color-scheme: light;
     }
 
+    * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
     body {
         @apply flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 antialiased;
     }
 
     button,
-    [type='button'],
-    [type='submit'],
-    [type='reset'],
+    [type="button"],
+    [type="submit"],
+    [type="reset"],
     a,
-    [role='button'] {
+    [role="button"] {
         @apply cursor-pointer;
     }
 }
@@ -54,6 +60,14 @@
 
     .btn-danger {
         @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-rose-600 shadow-sm hover:-translate-y-0.5 hover:bg-rose-500 hover:shadow-lg focus-visible:outline-rose-500;
+    }
+
+    .btn-outline-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-rose-600 border border-rose-600 transition focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-rose-50 hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-rose-500;
+    }
+
+    .btn-outline {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 transition focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-slate-500;
     }
 
     .btn-ghost {
@@ -90,6 +104,11 @@
         background-size: 16px 16px;
         background-position: calc(100% - 0.75rem) 50%;
         background-repeat: no-repeat;
+    }
+
+    .form-input:disabled,
+    .form-select:disabled {
+        @apply bg-slate-100 text-slate-500 cursor-not-allowed;
     }
 
     .form-textarea {
@@ -205,7 +224,7 @@
     .modal__panel {
         @apply relative z-10 w-full max-w-screen-lg transform-gpu overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-900/10 opacity-0 -translate-y-4 scale-95 transition-all duration-200 ease-out max-h-[60vh];
         scrollbar-width: thin;
-        scrollbar-color: theme('colors.slate.400') transparent;
+        scrollbar-color: theme("colors.slate.400") transparent;
     }
 
     .modal__panel::-webkit-scrollbar {
@@ -214,13 +233,13 @@
 
     .modal__panel::-webkit-scrollbar-track {
         background: transparent;
-        border-radius: theme('borderRadius.2xl');
+        border-radius: theme("borderRadius.2xl");
         margin: 8px;
     }
 
     .modal__panel::-webkit-scrollbar-thumb {
-        background-color: theme('colors.slate.400');
-        border-radius: theme('borderRadius.2xl');
+        background-color: theme("colors.slate.400");
+        border-radius: theme("borderRadius.2xl");
     }
 
     .modal__panel--sm {
@@ -264,7 +283,7 @@
     }
 
     .skeleton::after {
-        content: '';
+        content: "";
         position: absolute;
         inset: 0;
         transform: translateX(-100%);

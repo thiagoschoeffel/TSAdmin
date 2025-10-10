@@ -1,0 +1,474 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Client;
+use App\Models\Address;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class OrderController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request): Response
+    {
+        $query = Order::with(['client', 'user', 'address']);
+
+        if ($search = $request->string('search')->toString()) {
+            $query->whereHas('client', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        $orders = $query
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(function (Order $order) {
+                return [
+                    'id' => $order->id,
+                    'client' => [
+                        'id' => $order->client->id,
+                        'name' => $order->client->name,
+                    ],
+                    'user' => [
+                        'id' => $order->user->id,
+                        'name' => $order->user->name,
+                    ],
+                    'status' => $order->status,
+                    'payment_method' => $order->payment_method,
+                    'delivery_type' => $order->delivery_type,
+                    'address' => $order->address ? [
+                        'id' => $order->address->id,
+                        'description' => $order->address->description,
+                        'address' => $order->address->address,
+                        'address_number' => $order->address->address_number,
+                        'city' => $order->address->city,
+                        'state' => $order->address->state,
+                    ] : null,
+                    'total' => $order->total,
+                    'ordered_at' => $order->ordered_at?->format('d/m/Y H:i'),
+                    'created_at' => $order->created_at->format('d/m/Y H:i'),
+                ];
+            });
+
+        return Inertia::render('Admin/Orders/Index', [
+            'filters' => [
+                'search' => $request->string('search')->toString(),
+                'status' => $request->get('status'),
+            ],
+            'orders' => $orders,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Response
+    {
+        $recentOrders = Order::with(['client', 'user', 'address'])
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function (Order $order) {
+                return [
+                    'id' => $order->id,
+                    'client' => [
+                        'id' => $order->client->id ?? null,
+                        'name' => $order->client->name ?? 'Cliente não informado',
+                    ],
+                    'user' => [
+                        'id' => $order->user->id,
+                        'name' => $order->user->name,
+                    ],
+                    'status' => $order->status,
+                    'payment_method' => $order->payment_method,
+                    'delivery_type' => $order->delivery_type,
+                    'address' => $order->address ? [
+                        'id' => $order->address->id,
+                        'description' => $order->address->description,
+                        'address' => $order->address->address,
+                        'address_number' => $order->address->address_number,
+                        'city' => $order->address->city,
+                        'state' => $order->address->state,
+                    ] : null,
+                    'total' => $order->total,
+                    'ordered_at' => $order->ordered_at?->format('d/m/Y H:i'),
+                    'created_at' => $order->created_at->format('d/m/Y H:i'),
+                ];
+            });
+
+        return Inertia::render('Admin/Orders/Create', [
+            'products' => Product::where('status', 'active')->select('id', 'name', 'code', 'price')->get(),
+            'clients' => Client::where('status', 'active')->select('id', 'name')->get(),
+            'addresses' => Address::select('id', 'client_id', 'description', 'address', 'address_number', 'city', 'state')->get(),
+            'recentOrders' => $recentOrders,
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'client_id' => 'nullable|exists:clients,id',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'payment_method' => 'nullable|string',
+            'delivery_type' => 'nullable|in:pickup,delivery',
+            'address_id' => 'nullable|exists:addresses,id',
+        ]);
+
+        $order = Order::create([
+            'client_id' => $request->client_id,
+            'user_id' => Auth::id(),
+            'status' => 'pending',
+            'payment_method' => $request->payment_method,
+            'delivery_type' => $request->delivery_type,
+            'address_id' => $request->delivery_type === 'pickup' ? null : $request->address_id,
+            'total' => collect($request->items)->sum(fn($item) => $item['quantity'] * Product::find($item['product_id'])->price),
+            'ordered_at' => now(),
+        ]);
+
+        foreach ($request->items as $item) {
+            $product = Product::find($item['product_id']);
+            $order->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $product->price,
+                'total' => $item['quantity'] * $product->price,
+            ]);
+        }
+
+        return redirect()->route('orders.create')->with('status', 'Pedido criado com sucesso.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id): Response
+    {
+        $order = Order::with(['client', 'user', 'items.product', 'address'])->findOrFail($id);
+
+        $recentOrders = Order::with(['client', 'user', 'address'])
+            ->where('id', '!=', $id)
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function (Order $order) {
+                return [
+                    'id' => $order->id,
+                    'client' => [
+                        'id' => $order->client->id ?? null,
+                        'name' => $order->client->name ?? 'Cliente não informado',
+                    ],
+                    'user' => [
+                        'id' => $order->user->id,
+                        'name' => $order->user->name,
+                    ],
+                    'status' => $order->status,
+                    'payment_method' => $order->payment_method,
+                    'delivery_type' => $order->delivery_type,
+                    'address' => $order->address ? [
+                        'id' => $order->address->id,
+                        'description' => $order->address->description,
+                        'address' => $order->address->address,
+                        'address_number' => $order->address->address_number,
+                        'city' => $order->address->city,
+                        'state' => $order->address->state,
+                    ] : null,
+                    'total' => $order->total,
+                    'ordered_at' => $order->ordered_at?->format('d/m/Y H:i'),
+                    'created_at' => $order->created_at->format('d/m/Y H:i'),
+                ];
+            });
+
+        return Inertia::render('Admin/Orders/Edit', [
+            'order' => [
+                'id' => $order->id,
+                'client_id' => $order->client_id,
+                'status' => $order->status,
+                'payment_method' => $order->payment_method,
+                'delivery_type' => $order->delivery_type,
+                'address_id' => $order->address_id,
+                'address' => $order->address ? [
+                    'id' => $order->address->id,
+                    'description' => $order->address->description,
+                    'address' => $order->address->address,
+                    'address_number' => $order->address->address_number,
+                    'city' => $order->address->city,
+                    'state' => $order->address->state,
+                ] : null,
+                'total' => $order->total,
+                'ordered_at' => $order->ordered_at?->format('d/m/Y H:i'),
+                'created_at' => $order->created_at->format('d/m/Y H:i'),
+                'items' => $order->items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'product_id' => $item->product_id,
+                        'name' => $item->product->name,
+                        'unit_price' => (float) $item->unit_price,
+                        'quantity' => (float) $item->quantity,
+                        'total' => (float) $item->total,
+                    ];
+                }),
+            ],
+            'products' => Product::where('status', 'active')->select('id', 'name', 'code', 'price')->get(),
+            'clients' => Client::where('status', 'active')->select('id', 'name')->get(),
+            'addresses' => Address::select('id', 'client_id', 'description', 'address', 'address_number', 'city', 'state')->get(),
+            'recentOrders' => $recentOrders,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $request->validate([
+            'client_id' => 'nullable|exists:clients,id',
+            'status' => 'required|in:pending,confirmed,shipped,delivered,cancelled',
+            'payment_method' => 'nullable|string',
+            'delivery_type' => 'nullable|in:pickup,delivery',
+            'address_id' => 'nullable|exists:addresses,id',
+        ]);
+
+        $order = Order::findOrFail($id);
+
+        // Atualizar dados básicos do pedido
+        $order->update([
+            'client_id' => $request->client_id,
+            'status' => $request->status,
+            'payment_method' => $request->payment_method,
+            'delivery_type' => $request->delivery_type,
+            'address_id' => $request->delivery_type === 'pickup' ? null : $request->address_id,
+            // Total is already updated when items are modified individually
+        ]);
+
+        return redirect()->route('orders.index')->with('status', 'Pedido atualizado com sucesso.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the quantity of a specific order item.
+     */
+    public function updateItem(Request $request, string $orderId, string $itemId)
+    {
+        $request->validate([
+            'quantity' => 'required|numeric|min:0.01|max:99999.99',
+        ]);
+
+        $order = Order::findOrFail($orderId);
+        $item = $order->items()->findOrFail($itemId);
+
+        $quantity = (float) $request->quantity;
+
+        // Ensure quantity is properly rounded to 2 decimal places
+        $quantity = round($quantity, 2);
+
+        Log::info('Updating order item quantity', [
+            'order_id' => $orderId,
+            'item_id' => $itemId,
+            'old_quantity' => $item->quantity,
+            'new_quantity' => $quantity,
+            'unit_price' => $item->unit_price,
+        ]);
+
+        $item->update([
+            'quantity' => $quantity,
+            'total' => $quantity * $item->unit_price,
+        ]);
+
+        // Recalculate order total
+        $order->update([
+            'total' => $order->items()->sum('total'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'item' => [
+                'id' => $item->id,
+                'quantity' => (float) $item->quantity,
+                'total' => (float) $item->total,
+            ],
+            'order_total' => (float) $order->total,
+        ]);
+    }
+
+    /**
+     * Remove a specific item from the order.
+     */
+    public function removeItem(string $orderId, string $itemId)
+    {
+        $order = Order::findOrFail($orderId);
+        $item = $order->items()->findOrFail($itemId);
+
+        $item->delete();
+
+        // Recalculate order total
+        $order->update([
+            'total' => $order->items()->sum('total'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'order_total' => $order->total,
+        ]);
+    }
+
+    /**
+     * Add a new item to the order.
+     */
+    public function addItem(Request $request, string $orderId)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|numeric|min:0.01|max:99999.99',
+        ]);
+
+        $order = Order::findOrFail($orderId);
+        $product = Product::findOrFail($request->product_id);
+
+        $quantity = floatval($request->quantity);
+
+        // Ensure quantity is properly rounded to 2 decimal places
+        $quantity = round($quantity, 2);
+
+        // Check if item already exists
+        $existingItem = $order->items()->where('product_id', $request->product_id)->first();
+
+        if ($existingItem) {
+            $newQuantity = $existingItem->quantity + $quantity;
+            $newTotal = $newQuantity * $existingItem->unit_price;
+
+            $existingItem->update([
+                'quantity' => $newQuantity,
+                'total' => $newTotal,
+            ]);
+
+            $item = $existingItem;
+        } else {
+            $newTotal = $quantity * $product->price;
+
+            $item = $order->items()->create([
+                'product_id' => $request->product_id,
+                'quantity' => $quantity,
+                'unit_price' => $product->price,
+                'total' => $newTotal,
+            ]);
+        }
+
+        // Recalculate order total
+        $itemsTotal = $order->items()->sum('total');
+        $order->update([
+            'total' => $itemsTotal,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'item' => [
+                'id' => $item->id,
+                'product_id' => $item->product_id,
+                'name' => $product->name,
+                'unit_price' => (float) $item->unit_price,
+                'quantity' => (float) $item->quantity,
+                'total' => (float) $item->total,
+            ],
+            'order_total' => (float) $order->total,
+        ]);
+    }
+
+    /**
+     * Get order details for modal display.
+     */
+    public function modal(Order $order): JsonResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        if ($user->role === 'admin') {
+            // Admin can view all orders
+        } elseif (isset($user->permissions['orders']['view']) && $user->permissions['orders']['view']) {
+            // User has specific permission
+        } else {
+            abort(403);
+        }
+
+        $order->load(['client', 'user', 'items.product', 'address', 'createdBy', 'updatedBy']);
+
+        return response()->json([
+            'order' => [
+                'id' => $order->id,
+                'client' => $order->client ? [
+                    'id' => $order->client->id,
+                    'name' => $order->client->name,
+                ] : null,
+                'user' => [
+                    'id' => $order->user->id,
+                    'name' => $order->user->name,
+                ],
+                'status' => $order->status,
+                'payment_method' => $order->payment_method,
+                'delivery_type' => $order->delivery_type,
+                'address' => $order->address ? [
+                    'id' => $order->address->id,
+                    'description' => $order->address->description,
+                    'address' => $order->address->address,
+                    'address_number' => $order->address->address_number,
+                    'address_complement' => $order->address->address_complement,
+                    'neighborhood' => $order->address->neighborhood,
+                    'city' => $order->address->city,
+                    'state' => $order->address->state,
+                ] : null,
+                'total' => (float) $order->total,
+                'ordered_at' => $order->ordered_at?->format('d/m/Y H:i'),
+                'created_at' => $order->created_at->format('d/m/Y H:i'),
+                'updated_at' => $order->updated_at?->format('d/m/Y H:i'),
+                'created_by' => $order->createdBy?->name,
+                'updated_by' => $order->updatedBy?->name,
+                'items' => $order->items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'product_id' => $item->product_id,
+                        'name' => $item->product->name,
+                        'code' => $item->product->code,
+                        'unit_price' => (float) $item->unit_price,
+                        'quantity' => (float) $item->quantity,
+                        'total' => (float) $item->total,
+                    ];
+                }),
+            ],
+        ]);
+    }
+}

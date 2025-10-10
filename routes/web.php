@@ -62,6 +62,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
     Route::resource('products', \App\Http\Controllers\ProductController::class)->except(['show']);
     Route::get('products/{product}/modal', [\App\Http\Controllers\ProductController::class, 'modal'])->name('products.modal');
 
+    Route::resource('orders', \App\Http\Controllers\OrderController::class)->except(['show']);
+    Route::get('orders/{order}/modal', [\App\Http\Controllers\OrderController::class, 'modal'])->name('orders.modal');
+
+    // Order items management routes
+    Route::prefix('orders/{order}/items')->name('orders.items.')->group(function (): void {
+        Route::post('/', [\App\Http\Controllers\OrderController::class, 'addItem'])->name('store');
+        Route::patch('{item}', [\App\Http\Controllers\OrderController::class, 'updateItem'])->name('update');
+        Route::delete('{item}', [\App\Http\Controllers\OrderController::class, 'removeItem'])->name('destroy');
+    });
+
     Route::prefix('products/{product}/components')->name('products.components.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\ProductComponentController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\ProductComponentController::class, 'store'])->name('store');
