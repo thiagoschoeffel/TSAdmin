@@ -7,6 +7,7 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { ref, computed, nextTick } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import Badge from '@/components/Badge.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -490,9 +491,9 @@ const hasAddressErrors = computed(() => {
                 <span class="text-slate-500">{{ address.neighborhood }}, {{ address.city }}/{{ address.state }}</span>
               </td>
               <td class="table-actions">
-                <span :class="address.status === 'active' ? 'badge-success' : 'badge-danger'">
+                <Badge :variant="address.status === 'active' ? 'success' : 'danger'">
                   {{ address.status === 'active' ? 'Ativo' : 'Inativo' }}
-                </span>
+                </Badge>
               </td>
               <td class="whitespace-nowrap">
                 <Dropdown>

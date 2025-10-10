@@ -7,6 +7,7 @@ import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import OrderDetailsModal from '@/components/orders/OrderDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
+import Badge from '@/components/Badge.vue';
 
 const props = defineProps({
   orders: { type: Object, required: true },
@@ -60,6 +61,30 @@ const performDelete = async () => {
 // Estado para modal de detalhes
 const details = ref({ open: false, orderId: null });
 const openDetails = (order) => { details.value.orderId = order.id; details.value.open = true; };
+
+const getStatusVariant = (status) => {
+  const variants = {
+    pending: 'warning',
+    confirmed: 'info',
+    completed: 'success',
+    shipped: 'primary',
+    delivered: 'success',
+    cancelled: 'danger',
+  };
+  return variants[status] || 'secondary';
+};
+
+const getStatusLabel = (status) => {
+  const labels = {
+    pending: 'Pendente',
+    confirmed: 'Confirmado',
+    completed: 'Concluído',
+    shipped: 'Enviado',
+    delivered: 'Entregue',
+    cancelled: 'Cancelado',
+  };
+  return labels[status] || status;
+};
 </script>
 
 <template>
@@ -128,9 +153,9 @@ const openDetails = (order) => { details.value.orderId = order.id; details.value
               <td>{{ order.client.name }}</td>
               <td>{{ order.user.name }}</td>
               <td class="table-actions">
-                <span :class="getStatusClass(order.status)">
+                <Badge :variant="getStatusVariant(order.status)">
                   {{ getStatusLabel(order.status) }}
-                </span>
+                </Badge>
               </td>
               <td>R$ {{ order.total }}</td>
               <td>{{ order.ordered_at || '-' }}</td>
@@ -178,45 +203,3 @@ const openDetails = (order) => { details.value.orderId = order.id; details.value
     <OrderDetailsModal v-model="details.open" :order-id="details.orderId" />
   </AdminLayout>
 </template>
-
-<script>
-export default {
-  methods: {
-    getStatusClass(status) {
-      const classes = {
-        pending: 'badge-warning',
-        confirmed: 'badge-info',
-        completed: 'badge-success',
-        shipped: 'badge-primary',
-        delivered: 'badge-success',
-        cancelled: 'badge-danger',
-      };
-      return classes[status] || 'badge-secondary';
-    },
-    getStatusLabel(status) {
-      const labels = {
-        pending: 'Pendente',
-        confirmed: 'Confirmado',
-        completed: 'Concluído',
-        shipped: 'Enviado',
-        delivered: 'Entregue',
-        cancelled: 'Cancelado',
-      };
-      return labels[status] || status;
-    },
-  },
-};
-</script>
-
-<style scoped>
-.table-wrapper { overflow:auto }
-.table { width:100%; border-collapse:separate; border-spacing:0; }
-.table th, .table td { padding:.75rem; border-bottom:1px solid #e2e8f0; }
-.table thead th { font-size:.875rem; font-weight:700; color:#334155 }
-.badge-success { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#ecfdf5; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#047857; }
-.badge-danger { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#fef2f2; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#b91c1c; }
-.badge-warning { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#fffbeb; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#92400e; }
-.badge-info { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#eff6ff; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#1e40af; }
-.badge-primary { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#f0f9ff; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#0369a1; }
-.badge-primary { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#f0f9ff; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#0369a1; }
-</style>

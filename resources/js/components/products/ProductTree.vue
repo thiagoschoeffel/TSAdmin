@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import HeroIcon from '@/components/icons/HeroIcon.vue'
+import Badge from '@/components/Badge.vue'
 
 const props = defineProps({
   nodes: { type: Array, default: () => [] },
@@ -55,7 +56,9 @@ const childIndent = (lvl) => ({ marginLeft: `${(lvl + 1) * 11}px` })
                 <div class="flex items-center gap-4">
                   <span class="font-medium text-slate-900 truncate">{{ node.name }}</span>
                   <span class="text-sm text-slate-500">×{{ node.quantity }}</span>
-                  <span :class="node.status === 'active' ? 'badge-success' : 'badge-danger'">{{ node.status === 'active' ? 'Ativo' : 'Inativo' }}</span>
+                  <Badge :variant="node.status === 'active' ? 'success' : 'danger'">
+                    {{ node.status === 'active' ? 'Ativo' : 'Inativo' }}
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -92,7 +95,4 @@ const childIndent = (lvl) => ({ marginLeft: `${(lvl + 1) * 11}px` })
 .tree-row-inner { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px; }
 .tree-content { padding-left: 4px; }
 .chev-btn { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; }
-
-.badge-success { display: inline-flex; align-items: center; gap: 0.25rem; background-color: rgb(220 252 231); color: rgb(22 101 52); font-size: 0.75rem; font-weight: 500; padding: 0.125rem 0.5rem; border-radius: 9999px; }
-.badge-danger { display: inline-flex; align-items: center; gap: 0.25rem; background-color: rgb(254 226 226); color: rgb(153 27 27); font-size: 0.75rem; font-weight: 500; padding: 0.125rem 0.5rem; border-radius: 9999px; }
 </style>

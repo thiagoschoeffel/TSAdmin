@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import Modal from '@/components/Modal.vue';
+import Badge from '@/components/Badge.vue';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -92,16 +93,16 @@ const getStatusLabel = (status) => {
   return labels[status] || status;
 };
 
-const getStatusClass = (status) => {
-  const classes = {
-    pending: 'badge-warning',
-    confirmed: 'badge-info',
-    completed: 'badge-success',
-    shipped: 'badge-primary',
-    delivered: 'badge-success',
-    cancelled: 'badge-danger',
+const getStatusVariant = (status) => {
+  const variants = {
+    pending: 'warning',
+    confirmed: 'info',
+    completed: 'success',
+    shipped: 'primary',
+    delivered: 'success',
+    cancelled: 'danger',
   };
-  return classes[status] || 'badge-secondary';
+  return variants[status] || 'secondary';
 };
 
 const getPaymentMethodLabel = (method) => {
@@ -182,9 +183,9 @@ const updatedBy = computed(() => {
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Status</dt>
             <dd>
-              <span :class="getStatusClass(payload.status)">
+              <Badge :variant="getStatusVariant(payload.status)">
                 {{ getStatusLabel(payload.status) }}
-              </span>
+              </Badge>
             </dd>
           </div>
           <div class="space-y-1">
@@ -282,12 +283,3 @@ const updatedBy = computed(() => {
     <div v-else class="space-y-6"></div>
   </Modal>
 </template>
-
-<style scoped>
-.badge-success { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#ecfdf5; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#047857; }
-.badge-danger { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#fef2f2; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#b91c1c; }
-.badge-warning { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#fffbeb; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#92400e; }
-.badge-info { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#eff6ff; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#1e40af; }
-.badge-primary { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#f0f9ff; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#0369a1; }
-.badge-secondary { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#f1f5f9; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#475569; }
-</style>

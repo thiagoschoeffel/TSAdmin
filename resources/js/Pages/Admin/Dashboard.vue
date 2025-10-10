@@ -2,6 +2,7 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
+import Badge from '@/components/Badge.vue';
 
 const props = defineProps({
   stats: Object,

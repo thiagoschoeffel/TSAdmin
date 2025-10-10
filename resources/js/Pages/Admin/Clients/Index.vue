@@ -7,6 +7,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ClientDetailsModal from '@/components/clients/ClientDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
+import Badge from '@/components/Badge.vue';
 
 const props = defineProps({
   clients: { type: Object, required: true },
@@ -113,9 +114,9 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
               <td>{{ c.person_type === 'company' ? 'Jurídica' : 'Física' }}</td>
               <td>{{ c.formatted_document }}</td>
               <td class="table-actions">
-                <span :class="c.status === 'active' ? 'badge-success' : 'badge-danger'">
+                <Badge :variant="c.status === 'active' ? 'success' : 'danger'">
                   {{ c.status === 'active' ? 'Ativo' : 'Inativo' }}
-                </span>
+                </Badge>
               </td>
               <td class="whitespace-nowrap">
                 <Dropdown>
@@ -166,8 +167,6 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
 .table { width:100%; border-collapse:separate; border-spacing:0; }
 .table th, .table td { padding:.75rem; border-bottom:1px solid #e2e8f0; }
 .table thead th { font-size:.875rem; font-weight:700; color:#334155 }
-.badge-success { display:inline-flex; align-items:center; gap:.375rem; background:#ecfeff; color:#047857; font-weight:700; padding:.125rem .5rem; border-radius:.375rem; }
-.badge-danger { display:inline-flex; align-items:center; gap:.375rem; background:#fff1f2; color:#b91c1c; font-weight:700; padding:.125rem .5rem; border-radius:.375rem; }
 /* Usa estilos globais definidos em resources/css/app.css para menu-trigger e menu-panel-link */
 </style>
 

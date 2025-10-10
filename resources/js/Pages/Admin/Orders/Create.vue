@@ -6,6 +6,7 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Modal from '@/components/Modal.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { useToasts } from '@/components/toast/useToasts';
+import Badge from '@/components/Badge.vue';
 
 const props = defineProps({
   products: { type: Array, required: true },
@@ -509,16 +510,16 @@ watch(selectedClient, () => {
   }
 });
 
-const getStatusClass = (status) => {
-  const classes = {
-    pending: 'badge-warning',
-    confirmed: 'badge-info',
-    completed: 'badge-success',
-    shipped: 'badge-primary',
-    delivered: 'badge-success',
-    cancelled: 'badge-danger',
+const getStatusVariant = (status) => {
+  const variants = {
+    pending: 'warning',
+    confirmed: 'info',
+    completed: 'success',
+    shipped: 'primary',
+    delivered: 'success',
+    cancelled: 'danger',
   };
-  return classes[status] || 'badge-secondary';
+  return variants[status] || 'secondary';
 };
 
 const getStatusLabel = (status) => {
@@ -677,9 +678,9 @@ const getStatusLabel = (status) => {
                     <p class="text-xs text-slate-600 mt-1">{{ order.ordered_at || order.created_at }}</p>
                   </div>
                   <div class="flex flex-col items-end gap-0.5">
-                    <span :class="getStatusClass(order.status)">
+                    <Badge :variant="getStatusVariant(order.status)">
                       {{ getStatusLabel(order.status) }}
-                    </span>
+                    </Badge>
                     <div class="text-right mt-2">
                       <div class="font-semibold text-slate-900">{{ formatCurrency(order.total) }}</div>
                       <div class="text-xs text-slate-500">{{ order.user.name }}</div>
@@ -783,10 +784,4 @@ const getStatusLabel = (status) => {
 </template>
 
 <style scoped>
-.badge-success { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#ecfdf5; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#047857; }
-.badge-danger { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#fef2f2; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#b91c1c; }
-.badge-warning { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#fffbeb; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#92400e; }
-.badge-info { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#eff6ff; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#1e40af; }
-.badge-primary { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#f0f9ff; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#0369a1; }
-.badge-secondary { display:inline-flex; align-items:center; gap:0.375rem; border-radius:9999px; background:#f1f5f9; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:600; color:#475569; }
 </style>

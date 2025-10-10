@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import Modal from '@/components/Modal.vue';
+import Badge from '@/components/Badge.vue';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -160,9 +161,9 @@ const updatedBy = computed(() => {
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Status</dt>
             <dd>
-              <span :class="payload.status === 'active' ? 'badge-success' : 'badge-danger'">
+              <Badge :variant="payload.status === 'active' ? 'success' : 'danger'">
                 {{ payload.status === 'active' ? 'Ativo' : 'Inativo' }}
-              </span>
+              </Badge>
             </dd>
           </div>
         </dl>
@@ -191,9 +192,9 @@ const updatedBy = computed(() => {
                   <span class="text-slate-500">{{ address.neighborhood }}, {{ address.city }}/{{ address.state }}</span>
                 </td>
                 <td class="table-actions">
-                  <span :class="address.status === 'active' ? 'badge-success' : 'badge-danger'">
+                  <Badge :variant="address.status === 'active' ? 'success' : 'danger'">
                     {{ address.status === 'active' ? 'Ativo' : 'Inativo' }}
-                  </span>
+                  </Badge>
                 </td>
               </tr>
               <tr v-if="!payload.addresses || payload.addresses.length === 0">
