@@ -2,6 +2,7 @@
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import Checkbox from '@/components/ui/Checkbox.vue';
+import Button from '@/components/Button.vue';
 
 const page = usePage();
 const serverErrors = page.props.value?.errors || {};
@@ -46,11 +47,11 @@ const submit = () => {
         <Checkbox v-model="form.remember">Manter conectado</Checkbox>
 
         <div class="flex flex-wrap items-center gap-3">
-          <button type="submit" :disabled="form.processing" class="btn-primary">
+          <Button variant="primary" :loading="form.processing" type="submit">
             <span v-if="!form.processing">Entrar</span>
             <span v-else>Enviando…</span>
-          </button>
-          <Link class="btn-ghost" :href="route('register')">Criar uma conta</Link>
+          </Button>
+          <Button variant="ghost" :href="route('register')">Criar uma conta</Button>
         </div>
       </form>
     </section>
@@ -61,6 +62,4 @@ const submit = () => {
 <style scoped>
 .form-label { display:flex; flex-direction:column; gap:.5rem; font-weight:600; color:#334155 }
 .form-input { border:1px solid #cbd5e1; border-radius:.5rem; padding:.5rem .75rem; }
-.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
-.btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
 </style>

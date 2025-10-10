@@ -1,5 +1,6 @@
 <script setup>
 import Switch from '@/components/ui/Switch.vue';
+import Button from '@/components/Button.vue';
 import PermissionsMatrix from '@/components/users/PermissionsMatrix.vue';
 
 const props = defineProps({
@@ -94,8 +95,8 @@ const onSubmit = () => emit('submit');
                        v-model:modules="form.modules" />
 
     <div class="flex flex-wrap gap-3">
-      <button type="submit" class="btn-primary" :disabled="form.processing">{{ submitLabel }}</button>
-      <a class="btn-ghost" :href="cancelHref">Cancelar</a>
+      <Button variant="primary" :loading="form.processing" type="submit">{{ submitLabel }}</Button>
+      <Button variant="ghost" :href="cancelHref">Cancelar</Button>
     </div>
   </form>
 </template>

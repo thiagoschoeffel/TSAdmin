@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import Modal from '@/components/Modal.vue';
 import Badge from '@/components/Badge.vue';
+import Button from '@/components/Button.vue';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -165,7 +166,7 @@ const updatedBy = computed(() => {
 
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 text-center text-sm text-slate-500">
       <p class="text-sm text-rose-600">Não foi possível carregar os detalhes do pedido.</p>
-      <button type="button" class="btn-secondary" @click="retry">Tentar novamente</button>
+      <Button type="button" variant="secondary" @click="retry">Tentar novamente</Button>
     </div>
 
     <div v-if="payload" class="space-y-6">

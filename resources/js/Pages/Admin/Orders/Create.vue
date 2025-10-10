@@ -5,6 +5,7 @@ import { ref, computed, nextTick, onMounted, watch } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Modal from '@/components/Modal.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import Button from '@/components/Button.vue';
 import { useToasts } from '@/components/toast/useToasts';
 import Badge from '@/components/Badge.vue';
 
@@ -547,10 +548,10 @@ const getStatusLabel = (status) => {
           </h1>
           <p class="mt-2 text-sm text-slate-500">Crie um novo pedido adicionando produtos e finalizando com cliente e pagamento.</p>
         </div>
-        <button @click="openModal" class="btn-primary">
+        <Button @click="openModal" variant="primary">
           <HeroIcon name="user-plus" class="h-5 w-5" />
           Finalizar pedido (F2)
-        </button>
+        </Button>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -596,10 +597,10 @@ const getStatusLabel = (status) => {
                   />
                 </label>
                 <div class="flex items-end">
-                  <button @click="addItem" class="btn-primary w-full py-3 text-lg">
+                  <Button @click="addItem" variant="primary" size="lg" class="w-full">
                     <HeroIcon name="plus" class="h-5 w-5" />
                     Adicionar (Enter)
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -635,9 +636,9 @@ const getStatusLabel = (status) => {
                 </div>
                 <div class="flex items-center gap-4">
                   <span class="font-semibold text-slate-900">{{ formatCurrency(item.total) }}</span>
-                  <button @click="removeItem(index)" class="btn-outline-danger">
+                  <Button @click="removeItem(index)" variant="outline-danger" size="sm">
                     <HeroIcon name="trash" class="h-5 w-5" />
-                  </button>
+                  </Button>
                 </div>
               </div>
               <div v-if="items.length === 0" class="text-center py-8 text-slate-500">
@@ -733,24 +734,24 @@ const getStatusLabel = (status) => {
         <div>
           <label class="form-label mb-2">Tipo de Entrega</label>
           <div class="flex">
-            <button
+            <Button
               @click="deliveryType = 'pickup'"
-              :class="deliveryType === 'pickup' ? 'btn-primary' : 'btn-outline'"
+              :variant="deliveryType === 'pickup' ? 'primary' : 'outline'"
               type="button"
               data-delivery-type="pickup"
               class="flex-1 rounded-r-none border-r-0 hover:translate-y-0 hover:shadow-none"
             >
               Retirada em balcão
-            </button>
-            <button
+            </Button>
+            <Button
               @click="deliveryType = 'delivery'"
-              :class="deliveryType === 'delivery' ? 'btn-primary' : 'btn-outline'"
+              :variant="deliveryType === 'delivery' ? 'primary' : 'outline'"
               type="button"
               data-delivery-type="delivery"
               class="flex-1 rounded-l-none hover:translate-y-0 hover:shadow-none"
             >
               Entrega
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -768,8 +769,8 @@ const getStatusLabel = (status) => {
       </div>
 
       <template #footer="{ close }">
-        <button @click="close" class="btn-ghost">Cancelar</button>
-        <button @click="finalizeOrder" class="btn-primary">Finalizar Pedido</button>
+        <Button @click="close" variant="outline">Cancelar</Button>
+        <Button @click="finalizeOrder" variant="primary">Finalizar Pedido</Button>
       </template>
     </Modal>
 

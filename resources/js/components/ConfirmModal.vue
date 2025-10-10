@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import Modal from '@/components/Modal.vue';
+import Button from '@/components/Button.vue';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -26,17 +27,15 @@ const onCancel = () => { open.value = false; emit('cancel'); };
   <Modal v-model="open" :title="title" size="sm" :lockScroll="true" :closeOnBackdrop="false">
     <p class="text-slate-700">{{ message }}</p>
     <template #footer>
-      <button type="button" class="btn-ghost" :disabled="processing" @click="onCancel">{{ cancelText }}</button>
-      <button type="button" :disabled="processing" :class="['btn-primary', variant === 'danger' ? 'bg-rose-600 hover:bg-rose-700' : '']" @click="onConfirm">
+      <Button variant="outline" :disabled="processing" @click="onCancel">{{ cancelText }}</Button>
+      <Button :variant="variant" :loading="processing" @click="onConfirm">
         <span v-if="!processing">{{ confirmText }}</span>
         <span v-else>Processando…</span>
-      </button>
+      </Button>
     </template>
   </Modal>
 </template>
 
 <style scoped>
-.btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; border:1px solid #cbd5e1; color:#0f172a; }
-.btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.5rem; background:#2563eb; color:#fff; font-weight:600; }
 </style>
 

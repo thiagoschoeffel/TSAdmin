@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Button from '@/components/Button.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
@@ -100,7 +101,7 @@ const getStatusLabel = (status) => {
           </h1>
           <p class="mt-2 text-sm text-slate-500">Gerencie os pedidos dos clientes.</p>
         </div>
-        <Link v-if="canCreate" class="btn-primary" :href="route('orders.create')">Novo pedido</Link>
+        <Button v-if="canCreate" variant="primary" :href="route('orders.create')">Novo pedido</Button>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">
@@ -122,12 +123,12 @@ const getStatusLabel = (status) => {
           </label>
         </div>
         <div class="flex flex-wrap gap-3">
-          <button type="submit" class="btn-primary" :disabled="filtering">
+          <Button type="submit" variant="primary" :loading="filtering">
             <HeroIcon name="funnel" class="h-5 w-5" />
             <span v-if="!filtering">Filtrar</span>
             <span v-else>Filtrando…</span>
-          </button>
-          <button type="button" class="btn-ghost" @click="resetFilters">Limpar filtros</button>
+          </Button>
+          <Button type="button" variant="ghost" @click="resetFilters">Limpar filtros</Button>
         </div>
       </form>
 
@@ -162,9 +163,9 @@ const getStatusLabel = (status) => {
               <td class="whitespace-nowrap">
                 <Dropdown>
                   <template #trigger="{ toggle }">
-                    <button type="button" class="menu-trigger" @click="toggle" aria-label="Abrir menu de ações">
+                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
                       <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </button>
+                    </Button>
                   </template>
                   <template #default="{ close }">
                     <template v-if="canUpdate || canDelete">
