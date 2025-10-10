@@ -278,7 +278,15 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $order = Order::findOrFail($id);
+
+        // Delete all order items first
+        $order->items()->delete();
+
+        // Delete the order
+        $order->delete();
+
+        return redirect()->route('orders.index')->with('status', 'Pedido excluído com sucesso.');
     }
 
     /**
