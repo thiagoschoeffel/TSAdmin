@@ -8,8 +8,10 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
+import InputNumber from '@/components/InputNumber.vue';
 import { useToasts } from '@/components/toast/useToasts';
 import Badge from '@/components/Badge.vue';
+import { formatCurrency, formatQuantity } from '@/utils/formatters';
 
 const props = defineProps({
   products: { type: Array, required: true },
@@ -20,169 +22,28 @@ const props = defineProps({
 
 const productInput = ref('');
 const quantityInput = ref(1);
-const editingQuantityIndex = ref(-1);
-const rawQuantityDigits = ref('');
 const originalQuantity = ref(0);
 // Máscara para campo Quantidade (Adicionar Produto)
-const isEditingProductQuantity = ref(false);
-const productRawQuantityDigits = ref('');
+// Removido: máscara e estado de edição
+// const isEditingProductQuantity = ref(false);
+// const productRawQuantityDigits = ref('');
 
 // Sistema de toasts
 const { error: toastError, success: toastSuccess } = useToasts();
 
-// Utilitário: formata uma string de dígitos (centavos) para PT-BR com 2 casas
-const formatFromDigitString = (digits) => {
-  let value = String(digits || '').replace(/\D/g, '');
-  if (value === '') return '';
-  value = value.slice(0, 8);
-  while (value.length < 2) value = '0' + value;
-  const cents = value.slice(-2);
-  const units = value.slice(0, -2) || '0';
-  const numericValue = parseFloat(units + '.' + cents);
-  return numericValue.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
-
-// Método para formatar quantidade em tempo real
-const formatQuantityInput = (event) => {
-  let value = event.target.value.replace(/\D/g, ''); // Remove tudo exceto dígitos
-  if (value === '') {
-    rawQuantityDigits.value = '';
-    return '';
-  }
-
-  // Garante no máximo 8 dígitos (até 99999.99)
-  value = value.slice(0, 8);
-
-  // Adiciona zeros à esquerda para garantir pelo menos 2 dígitos (centavos)
-  while (value.length < 2) {
-    value = '0' + value;
-  }
-
-  // Separa centavos
-  const cents = value.slice(-2);
-  const units = value.slice(0, -2) || '0';
-  const numericValue = parseFloat(units + '.' + cents);
-
-  // Formata para BRL sem moeda
-  const formatted = numericValue.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  rawQuantityDigits.value = value;
-  return formatted;
-};
-
-// Método para formatar quantidade sempre (mesmo quando não está editando)
-const formatQuantityDisplay = (quantity) => {
-  if (quantity === null || quantity === undefined) return '0,00';
-  const numericValue = parseFloat(quantity);
-  if (isNaN(numericValue)) return '0,00';
-  return numericValue.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
-
-// Método para formatar valores monetários em PT-BR
-const formatCurrency = (value) => {
-  if (value === null || value === undefined) return 'R$ 0,00';
-  const numericValue = parseFloat(value);
-  if (isNaN(numericValue)) return 'R$ 0,00';
-  return numericValue.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-};
-
-// Método para iniciar edição da quantidade
-const startEditingQuantity = (index) => {
-  editingQuantityIndex.value = index;
+// Persist quantity on commit from InputNumber
+const commitItemQuantity = (index, value) => {
   const item = items.value[index];
-  // Converte para centavos e garante pelo menos 2 dígitos
-  rawQuantityDigits.value = Math.round(item.quantity * 100).toString().padStart(2, '0');
-  originalQuantity.value = item.quantity;
-  nextTick(() => {
-    const input = document.querySelector(`input[data-quantity-index="${index}"]`);
-    if (input) {
-      input.focus();
-      input.select();
-    }
-  });
-};
-
-// Método para parar edição da quantidade
-const stopEditingQuantity = (index) => {
-  editingQuantityIndex.value = -1;
-  const item = items.value[index];
-  // Atualizar o total baseado na quantidade atual
-  item.total = item.quantity * item.unit_price;
-
-  // Só mostrar toast se a quantidade foi alterada
-  if (item.quantity !== originalQuantity.value) {
-    toastSuccess(`Quantidade de ${item.name} atualizada para ${formatQuantityDisplay(item.quantity)}`);
+  const prev = Number(item.quantity) || 0;
+  let next = Number(value);
+  if (!isFinite(next) || next <= 0) next = 0.01;
+  next = Number(next.toFixed(2));
+  if (prev !== next) {
+    item.quantity = next;
+    toastSuccess(`Quantidade de ${item.name} atualizada para ${formatQuantity(item.quantity)}`);
   }
 };
-
-// Keydown para edição de quantidade nos itens (setas ±0,01, Enter/Escape)
-const handleItemQuantityKeydown = (e, index) => {
-  if (e.key === 'Enter' || e.key === 'Escape') {
-    e.target.blur();
-    return;
-  }
-  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-    if (editingQuantityIndex.value === index) {
-      e.preventDefault();
-      let cents = parseInt(rawQuantityDigits.value || '0', 10);
-      if (Number.isNaN(cents)) cents = 0;
-      const delta = e.key === 'ArrowUp' ? 1 : -1;
-      cents = Math.max(1, cents + delta);
-      rawQuantityDigits.value = String(cents);
-      const formatted = formatFromDigitString(rawQuantityDigits.value);
-      e.target.value = formatted;
-      updateItemQuantity(index, formatted);
-    }
-  }
-};
-// Início/fim da edição da quantidade do formulário Adicionar Produto
-const startEditingProductQuantity = () => {
-  isEditingProductQuantity.value = true;
-  productRawQuantityDigits.value = Math.round((Number(quantityInput.value) || 0) * 100)
-    .toString()
-    .padStart(2, '0');
-  nextTick(() => {
-    quantityInputRef.value?.focus?.();
-    quantityInputRef.value?.select?.();
-  });
-};
-const stopEditingProductQuantity = () => {
-  isEditingProductQuantity.value = false;
-};
-// Formatação de entrada para o campo de quantidade do formulário
-const formatProductQuantityInput = (event) => {
-  let value = String(event.target.value ?? '').replace(/\D/g, '');
-  if (value === '') {
-    productRawQuantityDigits.value = '';
-    return '';
-  }
-  value = value.slice(0, 8);
-  while (value.length < 2) value = '0' + value;
-  const formatted = formatFromDigitString(value);
-  productRawQuantityDigits.value = value;
-  return formatted;
-};
-
-// Handler para @input do campo Quantidade (Adicionar Produto)
-const onProductQuantityInput = (e) => {
-  const formatted = formatProductQuantityInput(e);
-  e.target.value = formatted;
-  const cleaned = formatted.replace(/\./g, '').replace(',', '.');
-  const numeric = parseFloat(cleaned);
-  quantityInput.value = isNaN(numeric) || numeric <= 0 ? 0.01 : Math.round(numeric * 100) / 100;
-};
+// Removido: formatador manual de quantidade do formulário
 const quantityInputRef = ref(null);
 const productInputRef = ref(null);
 const clientInput = ref('');
@@ -232,7 +93,7 @@ const clientAddresses = computed(() => {
 });
 
 const total = computed(() => {
-  return items.value.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  return items.value.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.unit_price || 0), 0);
 });
 
 const totalItemsQuantity = computed(() => {
@@ -271,27 +132,7 @@ const removeItem = (index) => {
   confirmDelete(items.value[index], index);
 };
 
-const updateItemQuantity = (index, newQuantity) => {
-  let numericValue;
-  if (typeof newQuantity === 'string') {
-    const cleaned = newQuantity
-      .toString()
-      .trim()
-      .replace(/\./g, '')
-      .replace(',', '.');
-    numericValue = parseFloat(cleaned);
-  } else {
-    numericValue = Number(newQuantity);
-  }
-
-  if (!isFinite(numericValue) || numericValue <= 0) {
-    items.value[index].quantity = 0.01;
-  } else {
-    items.value[index].quantity = Math.round(numericValue * 100) / 100;
-  }
-
-  items.value[index].total = items.value[index].quantity * items.value[index].unit_price;
-};
+// No longer needed: totals are computed in template and quantities are updated via v-model
 
 const deleteState = ref({ open: false, processing: false, item: null, index: null });
 const confirmDelete = (item, index) => {
@@ -386,35 +227,7 @@ const handlePaymentMethodKeydown = (e) => {
   }
 };
 
-const handleQuantityKeydown = (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    // Garante que o valor está atualizado antes de adicionar
-    const currentValue = e.target.value;
-    if (currentValue) {
-      const cleaned = currentValue.replace(/\./g, '').replace(',', '.');
-      const numeric = parseFloat(cleaned);
-      if (!isNaN(numeric) && numeric > 0) {
-        quantityInput.value = Math.round(numeric * 100) / 100;
-      }
-    }
-    addItem();
-  } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-    // Incrementa/decrementa 0,01 para o campo Quantidade (Adicionar Produto)
-    e.preventDefault();
-    // Base em centavos
-    let cents = parseInt(productRawQuantityDigits.value || '0', 10);
-    if (Number.isNaN(cents)) cents = 0;
-    const delta = e.key === 'ArrowUp' ? 1 : -1;
-    cents = Math.max(1, cents + delta);
-    productRawQuantityDigits.value = String(cents);
-    const formatted = formatFromDigitString(productRawQuantityDigits.value);
-    // Atualiza exibição e estado numérico
-    if (e.target) e.target.value = formatted;
-    const numeric = parseFloat(formatted.replace(/\./g, '').replace(',', '.'));
-    quantityInput.value = isNaN(numeric) || numeric <= 0 ? 0.01 : Math.round(numeric * 100) / 100;
-  }
-};
+// Removido: keydown manual; InputNumber emite @enter
 
 // Modal for customer/payment
 const modalOpen = ref(false);
@@ -586,16 +399,15 @@ const getStatusLabel = (status) => {
               <div class="grid grid-cols-2 gap-4">
                 <label class="form-label">
                   Quantidade
-                  <InputText
+                  <InputNumber
                     ref="quantityInputRef"
-                    :value="isEditingProductQuantity ? formatFromDigitString(productRawQuantityDigits) : formatQuantityDisplay(quantityInput)"
-                    @input="onProductQuantityInput"
-                    @focus="startEditingProductQuantity"
-                    @blur="stopEditingProductQuantity"
-                    @keydown="handleQuantityKeydown"
-                    type="text"
-                    inputmode="decimal"
+                    v-model="quantityInput"
+                    :formatted="true"
+                    :precision="2"
+                    :min="0.01"
+                    :step="0.01"
                     size="lg"
+                    @enter="addItem"
                   />
                 </label>
                 <div class="flex items-end">
@@ -617,27 +429,22 @@ const getStatusLabel = (status) => {
                     <div class="flex items-center gap-2 text-sm text-slate-600">
                     <span>{{ formatCurrency(item.unit_price) }}</span>
                     <span>x</span>
-                    <InputText
+                    <InputNumber
                       :data-quantity-index="index"
-                      :value="editingQuantityIndex === index ? formatQuantityInput({ target: { value: rawQuantityDigits ?? '' } }) : formatQuantityDisplay(item.quantity)"
-                      @input="(e) => {
-                        if (editingQuantityIndex === index) {
-                          const formatted = formatQuantityInput(e);
-                          e.target.value = formatted;
-                          updateItemQuantity(index, formatted);
-                        }
-                      }"
-                      @focus="startEditingQuantity(index)"
-                      @blur="stopEditingQuantity(index)"
-                      @keydown="(e) => handleItemQuantityKeydown(e, index)"
-                      type="text"
+                      v-model="items[index].quantity"
+                      :formatted="true"
+                      @focus="() => { originalQuantity = items[index].quantity }"
+                      @commit="(val) => commitItemQuantity(index, val)"
                       size="sm"
-                      class="w-20 text-center"
+                      class="w-20"
+                      :precision="2"
+                      :min="0.01"
+                      :step="0.01"
                     />
                   </div>
                 </div>
                 <div class="flex items-center gap-4">
-                  <span class="font-semibold text-slate-900">{{ formatCurrency(item.total) }}</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(item.quantity * item.unit_price) }}</span>
                   <Button @click="removeItem(index)" variant="outline-danger" size="sm">
                     <HeroIcon name="trash" class="h-5 w-5" />
                   </Button>
@@ -657,7 +464,7 @@ const getStatusLabel = (status) => {
             <div class="space-y-4">
               <div class="flex justify-between items-center">
                 <span class="text-slate-600">Total de itens:</span>
-                <span class="font-semibold">{{ formatQuantityDisplay(totalItemsQuantity) }}</span>
+                <span class="font-semibold">{{ formatQuantity(totalItemsQuantity) }}</span>
               </div>
               <div class="flex justify-between items-center text-xl font-bold text-slate-900 border-t border-slate-200 pt-4">
                 <span>Total:</span>

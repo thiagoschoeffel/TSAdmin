@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { formatQuantityInput, formatFromDigitString, initializePriceDisplay } from '@/utils/formatters'
 
 const props = defineProps({
   modelValue: {
@@ -43,6 +44,10 @@ const props = defineProps({
     type: Number,
     default: 2
   },
+  formatted: {
+    type: Boolean,
+    default: false
+  },
   error: {
     type: Boolean,
     default: false
@@ -57,7 +62,11 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'input', 'blur', 'focus', 'change'])
+const emit = defineEmits(['update:modelValue', 'input', 'blur', 'focus', 'change', 'commit', 'enter'])
+
+const inputRef = ref(null)
+const displayValue = ref('')
+const rawDigits = ref('')
 
 const inputClasses = computed(() => {
   const baseClasses = [
@@ -107,6 +116,11 @@ const inputClasses = computed(() => {
     baseClasses.push('border-green-500', 'focus:border-green-500', 'focus:ring-green-500')
   }
 
+  // Alinhamento para valores formatados
+  if (props.formatted) {
+    baseClasses.push('text-right')
+  }
+
   return baseClasses.join(' ')
 })
 
@@ -118,34 +132,79 @@ const finalClasses = computed(() => {
   return classes.join(' ')
 })
 
-const handleInput = (event) => {
-  let value = event.target.value
-
-  // Allow empty values
-  if (value === '') {
-    emit('update:modelValue', '')
-    emit('input', event)
-    return
-  }
-
-  // Convert to number and apply precision if needed
-  const numericValue = parseFloat(value)
-  if (!isNaN(numericValue)) {
-    const roundedValue = Number(numericValue.toFixed(props.precision))
-    emit('update:modelValue', roundedValue)
+// Inicializa o valor quando o componente é montado
+onMounted(() => {
+  if (props.formatted) {
+    displayValue.value = props.modelValue ? formatFromDigitString(String(Math.round(Number(props.modelValue) * 100)), 8) : ''
   } else {
-    emit('update:modelValue', value)
+    displayValue.value = props.modelValue
+  }
+})
+
+// Atualiza quando o modelValue muda externamente
+watch(() => props.modelValue, (newValue) => {
+  // Always reflect external modelValue changes in the display,
+  // even when focused (needed for arrow key adjustments triggered by parent)
+  if (props.formatted) {
+    displayValue.value = newValue ? formatFromDigitString(String(Math.round(Number(newValue) * 100)), 8) : ''
+  } else {
+    displayValue.value = newValue
+  }
+})
+
+const handleInput = (event) => {
+  if (props.formatted) {
+    // Usa formatação brasileira
+    const result = formatQuantityInput(event, rawDigits.value)
+    displayValue.value = result.formatted
+    rawDigits.value = result.rawDigits
+
+    // Converte para número e emite
+    const numericValue = result.formatted ? parseFloat(result.formatted.replace(/\./g, '').replace(',', '.')) : 0
+    emit('update:modelValue', Number(numericValue.toFixed(props.precision)))
+  } else {
+    // Comportamento normal do input number
+    let value = event.target.value
+
+    // Allow empty values
+    if (value === '') {
+      emit('update:modelValue', '')
+      emit('input', event)
+      return
+    }
+
+    // Convert to number and apply precision if needed
+    const numericValue = parseFloat(value)
+    if (!isNaN(numericValue)) {
+      const roundedValue = Number(numericValue.toFixed(props.precision))
+      emit('update:modelValue', roundedValue)
+    } else {
+      emit('update:modelValue', value)
+    }
   }
 
   emit('input', event)
 }
 
 const handleBlur = (event) => {
-  // Ensure proper formatting on blur
-  if (event.target.value !== '' && !isNaN(event.target.value)) {
-    const numericValue = parseFloat(event.target.value)
-    if (!isNaN(numericValue)) {
-      event.target.value = Number(numericValue.toFixed(props.precision))
+  if (props.formatted) {
+    // Garante formatação correta ao perder foco
+    if (displayValue.value && !isNaN(parseFloat(displayValue.value.replace(/\./g, '').replace(',', '.')))) {
+      const numericValue = parseFloat(displayValue.value.replace(/\./g, '').replace(',', '.'))
+      displayValue.value = formatFromDigitString(String(Math.round(numericValue * 100)), 8)
+      // Emit commit with the numeric value rounded to precision
+      emit('commit', Number(numericValue.toFixed(props.precision)))
+    }
+  } else {
+    // Ensure proper formatting on blur
+    if (event.target.value !== '' && !isNaN(event.target.value)) {
+      const numericValue = parseFloat(event.target.value)
+      if (!isNaN(numericValue)) {
+        const rounded = Number(numericValue.toFixed(props.precision))
+        event.target.value = rounded
+        // Emit commit with the numeric value rounded to precision
+        emit('commit', rounded)
+      }
     }
   }
   emit('blur', event)
@@ -158,22 +217,60 @@ const handleFocus = (event) => {
 const handleChange = (event) => {
   emit('change', event)
 }
+
+// Internal key handling: arrows to adjust, enter/escape to blur
+const handleKeydown = (event) => {
+  if (props.readonly || props.disabled) return
+
+  if (event.key === 'Enter' || event.key === 'Escape') {
+    event.preventDefault()
+    if (event.key === 'Enter') emit('enter')
+    inputRef.value?.blur()
+    return
+  }
+
+  if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    event.preventDefault()
+    const direction = event.key === 'ArrowUp' ? 1 : -1
+    let step = props.step !== null ? Number(props.step) : (props.formatted ? 0.01 : 1)
+    if (!isFinite(step) || step <= 0) step = 0.01
+    const current = Number(props.modelValue || 0)
+    let next = current + direction * step
+    if (props.min !== null && Number.isFinite(Number(props.min))) {
+      next = Math.max(next, Number(props.min))
+    }
+    if (props.max !== null && Number.isFinite(Number(props.max))) {
+      next = Math.min(next, Number(props.max))
+    }
+    next = Number(next.toFixed(props.precision))
+    emit('update:modelValue', next)
+    // displayValue will sync via watcher
+  }
+}
+
+// Expose focus method
+defineExpose({
+  focus: () => inputRef.value?.focus(),
+  blur: () => inputRef.value?.blur()
+})
 </script>
 
 <template>
   <input
-    type="number"
-    :value="modelValue"
+    ref="inputRef"
+    :type="formatted ? 'text' : 'number'"
+    :value="formatted ? displayValue : modelValue"
     :placeholder="placeholder"
     :required="required"
     :disabled="disabled"
     :readonly="readonly"
-    :min="min"
-    :max="max"
-    :step="step"
-    inputmode="decimal"
+    :min="formatted ? null : min"
+    :max="formatted ? null : max"
+    :step="formatted ? null : step"
+    :inputmode="formatted ? 'decimal' : 'decimal'"
     :class="finalClasses"
     @input="handleInput"
+    @keydown="handleKeydown"
     @blur="handleBlur"
     @focus="handleFocus"
     @change="handleChange"

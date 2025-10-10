@@ -6,11 +6,13 @@ import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
 import InputTextarea from '@/components/InputTextarea.vue';
+import InputCurrency from '@/components/InputCurrency.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref, computed, onMounted, nextTick } from 'vue';
+import { formatPriceInput, initializePriceDisplay } from '@/utils/formatters';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -45,64 +47,9 @@ const componentErrors = ref({});
 // Estado para confirmação de exclusão de componente
 const deleteComponentState = ref({ open: false, processing: false, componentIndex: null });
 
-// Estado para o valor formatado do preço
-const priceInput = ref('');
-
-// Variável para armazenar os dígitos digitados
-const rawPriceDigits = ref('');
-
-// Método para formatar preço em tempo real
-const formatPriceInput = (event) => {
-  let value = event.target.value.replace(/\D/g, ''); // Remove tudo exceto dígitos
-  if (value === '') {
-    priceInput.value = '';
-    props.form.price = '';
-    return;
-  }
-
-  // Garante no máximo 12 dígitos (até trilhões)
-  value = value.slice(0, 12);
-
-  // Adiciona zeros à esquerda para garantir pelo menos 3 dígitos
-  while (value.length < 3) {
-    value = '0' + value;
-  }
-
-  // Separa centavos
-  const cents = value.slice(-2);
-  const reais = value.slice(0, -2);
-  const numericValue = parseFloat(reais + '.' + cents);
-
-  // Formata para BRL
-  const formatted = numericValue.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  priceInput.value = formatted;
-  props.form.price = numericValue;
-};
-
-// Método para inicializar o input de preço
-const initializePriceInput = () => {
-  if (props.form.price) {
-    const numericValue = parseFloat(props.form.price);
-    priceInput.value = numericValue.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
-    rawPriceDigits.value = numericValue.toString();
-  } else {
-    priceInput.value = '';
-    rawPriceDigits.value = '';
-  }
-};
-
 // Inicializar quando o componente for montado
 onMounted(() => {
-  initializePriceInput();
+  // Preço agora é gerenciado pelo InputCurrency
 });
 
 // Computed para produtos disponíveis (excluindo o produto atual e componentes já adicionados, exceto o que está sendo editado)
@@ -332,7 +279,7 @@ const hasComponentErrors = computed(() => {
 
       <label class="form-label">
         Preço
-        <InputText :model-value="priceInput" @input="formatPriceInput" required :error="!!form.errors.price" placeholder="R$ 0,00" />
+        <InputCurrency v-model="form.price" required :error="!!form.errors.price" placeholder="R$ 0,00" />
         <span v-if="form.errors.price" class="text-sm font-medium text-rose-600">{{ form.errors.price }}</span>
       </label>
 
