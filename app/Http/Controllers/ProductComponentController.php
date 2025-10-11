@@ -7,6 +7,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreProductComponentRequest;
+use App\Http\Requests\UpdateProductComponentRequest;
 
 class ProductComponentController extends Controller
 {
@@ -32,14 +34,9 @@ class ProductComponentController extends Controller
         ]);
     }
 
-    public function store(Request $request, Product $product): JsonResponse
+    public function store(StoreProductComponentRequest $request, Product $product): JsonResponse
     {
         $this->authorize('createComponent', $product);
-
-        $request->validate([
-            'component_id' => 'required|exists:products,id',
-            'quantity' => 'required|numeric|min:0.01',
-        ]);
 
         $componentId = $request->component_id;
         $quantity = $request->quantity;
@@ -83,13 +80,9 @@ class ProductComponentController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, Product $product, $componentId): JsonResponse
+    public function update(UpdateProductComponentRequest $request, Product $product, $componentId): JsonResponse
     {
         $this->authorize('updateComponent', $product);
-
-        $request->validate([
-            'quantity' => 'required|numeric|min:0.01',
-        ]);
 
         $quantity = $request->quantity;
 

@@ -8,8 +8,8 @@ class UpdateProductRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Ajuste conforme política de permissão
-        return true;
+        $product = \App\Models\Product::findOrFail($this->route('product'));
+        return $this->user()->can('update', $product);
     }
 
     public function rules(): array
