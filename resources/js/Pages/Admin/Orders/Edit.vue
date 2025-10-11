@@ -84,14 +84,14 @@ const addItem = async ({ product, quantity }) => {
       };
       toastSuccess(`Quantidade de ${product.name} atualizada para ${response.data.item.quantity}`);
     } else {
-      // Add new item
+      // Add new item at the beginning of the list
       const newItem = {
         ...response.data.item,
         quantity: Number(response.data.item.quantity) || 0,
         unit_price: Number(response.data.item.unit_price) || 0,
         total: Number(response.data.item.total) || 0,
       };
-      items.value.push(newItem);
+      items.value.unshift(newItem);
       toastSuccess(`${product.name} adicionado ao pedido`);
     }
   } catch (error) {

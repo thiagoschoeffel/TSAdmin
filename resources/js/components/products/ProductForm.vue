@@ -180,7 +180,7 @@ const addComponent = async () => {
       toastSuccess('Componente atualizado com sucesso!');
     } else {
       // Adicionar novo
-      props.form.components.push({ ...newComponent.value, id: parseInt(newComponent.value.id) });
+      props.form.components.unshift({ ...newComponent.value, id: parseInt(newComponent.value.id) });
       toastSuccess('Componente adicionado com sucesso!');
     }
     resetNewComponent();
@@ -304,7 +304,7 @@ const saveComponentToDatabase = async () => {
       editingComponentIndex.value = -1;
       toastSuccess('Componente atualizado com sucesso!');
     } else {
-      props.form.components.push(result.component);
+      props.form.components.unshift(result.component);
       toastSuccess('Componente adicionado com sucesso!');
     }
 
@@ -354,7 +354,8 @@ const componentColumns = [
   },
   {
     header: 'Quantidade',
-    key: 'quantity'
+    key: 'quantity',
+    formatter: (value) => Number(value).toFixed(2).replace('.', ',')
   },
   {
     header: 'Preço Unitário',

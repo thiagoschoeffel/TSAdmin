@@ -15,7 +15,7 @@ class ProductComponentController extends Controller
         $this->authorize('manageComponents', $product);
 
         return response()->json([
-            'components' => $product->components->map(function ($component) {
+            'components' => $product->components()->orderBy('product_components.id', 'desc')->get()->map(function ($component) {
                 return [
                     'id' => $component->id,
                     'name' => $component->name,

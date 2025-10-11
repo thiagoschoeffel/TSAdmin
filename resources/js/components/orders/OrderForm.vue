@@ -173,7 +173,12 @@ const performDelete = () => {
       <div class="card">
         <h2 class="text-xl font-semibold mb-6">Itens do pedido</h2>
         <div class="space-y-0">
-          <div v-for="(item, index) in items" :key="index" class="flex items-center justify-between p-4" :class="{ 'border-t border-slate-200': index > 0, 'bg-slate-50': index % 2 === 0 }">
+          <div
+            v-for="(item, index) in items"
+            :key="item.id ?? item.product_id ?? index"
+            class="flex items-center justify-between p-4"
+            :class="{ 'border-t border-slate-200': index > 0, 'bg-slate-50': index % 2 === 0 }"
+          >
             <div class="flex-1">
               <h3 class="font-medium text-slate-900 mb-3">{{ item.name }}</h3>
               <div class="flex items-center gap-2 text-sm text-slate-600">

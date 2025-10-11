@@ -117,6 +117,11 @@ const updatedBy = computed(() => {
   return payload.value?.updated_by ?? 'Conta removida';
 });
 
+const itemsArray = computed(() => {
+  const items = payload.value?.items ?? [];
+  return Array.isArray(items) ? items : Object.values(items);
+});
+
 // DataTable configuration for order items
 const itemColumns = [
   {
@@ -241,7 +246,7 @@ const itemColumns = [
         <h2 class="text-lg font-semibold text-slate-900">Itens do pedido</h2>
         <DataTable
           :columns="itemColumns"
-          :data="payload.items || []"
+          :data="itemsArray"
           empty-message="Nenhum item encontrado para este pedido."
         />
       </section>

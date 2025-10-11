@@ -43,7 +43,7 @@ class ClientController extends Controller
 
         $clients = $query
             ->with(['createdBy', 'updatedBy'])
-            ->orderBy('name')
+            ->orderBy('name', 'asc')
             ->paginate(10)
             ->withQueryString()
             ->through(function (Client $client) {
@@ -132,7 +132,8 @@ class ClientController extends Controller
     public function modal(Client $client): JsonResponse
     {
         $this->authorize('view', $client);
-        $client->load(['createdBy', 'updatedBy', 'addresses']);
+        $client->load(['createdBy', 'updatedBy']);
+        $addresses = $client->addresses()->orderBy('id', 'desc')->get();
 
         return response()->json([
             'client' => [
@@ -150,7 +151,7 @@ class ClientController extends Controller
                 'updated_at' => $client->updated_at?->format('d/m/Y H:i'),
                 'created_by' => $client->createdBy?->name,
                 'updated_by' => $client->updatedBy?->name,
-                'addresses' => $client->addresses->map(function ($address) {
+                'addresses' => $addresses->map(function ($address) {
                     return [
                         'id' => $address->id,
                         'description' => $address->description,

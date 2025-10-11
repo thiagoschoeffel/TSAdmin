@@ -33,7 +33,7 @@ class UserManagementController extends Controller
         }
 
         $users = $query
-            ->orderBy('name')
+            ->orderBy('name', 'asc')
             ->paginate(10)
             ->withQueryString()
             ->through(function (User $user) {

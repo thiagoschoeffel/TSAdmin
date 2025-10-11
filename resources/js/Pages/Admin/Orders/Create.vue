@@ -40,13 +40,14 @@ const addItem = ({ product, quantity }) => {
     existing.total = existing.quantity * existing.unit_price;
     toastSuccess(`Quantidade de ${product.name} atualizada para ${existing.quantity}`);
   } else {
-    items.value.push({
+    const newItem = {
       product_id: product.id,
       name: product.name,
       unit_price: price,
       quantity: quantity,
       total: price * quantity,
-    });
+    };
+    items.value.unshift(newItem);
     toastSuccess(`${product.name} adicionado ao pedido`);
   }
 };

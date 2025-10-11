@@ -29,7 +29,7 @@ class ProductController extends Controller
             $query->where('status', $status);
         }
 
-        $products = $query->paginate(15)->withQueryString();
+        $products = $query->orderBy('name', 'asc')->paginate(15)->withQueryString();
 
         return Inertia::render('Admin/Products/Index', [
             'products' => $products,
@@ -68,6 +68,7 @@ class ProductController extends Controller
     public function edit(Product $product): InertiaResponse
     {
         $product->load('components');
+        $product->components = $product->components->sortBy('name');
         $products = Product::where('id', '!=', $product->id)->get();
         return Inertia::render('Admin/Products/Edit', [
             'product' => $product,
@@ -148,7 +149,7 @@ class ProductController extends Controller
         $visited[] = $product->id;
         $tree = [];
 
-        foreach ($product->components as $component) {
+        foreach ($product->components->sortByDesc('pivot.id') as $component) {
             $tree[] = [
                 'id' => $component->id,
                 'name' => $component->name,

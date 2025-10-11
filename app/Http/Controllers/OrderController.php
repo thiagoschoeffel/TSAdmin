@@ -38,7 +38,8 @@ class OrderController extends Controller
         // Filtro por período do pedido (ordered_at) com suporte a hora
         $orderedFrom = $request->get('ordered_from');
         $orderedTo = $request->get('ordered_to');
-        $from = null; $to = null;
+        $from = null;
+        $to = null;
         try {
             if ($orderedFrom) {
                 $from = Carbon::createFromFormat('Y-m-d H:i', $orderedFrom);
@@ -46,7 +47,8 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             try {
                 $from = Carbon::createFromFormat('Y-m-d', $orderedFrom)->startOfDay();
-            } catch (\Throwable $e2) {}
+            } catch (\Throwable $e2) {
+            }
         }
         try {
             if ($orderedTo) {
@@ -55,7 +57,8 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             try {
                 $to = Carbon::createFromFormat('Y-m-d', $orderedTo)->endOfDay();
-            } catch (\Throwable $e2) {}
+            } catch (\Throwable $e2) {
+            }
         }
 
         if ($from && $to) {
@@ -67,7 +70,7 @@ class OrderController extends Controller
         }
 
         $orders = $query
-            ->orderBy('created_at', 'desc')
+            ->orderBy('ordered_at', 'desc')
             ->paginate(10)
             ->withQueryString()
             ->through(function (Order $order) {
@@ -267,7 +270,7 @@ class OrderController extends Controller
                 'total' => $order->total,
                 'ordered_at' => $order->ordered_at?->format('d/m/Y H:i'),
                 'created_at' => $order->created_at->format('d/m/Y H:i'),
-                'items' => $order->items->map(function ($item) {
+                'items' => collect($order->items)->sortByDesc('id')->values()->map(function ($item) {
                     return [
                         'id' => $item->id,
                         'product_id' => $item->product_id,
@@ -276,7 +279,7 @@ class OrderController extends Controller
                         'quantity' => (float) $item->quantity,
                         'total' => (float) $item->total,
                     ];
-                }),
+                })->all(),
             ],
             'products' => Product::where('status', 'active')->select('id', 'name', 'code', 'price')->get(),
             'clients' => Client::where('status', 'active')->select('id', 'name')->get(),
@@ -509,7 +512,7 @@ class OrderController extends Controller
                 'updated_at' => $order->updated_at?->format('d/m/Y H:i'),
                 'created_by' => $order->createdBy?->name,
                 'updated_by' => $order->updatedBy?->name,
-                'items' => $order->items->map(function ($item) {
+                'items' => collect($order->items)->sortByDesc('id')->values()->map(function ($item) {
                     return [
                         'id' => $item->id,
                         'product_id' => $item->product_id,
@@ -519,7 +522,7 @@ class OrderController extends Controller
                         'quantity' => (float) $item->quantity,
                         'total' => (float) $item->total,
                     ];
-                }),
+                })->all(),
             ],
         ]);
     }

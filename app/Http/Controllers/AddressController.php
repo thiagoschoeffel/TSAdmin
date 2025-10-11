@@ -18,7 +18,7 @@ class AddressController extends Controller
         $this->authorize('manageAddresses', $client);
 
         return response()->json([
-            'addresses' => $client->addresses->map(function ($address) {
+            'addresses' => $client->addresses()->orderBy('id', 'desc')->get()->map(function ($address) {
                 return [
                     'id' => $address->id,
                     'description' => $address->description,
