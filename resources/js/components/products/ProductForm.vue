@@ -12,7 +12,7 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import DataTable from '@/components/DataTable.vue';
 import { formatPriceInput, initializePriceDisplay } from '@/utils/formatters';
 
@@ -53,9 +53,22 @@ const selectedProduct = ref(null);
 // Estado para confirmação de exclusão de componente
 const deleteComponentState = ref({ open: false, processing: false, componentIndex: null });
 
+// Refs para inputs
+const productInputRef = ref(null);
+const quantityInputRef = ref(null);
+
 // Inicializar quando o componente for montado
 onMounted(() => {
   // Preço agora é gerenciado pelo InputCurrency
+});
+
+// Watcher para focar no campo produto quando o formulário abrir
+watch(showAddForm, (isOpen) => {
+  if (isOpen) {
+    nextTick(() => {
+      productInputRef.value?.focus();
+    });
+  }
 });
 
 // Computed para produtos disponíveis (excluindo o produto atual e componentes já adicionados, exceto o que está sendo editado)
@@ -108,14 +121,12 @@ const handleProductKeydown = (e) => {
     e.preventDefault();
     if (selectedProduct.value) {
       // Produto já selecionado, foco no campo quantidade
-      nextTick(() => {
-        const quantityInput = document.querySelector('input[placeholder*="Quantidade"]');
-        if (quantityInput) quantityInput.focus();
-      });
+      quantityInputRef.value?.focus();
     } else if (productSuggestions.value.length > 0) {
       selectProduct(productSuggestions.value[0]);
     } else {
       e.target.blur();
+      nextTick(() => productInputRef.value?.focus());
     }
   }
 };
@@ -125,8 +136,7 @@ const selectProduct = (product) => {
   productInput.value = product.name;
   newComponent.value.id = product.id;
   nextTick(() => {
-    const quantityInput = document.querySelector('input[placeholder*="Quantidade"]');
-    if (quantityInput) quantityInput.focus();
+    quantityInputRef.value?.focus();
   });
 };
 
@@ -451,6 +461,7 @@ const handleComponentAction = ({ action, item }) => {
           <label class="form-label">
             Produto
             <InputText
+              ref="productInputRef"
               v-model="productInput"
               @input="handleProductInput"
               @change="handleProductInput"
@@ -470,7 +481,7 @@ const handleComponentAction = ({ action, item }) => {
           </label>
                     <label class="form-label">
             Quantidade
-            <InputNumber v-model="newComponent.quantity" :formatted="true" :precision="2" :min="0.01" :step="0.01" required :error="!!componentErrors.quantity" />
+            <InputNumber ref="quantityInputRef" v-model="newComponent.quantity" :formatted="true" :precision="2" :min="0.01" :step="0.01" required :error="!!componentErrors.quantity" />
             <span v-if="componentErrors.quantity" class="text-sm font-medium text-rose-600">{{ componentErrors.quantity }}</span>
           </label>
           <div class="flex items-end gap-2 sm:col-span-2">
