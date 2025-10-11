@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import Modal from '@/components/Modal.vue';
 import Badge from '@/components/Badge.vue';
 import Button from '@/components/Button.vue';
+import DataTable from '@/components/DataTable.vue';
 import { formatCurrency, formatQuantity } from '@/utils/formatters';
 
 const props = defineProps({
@@ -115,6 +116,34 @@ const updatedBy = computed(() => {
   if (payload.value?.updated_at === payload.value?.created_at) return 'Nunca atualizado';
   return payload.value?.updated_by ?? 'Conta removida';
 });
+
+// DataTable configuration for order items
+const itemColumns = [
+  {
+    header: 'Produto',
+    key: 'name'
+  },
+  {
+    header: 'Código',
+    key: 'code',
+    formatter: (value) => value || '—'
+  },
+  {
+    header: 'Preço unit.',
+    key: 'unit_price',
+    formatter: (value) => formatCurrency(value)
+  },
+  {
+    header: 'Quantidade',
+    key: 'quantity',
+    formatter: (value) => formatQuantity(value)
+  },
+  {
+    header: 'Total',
+    key: 'total',
+    formatter: (value) => formatCurrency(value)
+  }
+];
 </script>
 
 <template>
@@ -210,31 +239,11 @@ const updatedBy = computed(() => {
 
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-slate-900">Itens do pedido</h2>
-        <div class="table-wrapper">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Produto</th>
-                <th>Código</th>
-                <th>Preço unit.</th>
-                <th>Quantidade</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in payload.items" :key="item.id">
-                <td>{{ item.name }}</td>
-                <td>{{ item.code || '—' }}</td>
-                <td>{{ formatCurrency(item.unit_price) }}</td>
-                <td>{{ formatQuantity(item.quantity) }}</td>
-                <td>{{ formatCurrency(item.total) }}</td>
-              </tr>
-              <tr v-if="!payload.items || payload.items.length === 0">
-                <td colspan="5" class="table-empty">Nenhum item encontrado para este pedido.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          :columns="itemColumns"
+          :data="payload.items || []"
+          empty-message="Nenhum item encontrado para este pedido."
+        />
       </section>
 
       <section class="space-y-3">

@@ -4,13 +4,14 @@ import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, getCurrentInstance } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import ProductDetailsModal from '@/components/products/ProductDetailsModal.vue';
 import Badge from '@/components/Badge.vue';
+import DataTable from '@/components/DataTable.vue';
 
 const props = defineProps({
   products: { type: Object, required: true },
@@ -24,6 +25,10 @@ const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.pro
 const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.products?.update);
 const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.products?.delete);
 const canView = computed(() => isAdmin.value || !!user.value?.permissions?.products?.view);
+
+// Ziggy `route` helper from app globalProperties
+const instance = getCurrentInstance();
+const route = instance.appContext.config.globalProperties.route;
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
@@ -64,6 +69,76 @@ const performDelete = async () => {
 // Estado para modal de detalhes
 const details = ref({ open: false, productId: null });
 const openDetails = (product) => { details.value.productId = product.id; details.value.open = true; };
+
+// DataTable configuration
+const columns = [
+  {
+    header: 'Nome',
+    key: 'name',
+    component: 'button',
+    props: (product) => ({
+      type: 'button',
+      class: canView.value ? 'link' : 'text-slate-900',
+      onClick: () => openDetails(product)
+    })
+  },
+  {
+    header: 'Descrição',
+    key: 'description'
+  },
+  {
+    header: 'Preço',
+    key: 'price',
+    formatter: (value) => `R$ ${Number(value).toFixed(2)}`
+  },
+  {
+    header: 'Status',
+    key: 'status',
+    component: Badge,
+    props: (product) => ({
+      variant: product.status === 'active' ? 'success' : 'danger'
+    }),
+    formatter: (value) => value === 'active' ? 'Ativo' : 'Inativo'
+  }
+];
+
+const actions = computed(() => {
+  const acts = [];
+  if (canUpdate.value) {
+    acts.push({
+      key: 'edit',
+      label: 'Editar',
+      icon: 'pencil',
+      component: Link,
+      props: (product) => ({
+        href: route('products.edit', product.id),
+        class: 'menu-panel-link'
+      })
+    });
+  }
+  if (canDelete.value) {
+    acts.push({
+      key: 'delete',
+      label: 'Excluir',
+      icon: 'trash',
+      class: 'menu-panel-link text-rose-600 hover:text-rose-700'
+    });
+  }
+  if (acts.length === 0) {
+    acts.push({
+      key: 'no-actions',
+      label: 'Nenhuma ação disponível',
+      class: 'menu-panel-link pointer-events-none text-slate-400'
+    });
+  }
+  return acts;
+});
+
+const handleTableAction = ({ action, item }) => {
+  if (action.key === 'delete') {
+    confirmDelete(item);
+  }
+};
 </script>
 
 <template>
@@ -106,59 +181,13 @@ const openDetails = (product) => { details.value.productId = product.id; details
         </div>
       </form>
 
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Descrição</th>
-              <th>Preço</th>
-              <th>Status</th>
-              <th class="w-24 whitespace-nowrap">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="p in products.data" :key="p.id">
-              <td>
-                <button v-if="canView" type="button" class="link" @click="openDetails(p)">{{ p.name }}</button>
-                <span v-else class="text-slate-900">{{ p.name }}</span>
-              </td>
-              <td>{{ p.description }}</td>
-              <td>R$ {{ Number(p.price).toFixed(2) }}</td>
-              <td class="table-actions">
-                <Badge :variant="p.status === 'active' ? 'success' : 'danger'">
-                  {{ p.status === 'active' ? 'Ativo' : 'Inativo' }}
-                </Badge>
-              </td>
-              <td class="whitespace-nowrap">
-                <Dropdown>
-                  <template #trigger="{ toggle }">
-                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
-                      <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </Button>
-                  </template>
-                  <template #default="{ close }">
-                    <template v-if="canUpdate || canDelete">
-                      <Link v-if="canUpdate" class="menu-panel-link" :href="route('products.edit', p.id)">
-                        <HeroIcon name="pencil" class="h-4 w-4" />
-                        <span>Editar</span>
-                      </Link>
-                      <button v-if="canDelete" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(p); close()">
-                        <HeroIcon name="trash" class="h-4 w-4" />
-                        <span>Excluir</span>
-                      </button>
-                    </template>
-                    <span v-else class="menu-panel-link pointer-events-none text-slate-400">Nenhuma ação disponível</span>
-                  </template>
-                </Dropdown>
-              </td>
-            </tr>
-            <tr v-if="!products.data || products.data.length === 0">
-              <td colspan="5" class="table-empty text-center">Nenhum produto encontrado.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        :columns="columns"
+        :data="products.data"
+        :actions="actions"
+        empty-message="Nenhum produto encontrado."
+        @action="handleTableAction"
+      />
 
       <Pagination v-if="products && products.total" :paginator="products" />
     </section>
@@ -176,8 +205,4 @@ const openDetails = (product) => { details.value.productId = product.id; details
 </template>
 
 <style scoped>
-.table-wrapper { overflow:auto }
-.table { width:100%; border-collapse:separate; border-spacing:0; }
-.table th, .table td { padding:.75rem; border-bottom:1px solid #e2e8f0; }
-.table thead th { font-size:.875rem; font-weight:700; color:#334155 }
 </style>

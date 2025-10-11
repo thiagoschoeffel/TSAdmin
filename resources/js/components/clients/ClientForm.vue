@@ -12,6 +12,7 @@ import { useToasts } from '@/components/toast/useToasts.js';
 import { ref, computed, nextTick } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Badge from '@/components/Badge.vue';
+import DataTable from '@/components/DataTable.vue';
 import { formatDocument, formatPhone, formatPostalCode, digitsOnly } from '@/utils/masks.js';
 
 const page = usePage();
@@ -350,6 +351,58 @@ const hasAddressErrors = computed(() => {
     return addressErrors.length > 0;
   });
 });
+
+// DataTable configuration for addresses
+const addressColumns = [
+  {
+    header: 'Descrição',
+    key: 'description',
+    formatter: (value) => value || 'Sem descrição'
+  },
+  {
+    header: 'Endereço',
+    key: 'address',
+    formatter: (value, address) => `${address.address}, ${address.address_number}${address.address_complement ? ` - ${address.address_complement}` : ''}, ${address.neighborhood}, ${address.city}/${address.state}`
+  },
+  {
+    header: 'Status',
+    key: 'status',
+    component: Badge,
+    props: (address) => ({
+      variant: address.status === 'active' ? 'success' : 'danger'
+    }),
+    formatter: (value) => value === 'active' ? 'Ativo' : 'Inativo'
+  }
+];
+
+const addressActions = computed(() => {
+  return (address, index) => {
+    const acts = [];
+    if (canManageAddresses.value) {
+      acts.push({
+        key: 'edit',
+        label: 'Editar',
+        icon: 'pencil'
+      });
+      acts.push({
+        key: 'delete',
+        label: 'Excluir',
+        icon: 'trash',
+        class: 'text-rose-600 hover:text-rose-700'
+      });
+    }
+    return acts;
+  };
+});
+
+const handleAddressAction = ({ action, item }) => {
+  const index = props.form.addresses.indexOf(item);
+  if (action.key === 'edit') {
+    editAddress(index);
+  } else if (action.key === 'delete') {
+    confirmDeleteAddress(index);
+  }
+};
 </script>
 
 <template>
@@ -458,58 +511,13 @@ const hasAddressErrors = computed(() => {
       </div>
 
       <!-- Tabela de endereços -->
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Descrição</th>
-              <th>Endereço</th>
-              <th>Status</th>
-              <th class="w-24">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(address, index) in form.addresses" :key="address.id || index">
-              <td>
-                {{ address.description || 'Sem descrição' }}
-              </td>
-              <td>
-                {{ address.address }}, {{ address.address_number }}
-                <span v-if="address.address_complement"> - {{ address.address_complement }}</span>
-                <br>
-                <span class="text-slate-500">{{ address.neighborhood }}, {{ address.city }}/{{ address.state }}</span>
-              </td>
-              <td class="table-actions">
-                <Badge :variant="address.status === 'active' ? 'success' : 'danger'">
-                  {{ address.status === 'active' ? 'Ativo' : 'Inativo' }}
-                </Badge>
-              </td>
-              <td class="whitespace-nowrap">
-                <Dropdown>
-                  <template #trigger="{ toggle }">
-                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
-                      <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </Button>
-                  </template>
-                  <template #default="{ close }">
-                    <button v-if="canManageAddresses" type="button" class="menu-panel-link" @click="editAddress(index); close()">
-                      <HeroIcon name="pencil" class="h-4 w-4" />
-                      <span>Editar</span>
-                    </button>
-                    <button v-if="canManageAddresses" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDeleteAddress(index); close()">
-                      <HeroIcon name="trash" class="h-4 w-4" />
-                      <span>Excluir</span>
-                    </button>
-                  </template>
-                </Dropdown>
-              </td>
-            </tr>
-            <tr v-if="!form.addresses || form.addresses.length === 0">
-              <td colspan="4" class="table-empty">Nenhum endereço cadastrado para este cliente.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        :columns="addressColumns"
+        :data="form.addresses || []"
+        :actions="addressActions"
+        empty-message="Nenhum endereço cadastrado para este cliente."
+        @action="handleAddressAction"
+      />
 
       <!-- Botão para adicionar novo endereço -->
       <div v-if="!showAddForm && canManageAddresses" class="flex justify-center pt-4">
