@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Faker\Factory as Faker;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -23,14 +24,20 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = Faker::create('pt_BR');
+
+        // Gerar permissões variadas
+        $permissions = $this->generateRandomPermissions();
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'name' => $faker->name(),
+            'email' => $faker->unique()->safeEmail(),
+            'email_verified_at' => $faker->boolean(90) ? now() : null, // 10% não verificados
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'status' => fake()->randomElement(['active', 'inactive']),
+            'status' => $faker->randomElement(['active', 'inactive']),
             'role' => 'user',
+            'permissions' => $permissions,
         ];
     }
 
@@ -39,8 +46,28 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Generate random permissions for the user.
+     */
+    private function generateRandomPermissions(): array
+    {
+        $resources = ['clients', 'products', 'orders'];
+        $abilities = ['view', 'create', 'update', 'delete'];
+
+        $permissions = [];
+
+        foreach ($resources as $resource) {
+            $permissions[$resource] = [];
+            foreach ($abilities as $ability) {
+                $permissions[$resource][$ability] = fake()->boolean(70); // 70% chance de ter a permissão
+            }
+        }
+
+        return $permissions;
     }
 }

@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Client;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class ClientSeeder extends Seeder
+class ProductSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -20,11 +20,11 @@ class ClientSeeder extends Seeder
             $userIds = User::query()->pluck('id');
         }
 
-        Client::factory()
-            ->count(32)
+        Product::factory()
+            ->count(79)
             ->state(fn() => [
-                'created_by_id' => $userIds->random(),
-                'updated_by_id' => fake()->boolean(40) ? $userIds->random() : null,
+                'created_by' => $userIds->random(),
+                'updated_by' => fake()->boolean(40) ? $userIds->random() : null,
             ])
             ->create();
     }
