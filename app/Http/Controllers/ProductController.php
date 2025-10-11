@@ -19,10 +19,7 @@ class ProductController extends Controller
         $query = Product::with('components');
 
         if ($search = request('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
+            $query->where('name', 'like', "%{$search}%");
         }
 
         if ($status = request('status')) {

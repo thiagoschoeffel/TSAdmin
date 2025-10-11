@@ -83,10 +83,6 @@ const columns = [
     })
   },
   {
-    header: 'Descrição',
-    key: 'description'
-  },
-  {
     header: 'Preço',
     key: 'price',
     formatter: (value) => `R$ ${Number(value).toFixed(2)}`
@@ -183,7 +179,7 @@ const handleTableAction = ({ action, item }) => {
       <form @submit.prevent="submitFilters" class="space-y-4">
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label class="form-label">
-            Buscar por nome ou descrição
+            Buscar por nome
             <InputText v-model="search" placeholder="Digite para buscar" />
           </label>
           <label class="form-label">
