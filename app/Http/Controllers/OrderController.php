@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Http\Requests\StoreOrderRequest;
+use App\Http\Requests\UpdateOrderRequest;
+use App\Http\Requests\StoreOrderItemRequest;
+use App\Http\Requests\UpdateOrderItemRequest;
 
 class OrderController extends Controller
 {
@@ -162,19 +166,9 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
         $this->authorize('create', Order::class);
-
-        $request->validate([
-            'client_id' => 'nullable|exists:clients,id',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'payment_method' => 'nullable|string',
-            'delivery_type' => 'nullable|in:pickup,delivery',
-            'address_id' => 'nullable|exists:addresses,id',
-        ]);
 
         $order = Order::create([
             'client_id' => $request->client_id,
@@ -291,18 +285,10 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateOrderRequest $request, string $id)
     {
         $order = Order::findOrFail($id);
         $this->authorize('update', $order);
-
-        $request->validate([
-            'client_id' => 'nullable|exists:clients,id',
-            'status' => 'required|in:pending,confirmed,shipped,delivered,cancelled',
-            'payment_method' => 'nullable|string',
-            'delivery_type' => 'nullable|in:pickup,delivery',
-            'address_id' => 'nullable|exists:addresses,id',
-        ]);
 
         // Atualizar dados básicos do pedido
         $order->update([
@@ -338,14 +324,10 @@ class OrderController extends Controller
     /**
      * Update the quantity of a specific order item.
      */
-    public function updateItem(Request $request, string $orderId, string $itemId)
+    public function updateItem(UpdateOrderItemRequest $request, string $orderId, string $itemId)
     {
         $order = Order::findOrFail($orderId);
         $this->authorize('updateItem', $order);
-
-        $request->validate([
-            'quantity' => 'required|numeric|min:0.01|max:99999.99',
-        ]);
 
         $item = $order->items()->findOrFail($itemId);
 
@@ -411,15 +393,10 @@ class OrderController extends Controller
     /**
      * Add a new item to the order.
      */
-    public function addItem(Request $request, string $orderId)
+    public function addItem(StoreOrderItemRequest $request, string $orderId)
     {
         $order = Order::findOrFail($orderId);
         $this->authorize('addItem', $order);
-
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|numeric|min:0.01|max:99999.99',
-        ]);
 
         $product = Product::findOrFail($request->product_id);
 
