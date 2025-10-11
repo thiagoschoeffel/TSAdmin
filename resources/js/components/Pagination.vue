@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import Button from './Button.vue';
 
 const props = defineProps({
   paginator: { type: Object, required: true },
@@ -159,8 +160,8 @@ const filteredLinks = computed(() => {
 
     <div class="flex flex-wrap gap-2">
       <template v-for="link in filteredLinks" :key="link.url + link.label + (link._page ?? '')">
-        <span v-if="!link.url" class="px-3 py-2 text-sm text-slate-400" v-html="link.label" />
-        <Link v-else :href="link.url" class="px-3 py-2 text-sm font-semibold text-slate-600 bg-white hover:text-slate-800 hover:bg-slate-100 rounded transition" :class="{ 'text-blue-700 border border-blue-200': link.active }" v-html="link.label" preserve-scroll />
+        <span v-if="!link.url" class="px-3 py-2 text-sm text-gray-400" v-html="link.label" />
+        <Button v-else :variant="link.active ? 'primary' : 'outline'" size="md" :href="link.url" v-html="link.label" preserve-scroll />
       </template>
     </div>
   </nav>
@@ -173,59 +174,31 @@ const filteredLinks = computed(() => {
     </div>
 
     <div class="flex items-center gap-2 pagination-controls">
-      <Link v-if="meta.current > 1" :href="pageHref(meta.current - 1)" class="page-btn">‹</Link>
-      <span v-else class="page-btn disabled">‹</span>
+      <Button v-if="meta.current > 1" variant="outline" size="sm" :href="pageHref(meta.current - 1)">‹</Button>
+      <Button v-else variant="ghost" size="sm" disabled>‹</Button>
 
       <!-- first page -->
-      <Link :href="pageHref(1)" :class="['page-square', meta.current === 1 ? 'active' : '']">1</Link>
+      <Button :variant="meta.current === 1 ? 'primary' : 'outline'" size="md" :href="pageHref(1)" :disabled="meta.current === 1">1</Button>
 
       <!-- left ellipsis -->
       <span v-if="needsLeftEllipsis()" class="px-2 text-slate-400">…</span>
 
       <!-- middle pages -->
       <template v-for="p in middlePages" :key="p">
-        <Link v-if="meta.current !== p" :href="pageHref(p)" :class="['page-square', meta.current === p ? 'active' : '']">{{ p }}</Link>
-        <span v-else class="page-square active">{{ p }}</span>
+        <Button v-if="meta.current !== p" variant="outline" size="md" :href="pageHref(p)">{{ p }}</Button>
+        <Button v-else variant="primary" size="md" disabled>{{ p }}</Button>
       </template>
 
       <!-- right ellipsis -->
       <span v-if="needsRightEllipsis()" class="px-2 text-slate-400">…</span>
 
       <!-- last page (only render if more than 1) -->
-      <Link v-if="meta.last > 1" :href="pageHref(meta.last)" :class="['page-square', meta.current === meta.last ? 'active' : '']">{{ meta.last }}</Link>
+      <Button v-if="meta.last > 1" :variant="meta.current === meta.last ? 'primary' : 'outline'" size="md" :href="pageHref(meta.last)" :disabled="meta.current === meta.last">{{ meta.last }}</Button>
 
-      <Link v-if="meta.current < meta.last" :href="pageHref(meta.current + 1)" class="page-btn">›</Link>
-      <span v-else class="page-btn disabled">›</span>
+      <Button v-if="meta.current < meta.last" variant="outline" size="sm" :href="pageHref(meta.current + 1)">›</Button>
+      <Button v-else variant="ghost" size="sm" disabled>›</Button>
     </div>
   </nav>
 </template>
 
-<style scoped>
-.pagination-controls { /* ensure controls don't wrap awkwardly */ }
-.page-square, .page-btn {
-  width: 40px;
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #cbd5e1; /* same as .form-input */
-  border-radius: 0.5rem;
-  background: #fff;
-  color: #0f172a;
-  font-weight: 600;
-  text-decoration: none;
-}
-.page-square.active {
-  background: #f1f5f9; /* subtle active bg similar to inputs focus */
-  color: #0f172a;
-  border-color: #cbd5e1;
-}
-.page-btn {
-  width: 36px; /* slightly smaller for arrows */
-  height: 36px;
-}
-.page-btn.disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-</style>
+

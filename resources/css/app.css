@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
@@ -61,8 +60,6 @@
     .status-danger {
         @apply border-rose-100 bg-rose-50 text-rose-700;
     }
-
-    
 
     .table-actions {
         @apply relative;
