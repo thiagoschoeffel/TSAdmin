@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /home/thiagoscrn/Documents/Workspace/TSAdmin/app</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="index.html">/home/thiagoscrn/Documents/Workspace/TSAdmin/app</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Console/Commands/UpdateExistingOrdersWithUserIds.php.html#8">App\Console\Commands\UpdateExistingOrdersWithUserIds</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/AddressController.php.html#14">App\Http\Controllers\AddressController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/AuthenticatedSessionController.php.html#14">App\Http\Controllers\Auth\AuthenticatedSessionController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/PasswordResetController.php.html#15">App\Http\Controllers\Auth\PasswordResetController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/RegisteredUserController.php.html#15">App\Http\Controllers\Auth\RegisteredUserController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/VerificationController.php.html#13">App\Http\Controllers\Auth\VerificationController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#16">App\Http\Controllers\ClientController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/DashboardController.php.html#14">App\Http\Controllers\DashboardController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#21">App\Http\Controllers\OrderController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#13">App\Http\Controllers\ProductComponentController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#15">App\Http\Controllers\ProductController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProfileController.php.html#13">App\Http\Controllers\ProfileController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#16">App\Http\Controllers\UserManagementController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/Authenticate.php.html#8">App\Http\Middleware\Authenticate</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/CheckPolicy.php.html#9">App\Http\Middleware\CheckPolicy</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/EnsureUserIsAdmin.php.html#10">App\Http\Middleware\EnsureUserIsAdmin</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/HandleInertiaRequests.php.html#8">App\Http\Middleware\HandleInertiaRequests</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/RedirectIfAuthenticated.php.html#10">App\Http\Middleware\RedirectIfAuthenticated</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/ForgotPasswordRequest.php.html#7">App\Http\Requests\ForgotPasswordRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/LoginRequest.php.html#7">App\Http\Requests\LoginRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/RegisterUserRequest.php.html#8">App\Http\Requests\RegisterUserRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/ResetPasswordRequest.php.html#7">App\Http\Requests\ResetPasswordRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreAddressRequest.php.html#7">App\Http\Requests\StoreAddressRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreClientRequest.php.html#8">App\Http\Requests\StoreClientRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreOrderItemRequest.php.html#7">App\Http\Requests\StoreOrderItemRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreOrderRequest.php.html#7">App\Http\Requests\StoreOrderRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductComponentRequest.php.html#7">App\Http\Requests\StoreProductComponentRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductRequest.php.html#7">App\Http\Requests\StoreProductRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreUserRequest.php.html#8">App\Http\Requests\StoreUserRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateAddressRequest.php.html#7">App\Http\Requests\UpdateAddressRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateClientRequest.php.html#8">App\Http\Requests\UpdateClientRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateOrderItemRequest.php.html#7">App\Http\Requests\UpdateOrderItemRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateOrderRequest.php.html#7">App\Http\Requests\UpdateOrderRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProductComponentRequest.php.html#7">App\Http\Requests\UpdateProductComponentRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProductRequest.php.html#7">App\Http\Requests\UpdateProductRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProfileRequest.php.html#9">App\Http\Requests\UpdateProfileRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateUserRequest.php.html#9">App\Http\Requests\UpdateUserRequest</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Notifications/VerifyEmailNotification.php.html#10">App\Notifications\VerifyEmailNotification</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#8">App\Policies\AddressPolicy</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#8">App\Policies\ClientPolicy</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#8">App\Policies\OrderPolicy</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#8">App\Policies\ProductPolicy</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#7">App\Policies\UserPolicy</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Rules/UserHasNoClients.php.html#10">App\Rules\UserHasNoClients</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#12">App\View\Components\Heroicon</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Providers/AppServiceProvider.php.html#13">App\Providers\AppServiceProvider</a></td><td class="text-right">31%</td></tr>
+       <tr><td><a href="Models/User.php.html#11">App\Models\User</a></td><td class="text-right">85%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#21">App\Http\Controllers\OrderController</a></td><td class="text-right">1122</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#8">App\Policies\ClientPolicy</a></td><td class="text-right">600</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#8">App\Policies\OrderPolicy</a></td><td class="text-right">600</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#8">App\Policies\ProductPolicy</a></td><td class="text-right">600</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#16">App\Http\Controllers\UserManagementController</a></td><td class="text-right">506</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#12">App\View\Components\Heroicon</a></td><td class="text-right">506</td></tr>
+       <tr><td><a href="Providers/AppServiceProvider.php.html#13">App\Providers\AppServiceProvider</a></td><td class="text-right">285</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#16">App\Http\Controllers\ClientController</a></td><td class="text-right">272</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#8">App\Policies\AddressPolicy</a></td><td class="text-right">272</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#15">App\Http\Controllers\ProductController</a></td><td class="text-right">210</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/VerificationController.php.html#13">App\Http\Controllers\Auth\VerificationController</a></td><td class="text-right">182</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#13">App\Http\Controllers\ProductComponentController</a></td><td class="text-right">182</td></tr>
+       <tr><td><a href="Http/Middleware/CheckPolicy.php.html#9">App\Http\Middleware\CheckPolicy</a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="Http/Requests/StoreClientRequest.php.html#8">App\Http\Requests\StoreClientRequest</a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="Http/Requests/UpdateClientRequest.php.html#8">App\Http\Requests\UpdateClientRequest</a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#7">App\Policies\UserPolicy</a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="Console/Commands/UpdateExistingOrdersWithUserIds.php.html#8">App\Console\Commands\UpdateExistingOrdersWithUserIds</a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/AuthenticatedSessionController.php.html#14">App\Http\Controllers\Auth\AuthenticatedSessionController</a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/PasswordResetController.php.html#15">App\Http\Controllers\Auth\PasswordResetController</a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductRequest.php.html#7">App\Http\Requests\StoreProductRequest</a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Http/Controllers/ProfileController.php.html#13">App\Http\Controllers\ProfileController</a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="Http/Middleware/RedirectIfAuthenticated.php.html#10">App\Http\Middleware\RedirectIfAuthenticated</a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/RegisteredUserController.php.html#15">App\Http\Controllers\Auth\RegisteredUserController</a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/DashboardController.php.html#14">App\Http\Controllers\DashboardController</a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Middleware/EnsureUserIsAdmin.php.html#10">App\Http\Middleware\EnsureUserIsAdmin</a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Middleware/HandleInertiaRequests.php.html#8">App\Http\Middleware\HandleInertiaRequests</a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Rules/UserHasNoClients.php.html#10">App\Rules\UserHasNoClients</a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Middleware/Authenticate.php.html#8">App\Http\Middleware\Authenticate</a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Console/Commands/UpdateExistingOrdersWithUserIds.php.html#27"><abbr title="App\Console\Commands\UpdateExistingOrdersWithUserIds::handle">handle</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/AddressController.php.html#16"><abbr title="App\Http\Controllers\AddressController::index">index</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/AddressController.php.html#42"><abbr title="App\Http\Controllers\AddressController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/AddressController.php.html#71"><abbr title="App\Http\Controllers\AddressController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/AddressController.php.html#102"><abbr title="App\Http\Controllers\AddressController::destroy">destroy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/AuthenticatedSessionController.php.html#16"><abbr title="App\Http\Controllers\Auth\AuthenticatedSessionController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/AuthenticatedSessionController.php.html#25"><abbr title="App\Http\Controllers\Auth\AuthenticatedSessionController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/AuthenticatedSessionController.php.html#55"><abbr title="App\Http\Controllers\Auth\AuthenticatedSessionController::destroy">destroy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/PasswordResetController.php.html#17"><abbr title="App\Http\Controllers\Auth\PasswordResetController::request">request</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/PasswordResetController.php.html#22"><abbr title="App\Http\Controllers\Auth\PasswordResetController::email">email</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/PasswordResetController.php.html#35"><abbr title="App\Http\Controllers\Auth\PasswordResetController::resetForm">resetForm</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/PasswordResetController.php.html#40"><abbr title="App\Http\Controllers\Auth\PasswordResetController::reset">reset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/RegisteredUserController.php.html#17"><abbr title="App\Http\Controllers\Auth\RegisteredUserController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/RegisteredUserController.php.html#26"><abbr title="App\Http\Controllers\Auth\RegisteredUserController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/VerificationController.php.html#15"><abbr title="App\Http\Controllers\Auth\VerificationController::notice">notice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/VerificationController.php.html#43"><abbr title="App\Http\Controllers\Auth\VerificationController::resend">resend</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/VerificationController.php.html#58"><abbr title="App\Http\Controllers\Auth\VerificationController::verify">verify</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#18"><abbr title="App\Http\Controllers\ClientController::index">index</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#71"><abbr title="App\Http\Controllers\ClientController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#108"><abbr title="App\Http\Controllers\ClientController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#132"><abbr title="App\Http\Controllers\ClientController::modal">modal</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#176"><abbr title="App\Http\Controllers\ClientController::edit">edit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#240"><abbr title="App\Http\Controllers\ClientController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#258"><abbr title="App\Http\Controllers\ClientController::destroy">destroy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#268"><abbr title="App\Http\Controllers\ClientController::preparePayload">preparePayload</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/DashboardController.php.html#16"><abbr title="App\Http\Controllers\DashboardController::__invoke">__invoke</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/DashboardController.php.html#32"><abbr title="App\Http\Controllers\DashboardController::getSalesDataForLast30Days">getSalesDataForLast30Days</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#26"><abbr title="App\Http\Controllers\OrderController::index">index</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#122"><abbr title="App\Http\Controllers\OrderController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#169"><abbr title="App\Http\Controllers\OrderController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#202"><abbr title="App\Http\Controllers\OrderController::show">show</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#210"><abbr title="App\Http\Controllers\OrderController::edit">edit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#288"><abbr title="App\Http\Controllers\OrderController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#310"><abbr title="App\Http\Controllers\OrderController::destroy">destroy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#327"><abbr title="App\Http\Controllers\OrderController::updateItem">updateItem</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#372"><abbr title="App\Http\Controllers\OrderController::removeItem">removeItem</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#396"><abbr title="App\Http\Controllers\OrderController::addItem">addItem</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#456"><abbr title="App\Http\Controllers\OrderController::modal">modal</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#15"><abbr title="App\Http\Controllers\ProductComponentController::index">index</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#37"><abbr title="App\Http\Controllers\ProductComponentController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#83"><abbr title="App\Http\Controllers\ProductComponentController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#112"><abbr title="App\Http\Controllers\ProductComponentController::destroy">destroy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#121"><abbr title="App\Http\Controllers\ProductComponentController::hasCircularDependency">hasCircularDependency</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#17"><abbr title="App\Http\Controllers\ProductController::index">index</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#37"><abbr title="App\Http\Controllers\ProductController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#45"><abbr title="App\Http\Controllers\ProductController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#69"><abbr title="App\Http\Controllers\ProductController::edit">edit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#80"><abbr title="App\Http\Controllers\ProductController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#106"><abbr title="App\Http\Controllers\ProductController::destroy">destroy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#113"><abbr title="App\Http\Controllers\ProductController::modal">modal</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#154"><abbr title="App\Http\Controllers\ProductController::buildComponentTree">buildComponentTree</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProfileController.php.html#15"><abbr title="App\Http\Controllers\ProfileController::edit">edit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProfileController.php.html#22"><abbr title="App\Http\Controllers\ProfileController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/ProfileController.php.html#39"><abbr title="App\Http\Controllers\ProfileController::destroy">destroy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#18"><abbr title="App\Http\Controllers\UserManagementController::index">index</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#59"><abbr title="App\Http\Controllers\UserManagementController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#68"><abbr title="App\Http\Controllers\UserManagementController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#90"><abbr title="App\Http\Controllers\UserManagementController::edit">edit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#108"><abbr title="App\Http\Controllers\UserManagementController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#140"><abbr title="App\Http\Controllers\UserManagementController::destroy">destroy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#157"><abbr title="App\Http\Controllers\UserManagementController::modal">modal</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#176"><abbr title="App\Http\Controllers\UserManagementController::ensureNotCurrentUser">ensureNotCurrentUser</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#183"><abbr title="App\Http\Controllers\UserManagementController::preparePermissions">preparePermissions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#204"><abbr title="App\Http\Controllers\UserManagementController::allPermissionsMatrix">allPermissionsMatrix</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/Authenticate.php.html#10"><abbr title="App\Http\Middleware\Authenticate::redirectTo">redirectTo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/CheckPolicy.php.html#16"><abbr title="App\Http\Middleware\CheckPolicy::handle">handle</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/CheckPolicy.php.html#44"><abbr title="App\Http\Middleware\CheckPolicy::getRouteModel">getRouteModel</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/EnsureUserIsAdmin.php.html#12"><abbr title="App\Http\Middleware\EnsureUserIsAdmin::handle">handle</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/HandleInertiaRequests.php.html#12"><abbr title="App\Http\Middleware\HandleInertiaRequests::version">version</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/HandleInertiaRequests.php.html#17"><abbr title="App\Http\Middleware\HandleInertiaRequests::share">share</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/RedirectIfAuthenticated.php.html#15"><abbr title="App\Http\Middleware\RedirectIfAuthenticated::handle">handle</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/ForgotPasswordRequest.php.html#9"><abbr title="App\Http\Requests\ForgotPasswordRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/ForgotPasswordRequest.php.html#14"><abbr title="App\Http\Requests\ForgotPasswordRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/LoginRequest.php.html#9"><abbr title="App\Http\Requests\LoginRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/LoginRequest.php.html#14"><abbr title="App\Http\Requests\LoginRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/RegisterUserRequest.php.html#10"><abbr title="App\Http\Requests\RegisterUserRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/RegisterUserRequest.php.html#15"><abbr title="App\Http\Requests\RegisterUserRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/ResetPasswordRequest.php.html#9"><abbr title="App\Http\Requests\ResetPasswordRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/ResetPasswordRequest.php.html#14"><abbr title="App\Http\Requests\ResetPasswordRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreAddressRequest.php.html#12"><abbr title="App\Http\Requests\StoreAddressRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreAddressRequest.php.html#24"><abbr title="App\Http\Requests\StoreAddressRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreClientRequest.php.html#10"><abbr title="App\Http\Requests\StoreClientRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreClientRequest.php.html#15"><abbr title="App\Http\Requests\StoreClientRequest::prepareForValidation">prepareForValidation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreClientRequest.php.html#24"><abbr title="App\Http\Requests\StoreClientRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreClientRequest.php.html#46"><abbr title="App\Http\Requests\StoreClientRequest::sanitiseDigits">sanitiseDigits</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreOrderItemRequest.php.html#12"><abbr title="App\Http\Requests\StoreOrderItemRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreOrderItemRequest.php.html#23"><abbr title="App\Http\Requests\StoreOrderItemRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreOrderRequest.php.html#12"><abbr title="App\Http\Requests\StoreOrderRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreOrderRequest.php.html#22"><abbr title="App\Http\Requests\StoreOrderRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductComponentRequest.php.html#12"><abbr title="App\Http\Requests\StoreProductComponentRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductComponentRequest.php.html#23"><abbr title="App\Http\Requests\StoreProductComponentRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductRequest.php.html#12"><abbr title="App\Http\Requests\StoreProductRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductRequest.php.html#17"><abbr title="App\Http\Requests\StoreProductRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductRequest.php.html#35"><abbr title="App\Http\Requests\StoreProductRequest::withValidator">withValidator</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductRequest.php.html#54"><abbr title="App\Http\Requests\StoreProductRequest::hasCircularDependency">hasCircularDependency</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreUserRequest.php.html#10"><abbr title="App\Http\Requests\StoreUserRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/StoreUserRequest.php.html#15"><abbr title="App\Http\Requests\StoreUserRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateAddressRequest.php.html#12"><abbr title="App\Http\Requests\UpdateAddressRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateAddressRequest.php.html#19"><abbr title="App\Http\Requests\UpdateAddressRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateClientRequest.php.html#10"><abbr title="App\Http\Requests\UpdateClientRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateClientRequest.php.html#15"><abbr title="App\Http\Requests\UpdateClientRequest::prepareForValidation">prepareForValidation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateClientRequest.php.html#24"><abbr title="App\Http\Requests\UpdateClientRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateClientRequest.php.html#47"><abbr title="App\Http\Requests\UpdateClientRequest::sanitiseDigits">sanitiseDigits</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateOrderItemRequest.php.html#12"><abbr title="App\Http\Requests\UpdateOrderItemRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateOrderItemRequest.php.html#23"><abbr title="App\Http\Requests\UpdateOrderItemRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateOrderRequest.php.html#12"><abbr title="App\Http\Requests\UpdateOrderRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateOrderRequest.php.html#23"><abbr title="App\Http\Requests\UpdateOrderRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProductComponentRequest.php.html#12"><abbr title="App\Http\Requests\UpdateProductComponentRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProductComponentRequest.php.html#23"><abbr title="App\Http\Requests\UpdateProductComponentRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProductRequest.php.html#9"><abbr title="App\Http\Requests\UpdateProductRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProductRequest.php.html#15"><abbr title="App\Http\Requests\UpdateProductRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProfileRequest.php.html#11"><abbr title="App\Http\Requests\UpdateProfileRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateProfileRequest.php.html#16"><abbr title="App\Http\Requests\UpdateProfileRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateUserRequest.php.html#11"><abbr title="App\Http\Requests\UpdateUserRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Requests/UpdateUserRequest.php.html#16"><abbr title="App\Http\Requests\UpdateUserRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Models/User.php.html#62"><abbr title="App\Models\User::sendEmailVerificationNotification">sendEmailVerificationNotification</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Notifications/VerifyEmailNotification.php.html#14"><abbr title="App\Notifications\VerifyEmailNotification::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Notifications/VerifyEmailNotification.php.html#19"><abbr title="App\Notifications\VerifyEmailNotification::via">via</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Notifications/VerifyEmailNotification.php.html#24"><abbr title="App\Notifications\VerifyEmailNotification::toMail">toMail</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#13"><abbr title="App\Policies\AddressPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#26"><abbr title="App\Policies\AddressPolicy::view">view</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#39"><abbr title="App\Policies\AddressPolicy::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#52"><abbr title="App\Policies\AddressPolicy::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#65"><abbr title="App\Policies\AddressPolicy::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#78"><abbr title="App\Policies\AddressPolicy::restore">restore</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#91"><abbr title="App\Policies\AddressPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#13"><abbr title="App\Policies\ClientPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#26"><abbr title="App\Policies\ClientPolicy::view">view</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#39"><abbr title="App\Policies\ClientPolicy::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#52"><abbr title="App\Policies\ClientPolicy::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#65"><abbr title="App\Policies\ClientPolicy::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#78"><abbr title="App\Policies\ClientPolicy::restore">restore</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#91"><abbr title="App\Policies\ClientPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#104"><abbr title="App\Policies\ClientPolicy::manageAddresses">manageAddresses</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#117"><abbr title="App\Policies\ClientPolicy::createAddress">createAddress</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#130"><abbr title="App\Policies\ClientPolicy::updateAddress">updateAddress</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#143"><abbr title="App\Policies\ClientPolicy::deleteAddress">deleteAddress</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#13"><abbr title="App\Policies\OrderPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#26"><abbr title="App\Policies\OrderPolicy::view">view</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#39"><abbr title="App\Policies\OrderPolicy::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#52"><abbr title="App\Policies\OrderPolicy::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#65"><abbr title="App\Policies\OrderPolicy::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#78"><abbr title="App\Policies\OrderPolicy::restore">restore</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#91"><abbr title="App\Policies\OrderPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#104"><abbr title="App\Policies\OrderPolicy::manageItems">manageItems</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#117"><abbr title="App\Policies\OrderPolicy::addItem">addItem</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#130"><abbr title="App\Policies\OrderPolicy::updateItem">updateItem</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#143"><abbr title="App\Policies\OrderPolicy::removeItem">removeItem</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#13"><abbr title="App\Policies\ProductPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#26"><abbr title="App\Policies\ProductPolicy::view">view</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#39"><abbr title="App\Policies\ProductPolicy::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#52"><abbr title="App\Policies\ProductPolicy::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#65"><abbr title="App\Policies\ProductPolicy::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#78"><abbr title="App\Policies\ProductPolicy::restore">restore</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#91"><abbr title="App\Policies\ProductPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#104"><abbr title="App\Policies\ProductPolicy::manageComponents">manageComponents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#117"><abbr title="App\Policies\ProductPolicy::createComponent">createComponent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#130"><abbr title="App\Policies\ProductPolicy::updateComponent">updateComponent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#143"><abbr title="App\Policies\ProductPolicy::deleteComponent">deleteComponent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#12"><abbr title="App\Policies\UserPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#20"><abbr title="App\Policies\UserPolicy::view">view</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#28"><abbr title="App\Policies\UserPolicy::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#36"><abbr title="App\Policies\UserPolicy::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#45"><abbr title="App\Policies\UserPolicy::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#54"><abbr title="App\Policies\UserPolicy::restore">restore</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#62"><abbr title="App\Policies\UserPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Rules/UserHasNoClients.php.html#14"><abbr title="App\Rules\UserHasNoClients::setData">setData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Rules/UserHasNoClients.php.html#21"><abbr title="App\Rules\UserHasNoClients::validate">validate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#24"><abbr title="App\View\Components\Heroicon::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#33"><abbr title="App\View\Components\Heroicon::render">render</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#49"><abbr title="App\View\Components\Heroicon::mergeAttributes">mergeAttributes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#73"><abbr title="App\View\Components\Heroicon::sizeClass">sizeClass</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#86"><abbr title="App\View\Components\Heroicon::resolveVariant">resolveVariant</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#95"><abbr title="App\View\Components\Heroicon::loadSvg">loadSvg</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#106"><abbr title="App\View\Components\Heroicon::applyAttributes">applyAttributes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Providers/AppServiceProvider.php.html#32"><abbr title="App\Providers\AppServiceProvider::registerInertiaExceptionHandlers">registerInertiaExceptionHandlers</abbr></a></td><td class="text-right">28%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Providers/AppServiceProvider.php.html#32"><abbr title="App\Providers\AppServiceProvider::registerInertiaExceptionHandlers">registerInertiaExceptionHandlers</abbr></a></td><td class="text-right">272</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#26"><abbr title="App\Http\Controllers\OrderController::index">index</abbr></a></td><td class="text-right">210</td></tr>
+       <tr><td><a href="Console/Commands/UpdateExistingOrdersWithUserIds.php.html#27"><abbr title="App\Console\Commands\UpdateExistingOrdersWithUserIds::handle">handle</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/VerificationController.php.html#15"><abbr title="App\Http\Controllers\Auth\VerificationController::notice">notice</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#121"><abbr title="App\Http\Controllers\ProductComponentController::hasCircularDependency">hasCircularDependency</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Http/Middleware/CheckPolicy.php.html#16"><abbr title="App\Http\Middleware\CheckPolicy::handle">handle</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Http/Requests/StoreClientRequest.php.html#24"><abbr title="App\Http\Requests\StoreClientRequest::rules">rules</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Http/Requests/UpdateClientRequest.php.html#24"><abbr title="App\Http\Requests\UpdateClientRequest::rules">rules</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#49"><abbr title="App\View\Components\Heroicon::mergeAttributes">mergeAttributes</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/VerificationController.php.html#58"><abbr title="App\Http\Controllers\Auth\VerificationController::verify">verify</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#18"><abbr title="App\Http\Controllers\ClientController::index">index</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#183"><abbr title="App\Http\Controllers\UserManagementController::preparePermissions">preparePermissions</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/AuthenticatedSessionController.php.html#25"><abbr title="App\Http\Controllers\Auth\AuthenticatedSessionController::store">store</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#268"><abbr title="App\Http\Controllers\ClientController::preparePayload">preparePayload</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="Http/Controllers/ProductComponentController.php.html#37"><abbr title="App\Http\Controllers\ProductComponentController::store">store</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="Http/Middleware/CheckPolicy.php.html#44"><abbr title="App\Http\Middleware\CheckPolicy::getRouteModel">getRouteModel</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="Http/Middleware/RedirectIfAuthenticated.php.html#15"><abbr title="App\Http\Middleware\RedirectIfAuthenticated::handle">handle</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#86"><abbr title="App\View\Components\Heroicon::resolveVariant">resolveVariant</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#106"><abbr title="App\View\Components\Heroicon::applyAttributes">applyAttributes</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#169"><abbr title="App\Http\Controllers\OrderController::store">store</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#210"><abbr title="App\Http\Controllers\OrderController::edit">edit</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#456"><abbr title="App\Http\Controllers\OrderController::modal">modal</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#17"><abbr title="App\Http\Controllers\ProductController::index">index</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#154"><abbr title="App\Http\Controllers\ProductController::buildComponentTree">buildComponentTree</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#18"><abbr title="App\Http\Controllers\UserManagementController::index">index</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#108"><abbr title="App\Http\Controllers\UserManagementController::update">update</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#176"><abbr title="App\Http\Controllers\UserManagementController::ensureNotCurrentUser">ensureNotCurrentUser</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/UserManagementController.php.html#204"><abbr title="App\Http\Controllers\UserManagementController::allPermissionsMatrix">allPermissionsMatrix</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Middleware/EnsureUserIsAdmin.php.html#12"><abbr title="App\Http\Middleware\EnsureUserIsAdmin::handle">handle</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Requests/StoreProductRequest.php.html#35"><abbr title="App\Http\Requests\StoreProductRequest::withValidator">withValidator</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#39"><abbr title="App\Policies\AddressPolicy::create">create</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#65"><abbr title="App\Policies\AddressPolicy::delete">delete</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#117"><abbr title="App\Policies\ClientPolicy::createAddress">createAddress</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#143"><abbr title="App\Policies\ClientPolicy::deleteAddress">deleteAddress</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#117"><abbr title="App\Policies\OrderPolicy::addItem">addItem</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#143"><abbr title="App\Policies\OrderPolicy::removeItem">removeItem</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#117"><abbr title="App\Policies\ProductPolicy::createComponent">createComponent</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#143"><abbr title="App\Policies\ProductPolicy::deleteComponent">deleteComponent</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#73"><abbr title="App\View\Components\Heroicon::sizeClass">sizeClass</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/AuthenticatedSessionController.php.html#16"><abbr title="App\Http\Controllers\Auth\AuthenticatedSessionController::create">create</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/PasswordResetController.php.html#22"><abbr title="App\Http\Controllers\Auth\PasswordResetController::email">email</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/PasswordResetController.php.html#40"><abbr title="App\Http\Controllers\Auth\PasswordResetController::reset">reset</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/RegisteredUserController.php.html#17"><abbr title="App\Http\Controllers\Auth\RegisteredUserController::create">create</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/Auth/VerificationController.php.html#43"><abbr title="App\Http\Controllers\Auth\VerificationController::resend">resend</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/ClientController.php.html#108"><abbr title="App\Http\Controllers\ClientController::store">store</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/DashboardController.php.html#32"><abbr title="App\Http\Controllers\DashboardController::getSalesDataForLast30Days">getSalesDataForLast30Days</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#122"><abbr title="App\Http\Controllers\OrderController::create">create</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#288"><abbr title="App\Http\Controllers\OrderController::update">update</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/OrderController.php.html#396"><abbr title="App\Http\Controllers\OrderController::addItem">addItem</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#45"><abbr title="App\Http\Controllers\ProductController::store">store</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/ProductController.php.html#80"><abbr title="App\Http\Controllers\ProductController::update">update</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/ProfileController.php.html#22"><abbr title="App\Http\Controllers\ProfileController::update">update</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Controllers/ProfileController.php.html#39"><abbr title="App\Http\Controllers\ProfileController::destroy">destroy</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Middleware/Authenticate.php.html#10"><abbr title="App\Http\Middleware\Authenticate::redirectTo">redirectTo</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Middleware/HandleInertiaRequests.php.html#17"><abbr title="App\Http\Middleware\HandleInertiaRequests::share">share</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Requests/StoreClientRequest.php.html#46"><abbr title="App\Http\Requests\StoreClientRequest::sanitiseDigits">sanitiseDigits</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Http/Requests/UpdateClientRequest.php.html#47"><abbr title="App\Http\Requests\UpdateClientRequest::sanitiseDigits">sanitiseDigits</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#13"><abbr title="App\Policies\AddressPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#26"><abbr title="App\Policies\AddressPolicy::view">view</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#52"><abbr title="App\Policies\AddressPolicy::update">update</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#78"><abbr title="App\Policies\AddressPolicy::restore">restore</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/AddressPolicy.php.html#91"><abbr title="App\Policies\AddressPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#13"><abbr title="App\Policies\ClientPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#26"><abbr title="App\Policies\ClientPolicy::view">view</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#39"><abbr title="App\Policies\ClientPolicy::create">create</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#52"><abbr title="App\Policies\ClientPolicy::update">update</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#65"><abbr title="App\Policies\ClientPolicy::delete">delete</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#78"><abbr title="App\Policies\ClientPolicy::restore">restore</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#91"><abbr title="App\Policies\ClientPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#104"><abbr title="App\Policies\ClientPolicy::manageAddresses">manageAddresses</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ClientPolicy.php.html#130"><abbr title="App\Policies\ClientPolicy::updateAddress">updateAddress</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#13"><abbr title="App\Policies\OrderPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#26"><abbr title="App\Policies\OrderPolicy::view">view</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#39"><abbr title="App\Policies\OrderPolicy::create">create</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#52"><abbr title="App\Policies\OrderPolicy::update">update</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#65"><abbr title="App\Policies\OrderPolicy::delete">delete</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#78"><abbr title="App\Policies\OrderPolicy::restore">restore</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#91"><abbr title="App\Policies\OrderPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#104"><abbr title="App\Policies\OrderPolicy::manageItems">manageItems</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/OrderPolicy.php.html#130"><abbr title="App\Policies\OrderPolicy::updateItem">updateItem</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#13"><abbr title="App\Policies\ProductPolicy::viewAny">viewAny</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#26"><abbr title="App\Policies\ProductPolicy::view">view</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#39"><abbr title="App\Policies\ProductPolicy::create">create</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#52"><abbr title="App\Policies\ProductPolicy::update">update</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#65"><abbr title="App\Policies\ProductPolicy::delete">delete</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#78"><abbr title="App\Policies\ProductPolicy::restore">restore</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#91"><abbr title="App\Policies\ProductPolicy::forceDelete">forceDelete</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#104"><abbr title="App\Policies\ProductPolicy::manageComponents">manageComponents</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/ProductPolicy.php.html#130"><abbr title="App\Policies\ProductPolicy::updateComponent">updateComponent</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#36"><abbr title="App\Policies\UserPolicy::update">update</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Policies/UserPolicy.php.html#45"><abbr title="App\Policies\UserPolicy::delete">delete</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Rules/UserHasNoClients.php.html#21"><abbr title="App\Rules\UserHasNoClients::validate">validate</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#33"><abbr title="App\View\Components\Heroicon::render">render</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="View/Components/Heroicon.php.html#95"><abbr title="App\View\Components\Heroicon::loadSvg">loadSvg</abbr></a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.4.9</a> and <a href="https://phpunit.de/">PHPUnit 11.5.42</a> at Sat Oct 11 21:16:34 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([45,0,0,0,1,0,0,0,0,1,0,8], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([175,0,0,1,0,0,0,0,0,0,0,33], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[0,7,"<a href=\"Console\/Commands\/UpdateExistingOrdersWithUserIds.php.html#8\">App\\Console\\Commands\\UpdateExistingOrdersWithUserIds<\/a>"],[0,4,"<a href=\"Http\/Controllers\/AddressController.php.html#14\">App\\Http\\Controllers\\AddressController<\/a>"],[0,7,"<a href=\"Http\/Controllers\/Auth\/AuthenticatedSessionController.php.html#14\">App\\Http\\Controllers\\Auth\\AuthenticatedSessionController<\/a>"],[0,6,"<a href=\"Http\/Controllers\/Auth\/PasswordResetController.php.html#15\">App\\Http\\Controllers\\Auth\\PasswordResetController<\/a>"],[0,3,"<a href=\"Http\/Controllers\/Auth\/RegisteredUserController.php.html#15\">App\\Http\\Controllers\\Auth\\RegisteredUserController<\/a>"],[0,13,"<a href=\"Http\/Controllers\/Auth\/VerificationController.php.html#13\">App\\Http\\Controllers\\Auth\\VerificationController<\/a>"],[0,16,"<a href=\"Http\/Controllers\/ClientController.php.html#16\">App\\Http\\Controllers\\ClientController<\/a>"],[100,0,"<a href=\"Http\/Controllers\/Controller.php.html#7\">App\\Http\\Controllers\\Controller<\/a>"],[0,3,"<a href=\"Http\/Controllers\/DashboardController.php.html#14\">App\\Http\\Controllers\\DashboardController<\/a>"],[0,33,"<a href=\"Http\/Controllers\/OrderController.php.html#21\">App\\Http\\Controllers\\OrderController<\/a>"],[0,13,"<a href=\"Http\/Controllers\/ProductComponentController.php.html#13\">App\\Http\\Controllers\\ProductComponentController<\/a>"],[0,14,"<a href=\"Http\/Controllers\/ProductController.php.html#15\">App\\Http\\Controllers\\ProductController<\/a>"],[0,5,"<a href=\"Http\/Controllers\/ProfileController.php.html#13\">App\\Http\\Controllers\\ProfileController<\/a>"],[0,22,"<a href=\"Http\/Controllers\/UserManagementController.php.html#16\">App\\Http\\Controllers\\UserManagementController<\/a>"],[0,2,"<a href=\"Http\/Middleware\/Authenticate.php.html#8\">App\\Http\\Middleware\\Authenticate<\/a>"],[0,10,"<a href=\"Http\/Middleware\/CheckPolicy.php.html#9\">App\\Http\\Middleware\\CheckPolicy<\/a>"],[0,3,"<a href=\"Http\/Middleware\/EnsureUserIsAdmin.php.html#10\">App\\Http\\Middleware\\EnsureUserIsAdmin<\/a>"],[0,3,"<a href=\"Http\/Middleware\/HandleInertiaRequests.php.html#8\">App\\Http\\Middleware\\HandleInertiaRequests<\/a>"],[0,4,"<a href=\"Http\/Middleware\/RedirectIfAuthenticated.php.html#10\">App\\Http\\Middleware\\RedirectIfAuthenticated<\/a>"],[0,2,"<a href=\"Http\/Requests\/ForgotPasswordRequest.php.html#7\">App\\Http\\Requests\\ForgotPasswordRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/LoginRequest.php.html#7\">App\\Http\\Requests\\LoginRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/RegisterUserRequest.php.html#8\">App\\Http\\Requests\\RegisterUserRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/ResetPasswordRequest.php.html#7\">App\\Http\\Requests\\ResetPasswordRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/StoreAddressRequest.php.html#7\">App\\Http\\Requests\\StoreAddressRequest<\/a>"],[0,10,"<a href=\"Http\/Requests\/StoreClientRequest.php.html#8\">App\\Http\\Requests\\StoreClientRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/StoreOrderItemRequest.php.html#7\">App\\Http\\Requests\\StoreOrderItemRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/StoreOrderRequest.php.html#7\">App\\Http\\Requests\\StoreOrderRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/StoreProductComponentRequest.php.html#7\">App\\Http\\Requests\\StoreProductComponentRequest<\/a>"],[0,6,"<a href=\"Http\/Requests\/StoreProductRequest.php.html#7\">App\\Http\\Requests\\StoreProductRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/StoreUserRequest.php.html#8\">App\\Http\\Requests\\StoreUserRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/UpdateAddressRequest.php.html#7\">App\\Http\\Requests\\UpdateAddressRequest<\/a>"],[0,10,"<a href=\"Http\/Requests\/UpdateClientRequest.php.html#8\">App\\Http\\Requests\\UpdateClientRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/UpdateOrderItemRequest.php.html#7\">App\\Http\\Requests\\UpdateOrderItemRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/UpdateOrderRequest.php.html#7\">App\\Http\\Requests\\UpdateOrderRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/UpdateProductComponentRequest.php.html#7\">App\\Http\\Requests\\UpdateProductComponentRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/UpdateProductRequest.php.html#7\">App\\Http\\Requests\\UpdateProductRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/UpdateProfileRequest.php.html#9\">App\\Http\\Requests\\UpdateProfileRequest<\/a>"],[0,2,"<a href=\"Http\/Requests\/UpdateUserRequest.php.html#9\">App\\Http\\Requests\\UpdateUserRequest<\/a>"],[100,7,"<a href=\"Models\/Address.php.html#11\">App\\Models\\Address<\/a>"],[100,16,"<a href=\"Models\/Client.php.html#12\">App\\Models\\Client<\/a>"],[100,6,"<a href=\"Models\/Order.php.html#10\">App\\Models\\Order<\/a>"],[100,2,"<a href=\"Models\/OrderItem.php.html#8\">App\\Models\\OrderItem<\/a>"],[100,5,"<a href=\"Models\/Product.php.html#10\">App\\Models\\Product<\/a>"],[100,2,"<a href=\"Models\/ProductComponent.php.html#8\">App\\Models\\ProductComponent<\/a>"],[85.71428571428571,3,"<a href=\"Models\/User.php.html#11\">App\\Models\\User<\/a>"],[0,3,"<a href=\"Notifications\/VerifyEmailNotification.php.html#10\">App\\Notifications\\VerifyEmailNotification<\/a>"],[0,16,"<a href=\"Policies\/AddressPolicy.php.html#8\">App\\Policies\\AddressPolicy<\/a>"],[0,24,"<a href=\"Policies\/ClientPolicy.php.html#8\">App\\Policies\\ClientPolicy<\/a>"],[0,24,"<a href=\"Policies\/OrderPolicy.php.html#8\">App\\Policies\\OrderPolicy<\/a>"],[0,24,"<a href=\"Policies\/ProductPolicy.php.html#8\">App\\Policies\\ProductPolicy<\/a>"],[0,9,"<a href=\"Policies\/UserPolicy.php.html#7\">App\\Policies\\UserPolicy<\/a>"],[31.03448275862069,28,"<a href=\"Providers\/AppServiceProvider.php.html#13\">App\\Providers\\AppServiceProvider<\/a>"],[100,1,"<a href=\"Providers\/AuthServiceProvider.php.html#17\">App\\Providers\\AuthServiceProvider<\/a>"],[0,3,"<a href=\"Rules\/UserHasNoClients.php.html#10\">App\\Rules\\UserHasNoClients<\/a>"],[0,22,"<a href=\"View\/Components\/Heroicon.php.html#12\">App\\View\\Components\\Heroicon<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[0,7,"<a href=\"Console\/Commands\/UpdateExistingOrdersWithUserIds.php.html#27\">App\\Console\\Commands\\UpdateExistingOrdersWithUserIds::handle<\/a>"],[0,1,"<a href=\"Http\/Controllers\/AddressController.php.html#16\">App\\Http\\Controllers\\AddressController::index<\/a>"],[0,1,"<a href=\"Http\/Controllers\/AddressController.php.html#42\">App\\Http\\Controllers\\AddressController::store<\/a>"],[0,1,"<a href=\"Http\/Controllers\/AddressController.php.html#71\">App\\Http\\Controllers\\AddressController::update<\/a>"],[0,1,"<a href=\"Http\/Controllers\/AddressController.php.html#102\">App\\Http\\Controllers\\AddressController::destroy<\/a>"],[0,2,"<a href=\"Http\/Controllers\/Auth\/AuthenticatedSessionController.php.html#16\">App\\Http\\Controllers\\Auth\\AuthenticatedSessionController::create<\/a>"],[0,4,"<a href=\"Http\/Controllers\/Auth\/AuthenticatedSessionController.php.html#25\">App\\Http\\Controllers\\Auth\\AuthenticatedSessionController::store<\/a>"],[0,1,"<a href=\"Http\/Controllers\/Auth\/AuthenticatedSessionController.php.html#55\">App\\Http\\Controllers\\Auth\\AuthenticatedSessionController::destroy<\/a>"],[0,1,"<a href=\"Http\/Controllers\/Auth\/PasswordResetController.php.html#17\">App\\Http\\Controllers\\Auth\\PasswordResetController::request<\/a>"],[0,2,"<a href=\"Http\/Controllers\/Auth\/PasswordResetController.php.html#22\">App\\Http\\Controllers\\Auth\\PasswordResetController::email<\/a>"],[0,1,"<a href=\"Http\/Controllers\/Auth\/PasswordResetController.php.html#35\">App\\Http\\Controllers\\Auth\\PasswordResetController::resetForm<\/a>"],[0,2,"<a href=\"Http\/Controllers\/Auth\/PasswordResetController.php.html#40\">App\\Http\\Controllers\\Auth\\PasswordResetController::reset<\/a>"],[0,2,"<a href=\"Http\/Controllers\/Auth\/RegisteredUserController.php.html#17\">App\\Http\\Controllers\\Auth\\RegisteredUserController::create<\/a>"],[0,1,"<a href=\"Http\/Controllers\/Auth\/RegisteredUserController.php.html#26\">App\\Http\\Controllers\\Auth\\RegisteredUserController::store<\/a>"],[0,6,"<a href=\"Http\/Controllers\/Auth\/VerificationController.php.html#15\">App\\Http\\Controllers\\Auth\\VerificationController::notice<\/a>"],[0,2,"<a href=\"Http\/Controllers\/Auth\/VerificationController.php.html#43\">App\\Http\\Controllers\\Auth\\VerificationController::resend<\/a>"],[0,5,"<a href=\"Http\/Controllers\/Auth\/VerificationController.php.html#58\">App\\Http\\Controllers\\Auth\\VerificationController::verify<\/a>"],[0,5,"<a href=\"Http\/Controllers\/ClientController.php.html#18\">App\\Http\\Controllers\\ClientController::index<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ClientController.php.html#71\">App\\Http\\Controllers\\ClientController::create<\/a>"],[0,2,"<a href=\"Http\/Controllers\/ClientController.php.html#108\">App\\Http\\Controllers\\ClientController::store<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ClientController.php.html#132\">App\\Http\\Controllers\\ClientController::modal<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ClientController.php.html#176\">App\\Http\\Controllers\\ClientController::edit<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ClientController.php.html#240\">App\\Http\\Controllers\\ClientController::update<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ClientController.php.html#258\">App\\Http\\Controllers\\ClientController::destroy<\/a>"],[0,4,"<a href=\"Http\/Controllers\/ClientController.php.html#268\">App\\Http\\Controllers\\ClientController::preparePayload<\/a>"],[0,1,"<a href=\"Http\/Controllers\/DashboardController.php.html#16\">App\\Http\\Controllers\\DashboardController::__invoke<\/a>"],[0,2,"<a href=\"Http\/Controllers\/DashboardController.php.html#32\">App\\Http\\Controllers\\DashboardController::getSalesDataForLast30Days<\/a>"],[0,14,"<a href=\"Http\/Controllers\/OrderController.php.html#26\">App\\Http\\Controllers\\OrderController::index<\/a>"],[0,2,"<a href=\"Http\/Controllers\/OrderController.php.html#122\">App\\Http\\Controllers\\OrderController::create<\/a>"],[0,3,"<a href=\"Http\/Controllers\/OrderController.php.html#169\">App\\Http\\Controllers\\OrderController::store<\/a>"],[0,1,"<a href=\"Http\/Controllers\/OrderController.php.html#202\">App\\Http\\Controllers\\OrderController::show<\/a>"],[0,3,"<a href=\"Http\/Controllers\/OrderController.php.html#210\">App\\Http\\Controllers\\OrderController::edit<\/a>"],[0,2,"<a href=\"Http\/Controllers\/OrderController.php.html#288\">App\\Http\\Controllers\\OrderController::update<\/a>"],[0,1,"<a href=\"Http\/Controllers\/OrderController.php.html#310\">App\\Http\\Controllers\\OrderController::destroy<\/a>"],[0,1,"<a href=\"Http\/Controllers\/OrderController.php.html#327\">App\\Http\\Controllers\\OrderController::updateItem<\/a>"],[0,1,"<a href=\"Http\/Controllers\/OrderController.php.html#372\">App\\Http\\Controllers\\OrderController::removeItem<\/a>"],[0,2,"<a href=\"Http\/Controllers\/OrderController.php.html#396\">App\\Http\\Controllers\\OrderController::addItem<\/a>"],[0,3,"<a href=\"Http\/Controllers\/OrderController.php.html#456\">App\\Http\\Controllers\\OrderController::modal<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ProductComponentController.php.html#15\">App\\Http\\Controllers\\ProductComponentController::index<\/a>"],[0,4,"<a href=\"Http\/Controllers\/ProductComponentController.php.html#37\">App\\Http\\Controllers\\ProductComponentController::store<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ProductComponentController.php.html#83\">App\\Http\\Controllers\\ProductComponentController::update<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ProductComponentController.php.html#112\">App\\Http\\Controllers\\ProductComponentController::destroy<\/a>"],[0,6,"<a href=\"Http\/Controllers\/ProductComponentController.php.html#121\">App\\Http\\Controllers\\ProductComponentController::hasCircularDependency<\/a>"],[0,3,"<a href=\"Http\/Controllers\/ProductController.php.html#17\">App\\Http\\Controllers\\ProductController::index<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ProductController.php.html#37\">App\\Http\\Controllers\\ProductController::create<\/a>"],[0,2,"<a href=\"Http\/Controllers\/ProductController.php.html#45\">App\\Http\\Controllers\\ProductController::store<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ProductController.php.html#69\">App\\Http\\Controllers\\ProductController::edit<\/a>"],[0,2,"<a href=\"Http\/Controllers\/ProductController.php.html#80\">App\\Http\\Controllers\\ProductController::update<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ProductController.php.html#106\">App\\Http\\Controllers\\ProductController::destroy<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ProductController.php.html#113\">App\\Http\\Controllers\\ProductController::modal<\/a>"],[0,3,"<a href=\"Http\/Controllers\/ProductController.php.html#154\">App\\Http\\Controllers\\ProductController::buildComponentTree<\/a>"],[0,1,"<a href=\"Http\/Controllers\/ProfileController.php.html#15\">App\\Http\\Controllers\\ProfileController::edit<\/a>"],[0,2,"<a href=\"Http\/Controllers\/ProfileController.php.html#22\">App\\Http\\Controllers\\ProfileController::update<\/a>"],[0,2,"<a href=\"Http\/Controllers\/ProfileController.php.html#39\">App\\Http\\Controllers\\ProfileController::destroy<\/a>"],[0,3,"<a href=\"Http\/Controllers\/UserManagementController.php.html#18\">App\\Http\\Controllers\\UserManagementController::index<\/a>"],[0,1,"<a href=\"Http\/Controllers\/UserManagementController.php.html#59\">App\\Http\\Controllers\\UserManagementController::create<\/a>"],[0,1,"<a href=\"Http\/Controllers\/UserManagementController.php.html#68\">App\\Http\\Controllers\\UserManagementController::store<\/a>"],[0,1,"<a href=\"Http\/Controllers\/UserManagementController.php.html#90\">App\\Http\\Controllers\\UserManagementController::edit<\/a>"],[0,3,"<a href=\"Http\/Controllers\/UserManagementController.php.html#108\">App\\Http\\Controllers\\UserManagementController::update<\/a>"],[0,1,"<a href=\"Http\/Controllers\/UserManagementController.php.html#140\">App\\Http\\Controllers\\UserManagementController::destroy<\/a>"],[0,1,"<a href=\"Http\/Controllers\/UserManagementController.php.html#157\">App\\Http\\Controllers\\UserManagementController::modal<\/a>"],[0,3,"<a href=\"Http\/Controllers\/UserManagementController.php.html#176\">App\\Http\\Controllers\\UserManagementController::ensureNotCurrentUser<\/a>"],[0,5,"<a href=\"Http\/Controllers\/UserManagementController.php.html#183\">App\\Http\\Controllers\\UserManagementController::preparePermissions<\/a>"],[0,3,"<a href=\"Http\/Controllers\/UserManagementController.php.html#204\">App\\Http\\Controllers\\UserManagementController::allPermissionsMatrix<\/a>"],[0,2,"<a href=\"Http\/Middleware\/Authenticate.php.html#10\">App\\Http\\Middleware\\Authenticate::redirectTo<\/a>"],[0,6,"<a href=\"Http\/Middleware\/CheckPolicy.php.html#16\">App\\Http\\Middleware\\CheckPolicy::handle<\/a>"],[0,4,"<a href=\"Http\/Middleware\/CheckPolicy.php.html#44\">App\\Http\\Middleware\\CheckPolicy::getRouteModel<\/a>"],[0,3,"<a href=\"Http\/Middleware\/EnsureUserIsAdmin.php.html#12\">App\\Http\\Middleware\\EnsureUserIsAdmin::handle<\/a>"],[0,1,"<a href=\"Http\/Middleware\/HandleInertiaRequests.php.html#12\">App\\Http\\Middleware\\HandleInertiaRequests::version<\/a>"],[0,2,"<a href=\"Http\/Middleware\/HandleInertiaRequests.php.html#17\">App\\Http\\Middleware\\HandleInertiaRequests::share<\/a>"],[0,4,"<a href=\"Http\/Middleware\/RedirectIfAuthenticated.php.html#15\">App\\Http\\Middleware\\RedirectIfAuthenticated::handle<\/a>"],[0,1,"<a href=\"Http\/Requests\/ForgotPasswordRequest.php.html#9\">App\\Http\\Requests\\ForgotPasswordRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/ForgotPasswordRequest.php.html#14\">App\\Http\\Requests\\ForgotPasswordRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/LoginRequest.php.html#9\">App\\Http\\Requests\\LoginRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/LoginRequest.php.html#14\">App\\Http\\Requests\\LoginRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/RegisterUserRequest.php.html#10\">App\\Http\\Requests\\RegisterUserRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/RegisterUserRequest.php.html#15\">App\\Http\\Requests\\RegisterUserRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/ResetPasswordRequest.php.html#9\">App\\Http\\Requests\\ResetPasswordRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/ResetPasswordRequest.php.html#14\">App\\Http\\Requests\\ResetPasswordRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreAddressRequest.php.html#12\">App\\Http\\Requests\\StoreAddressRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreAddressRequest.php.html#24\">App\\Http\\Requests\\StoreAddressRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreClientRequest.php.html#10\">App\\Http\\Requests\\StoreClientRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreClientRequest.php.html#15\">App\\Http\\Requests\\StoreClientRequest::prepareForValidation<\/a>"],[0,6,"<a href=\"Http\/Requests\/StoreClientRequest.php.html#24\">App\\Http\\Requests\\StoreClientRequest::rules<\/a>"],[0,2,"<a href=\"Http\/Requests\/StoreClientRequest.php.html#46\">App\\Http\\Requests\\StoreClientRequest::sanitiseDigits<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreOrderItemRequest.php.html#12\">App\\Http\\Requests\\StoreOrderItemRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreOrderItemRequest.php.html#23\">App\\Http\\Requests\\StoreOrderItemRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreOrderRequest.php.html#12\">App\\Http\\Requests\\StoreOrderRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreOrderRequest.php.html#22\">App\\Http\\Requests\\StoreOrderRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreProductComponentRequest.php.html#12\">App\\Http\\Requests\\StoreProductComponentRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreProductComponentRequest.php.html#23\">App\\Http\\Requests\\StoreProductComponentRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreProductRequest.php.html#12\">App\\Http\\Requests\\StoreProductRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreProductRequest.php.html#17\">App\\Http\\Requests\\StoreProductRequest::rules<\/a>"],[0,3,"<a href=\"Http\/Requests\/StoreProductRequest.php.html#35\">App\\Http\\Requests\\StoreProductRequest::withValidator<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreProductRequest.php.html#54\">App\\Http\\Requests\\StoreProductRequest::hasCircularDependency<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreUserRequest.php.html#10\">App\\Http\\Requests\\StoreUserRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/StoreUserRequest.php.html#15\">App\\Http\\Requests\\StoreUserRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateAddressRequest.php.html#12\">App\\Http\\Requests\\UpdateAddressRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateAddressRequest.php.html#19\">App\\Http\\Requests\\UpdateAddressRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateClientRequest.php.html#10\">App\\Http\\Requests\\UpdateClientRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateClientRequest.php.html#15\">App\\Http\\Requests\\UpdateClientRequest::prepareForValidation<\/a>"],[0,6,"<a href=\"Http\/Requests\/UpdateClientRequest.php.html#24\">App\\Http\\Requests\\UpdateClientRequest::rules<\/a>"],[0,2,"<a href=\"Http\/Requests\/UpdateClientRequest.php.html#47\">App\\Http\\Requests\\UpdateClientRequest::sanitiseDigits<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateOrderItemRequest.php.html#12\">App\\Http\\Requests\\UpdateOrderItemRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateOrderItemRequest.php.html#23\">App\\Http\\Requests\\UpdateOrderItemRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateOrderRequest.php.html#12\">App\\Http\\Requests\\UpdateOrderRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateOrderRequest.php.html#23\">App\\Http\\Requests\\UpdateOrderRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateProductComponentRequest.php.html#12\">App\\Http\\Requests\\UpdateProductComponentRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateProductComponentRequest.php.html#23\">App\\Http\\Requests\\UpdateProductComponentRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateProductRequest.php.html#9\">App\\Http\\Requests\\UpdateProductRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateProductRequest.php.html#15\">App\\Http\\Requests\\UpdateProductRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateProfileRequest.php.html#11\">App\\Http\\Requests\\UpdateProfileRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateProfileRequest.php.html#16\">App\\Http\\Requests\\UpdateProfileRequest::rules<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateUserRequest.php.html#11\">App\\Http\\Requests\\UpdateUserRequest::authorize<\/a>"],[0,1,"<a href=\"Http\/Requests\/UpdateUserRequest.php.html#16\">App\\Http\\Requests\\UpdateUserRequest::rules<\/a>"],[100,2,"<a href=\"Models\/Address.php.html#34\">App\\Models\\Address::postalCode<\/a>"],[100,1,"<a href=\"Models\/Address.php.html#41\">App\\Models\\Address::client<\/a>"],[100,1,"<a href=\"Models\/Address.php.html#46\">App\\Models\\Address::createdBy<\/a>"],[100,1,"<a href=\"Models\/Address.php.html#51\">App\\Models\\Address::updatedBy<\/a>"],[100,2,"<a href=\"Models\/Address.php.html#56\">App\\Models\\Address::formattedPostalCode<\/a>"],[100,2,"<a href=\"Models\/Client.php.html#35\">App\\Models\\Client::document<\/a>"],[100,2,"<a href=\"Models\/Client.php.html#42\">App\\Models\\Client::contactPhonePrimary<\/a>"],[100,2,"<a href=\"Models\/Client.php.html#49\">App\\Models\\Client::contactPhoneSecondary<\/a>"],[100,1,"<a href=\"Models\/Client.php.html#56\">App\\Models\\Client::createdBy<\/a>"],[100,1,"<a href=\"Models\/Client.php.html#61\">App\\Models\\Client::updatedBy<\/a>"],[100,1,"<a href=\"Models\/Client.php.html#66\">App\\Models\\Client::addresses<\/a>"],[100,2,"<a href=\"Models\/Client.php.html#71\">App\\Models\\Client::formattedDocument<\/a>"],[100,5,"<a href=\"Models\/Client.php.html#88\">App\\Models\\Client::formattedPhone<\/a>"],[100,1,"<a href=\"Models\/Order.php.html#32\">App\\Models\\Order::client<\/a>"],[100,1,"<a href=\"Models\/Order.php.html#37\">App\\Models\\Order::user<\/a>"],[100,1,"<a href=\"Models\/Order.php.html#42\">App\\Models\\Order::items<\/a>"],[100,1,"<a href=\"Models\/Order.php.html#47\">App\\Models\\Order::address<\/a>"],[100,1,"<a href=\"Models\/Order.php.html#52\">App\\Models\\Order::createdBy<\/a>"],[100,1,"<a href=\"Models\/Order.php.html#57\">App\\Models\\Order::updatedBy<\/a>"],[100,1,"<a href=\"Models\/OrderItem.php.html#24\">App\\Models\\OrderItem::order<\/a>"],[100,1,"<a href=\"Models\/OrderItem.php.html#29\">App\\Models\\OrderItem::product<\/a>"],[100,1,"<a href=\"Models\/Product.php.html#31\">App\\Models\\Product::components<\/a>"],[100,1,"<a href=\"Models\/Product.php.html#42\">App\\Models\\Product::parents<\/a>"],[100,1,"<a href=\"Models\/Product.php.html#52\">App\\Models\\Product::createdBy<\/a>"],[100,1,"<a href=\"Models\/Product.php.html#57\">App\\Models\\Product::updatedBy<\/a>"],[100,1,"<a href=\"Models\/Product.php.html#62\">App\\Models\\Product::formattedPrice<\/a>"],[100,1,"<a href=\"Models\/ProductComponent.php.html#20\">App\\Models\\ProductComponent::product<\/a>"],[100,1,"<a href=\"Models\/ProductComponent.php.html#25\">App\\Models\\ProductComponent::component<\/a>"],[100,1,"<a href=\"Models\/User.php.html#45\">App\\Models\\User::casts<\/a>"],[100,1,"<a href=\"Models\/User.php.html#54\">App\\Models\\User::isAdmin<\/a>"],[0,1,"<a href=\"Models\/User.php.html#62\">App\\Models\\User::sendEmailVerificationNotification<\/a>"],[0,1,"<a href=\"Notifications\/VerifyEmailNotification.php.html#14\">App\\Notifications\\VerifyEmailNotification::__construct<\/a>"],[0,1,"<a href=\"Notifications\/VerifyEmailNotification.php.html#19\">App\\Notifications\\VerifyEmailNotification::via<\/a>"],[0,1,"<a href=\"Notifications\/VerifyEmailNotification.php.html#24\">App\\Notifications\\VerifyEmailNotification::toMail<\/a>"],[0,2,"<a href=\"Policies\/AddressPolicy.php.html#13\">App\\Policies\\AddressPolicy::viewAny<\/a>"],[0,2,"<a href=\"Policies\/AddressPolicy.php.html#26\">App\\Policies\\AddressPolicy::view<\/a>"],[0,3,"<a href=\"Policies\/AddressPolicy.php.html#39\">App\\Policies\\AddressPolicy::create<\/a>"],[0,2,"<a href=\"Policies\/AddressPolicy.php.html#52\">App\\Policies\\AddressPolicy::update<\/a>"],[0,3,"<a href=\"Policies\/AddressPolicy.php.html#65\">App\\Policies\\AddressPolicy::delete<\/a>"],[0,2,"<a href=\"Policies\/AddressPolicy.php.html#78\">App\\Policies\\AddressPolicy::restore<\/a>"],[0,2,"<a href=\"Policies\/AddressPolicy.php.html#91\">App\\Policies\\AddressPolicy::forceDelete<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#13\">App\\Policies\\ClientPolicy::viewAny<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#26\">App\\Policies\\ClientPolicy::view<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#39\">App\\Policies\\ClientPolicy::create<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#52\">App\\Policies\\ClientPolicy::update<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#65\">App\\Policies\\ClientPolicy::delete<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#78\">App\\Policies\\ClientPolicy::restore<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#91\">App\\Policies\\ClientPolicy::forceDelete<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#104\">App\\Policies\\ClientPolicy::manageAddresses<\/a>"],[0,3,"<a href=\"Policies\/ClientPolicy.php.html#117\">App\\Policies\\ClientPolicy::createAddress<\/a>"],[0,2,"<a href=\"Policies\/ClientPolicy.php.html#130\">App\\Policies\\ClientPolicy::updateAddress<\/a>"],[0,3,"<a href=\"Policies\/ClientPolicy.php.html#143\">App\\Policies\\ClientPolicy::deleteAddress<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#13\">App\\Policies\\OrderPolicy::viewAny<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#26\">App\\Policies\\OrderPolicy::view<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#39\">App\\Policies\\OrderPolicy::create<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#52\">App\\Policies\\OrderPolicy::update<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#65\">App\\Policies\\OrderPolicy::delete<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#78\">App\\Policies\\OrderPolicy::restore<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#91\">App\\Policies\\OrderPolicy::forceDelete<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#104\">App\\Policies\\OrderPolicy::manageItems<\/a>"],[0,3,"<a href=\"Policies\/OrderPolicy.php.html#117\">App\\Policies\\OrderPolicy::addItem<\/a>"],[0,2,"<a href=\"Policies\/OrderPolicy.php.html#130\">App\\Policies\\OrderPolicy::updateItem<\/a>"],[0,3,"<a href=\"Policies\/OrderPolicy.php.html#143\">App\\Policies\\OrderPolicy::removeItem<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#13\">App\\Policies\\ProductPolicy::viewAny<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#26\">App\\Policies\\ProductPolicy::view<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#39\">App\\Policies\\ProductPolicy::create<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#52\">App\\Policies\\ProductPolicy::update<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#65\">App\\Policies\\ProductPolicy::delete<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#78\">App\\Policies\\ProductPolicy::restore<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#91\">App\\Policies\\ProductPolicy::forceDelete<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#104\">App\\Policies\\ProductPolicy::manageComponents<\/a>"],[0,3,"<a href=\"Policies\/ProductPolicy.php.html#117\">App\\Policies\\ProductPolicy::createComponent<\/a>"],[0,2,"<a href=\"Policies\/ProductPolicy.php.html#130\">App\\Policies\\ProductPolicy::updateComponent<\/a>"],[0,3,"<a href=\"Policies\/ProductPolicy.php.html#143\">App\\Policies\\ProductPolicy::deleteComponent<\/a>"],[0,1,"<a href=\"Policies\/UserPolicy.php.html#12\">App\\Policies\\UserPolicy::viewAny<\/a>"],[0,1,"<a href=\"Policies\/UserPolicy.php.html#20\">App\\Policies\\UserPolicy::view<\/a>"],[0,1,"<a href=\"Policies\/UserPolicy.php.html#28\">App\\Policies\\UserPolicy::create<\/a>"],[0,2,"<a href=\"Policies\/UserPolicy.php.html#36\">App\\Policies\\UserPolicy::update<\/a>"],[0,2,"<a href=\"Policies\/UserPolicy.php.html#45\">App\\Policies\\UserPolicy::delete<\/a>"],[0,1,"<a href=\"Policies\/UserPolicy.php.html#54\">App\\Policies\\UserPolicy::restore<\/a>"],[0,1,"<a href=\"Policies\/UserPolicy.php.html#62\">App\\Policies\\UserPolicy::forceDelete<\/a>"],[100,1,"<a href=\"Providers\/AppServiceProvider.php.html#18\">App\\Providers\\AppServiceProvider::register<\/a>"],[100,1,"<a href=\"Providers\/AppServiceProvider.php.html#26\">App\\Providers\\AppServiceProvider::boot<\/a>"],[28.57142857142857,26,"<a href=\"Providers\/AppServiceProvider.php.html#32\">App\\Providers\\AppServiceProvider::registerInertiaExceptionHandlers<\/a>"],[100,1,"<a href=\"Providers\/AuthServiceProvider.php.html#35\">App\\Providers\\AuthServiceProvider::boot<\/a>"],[0,1,"<a href=\"Rules\/UserHasNoClients.php.html#14\">App\\Rules\\UserHasNoClients::setData<\/a>"],[0,2,"<a href=\"Rules\/UserHasNoClients.php.html#21\">App\\Rules\\UserHasNoClients::validate<\/a>"],[0,1,"<a href=\"View\/Components\/Heroicon.php.html#24\">App\\View\\Components\\Heroicon::__construct<\/a>"],[0,2,"<a href=\"View\/Components\/Heroicon.php.html#33\">App\\View\\Components\\Heroicon::render<\/a>"],[0,6,"<a href=\"View\/Components\/Heroicon.php.html#49\">App\\View\\Components\\Heroicon::mergeAttributes<\/a>"],[0,3,"<a href=\"View\/Components\/Heroicon.php.html#73\">App\\View\\Components\\Heroicon::sizeClass<\/a>"],[0,4,"<a href=\"View\/Components\/Heroicon.php.html#86\">App\\View\\Components\\Heroicon::resolveVariant<\/a>"],[0,2,"<a href=\"View\/Components\/Heroicon.php.html#95\">App\\View\\Components\\Heroicon::loadSvg<\/a>"],[0,4,"<a href=\"View\/Components\/Heroicon.php.html#106\">App\\View\\Components\\Heroicon::applyAttributes<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

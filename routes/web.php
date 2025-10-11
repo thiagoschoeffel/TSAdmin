@@ -46,61 +46,61 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('users')->name('users.')->middleware('check_policy:viewAny,User')->group(function (): void {
+    Route::prefix('users')->name('users.')->group(function (): void {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
-        Route::get('create', [UserManagementController::class, 'create'])->middleware('check_policy:create,User')->name('create');
-        Route::post('/', [UserManagementController::class, 'store'])->middleware('check_policy:create,User')->name('store');
-        Route::get('{user}/modal', [UserManagementController::class, 'modal'])->middleware('check_policy:view')->name('modal');
-        Route::get('{user}/edit', [UserManagementController::class, 'edit'])->middleware('check_policy:update')->name('edit');
-        Route::patch('{user}', [UserManagementController::class, 'update'])->middleware('check_policy:update')->name('update');
-        Route::delete('{user}', [UserManagementController::class, 'destroy'])->middleware('check_policy:delete')->name('destroy');
+        Route::get('create', [UserManagementController::class, 'create'])->name('create');
+        Route::post('/', [UserManagementController::class, 'store'])->name('store');
+        Route::get('{user}/modal', [UserManagementController::class, 'modal'])->name('modal');
+        Route::get('{user}/edit', [UserManagementController::class, 'edit'])->name('edit');
+        Route::patch('{user}', [UserManagementController::class, 'update'])->name('update');
+        Route::delete('{user}', [UserManagementController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('clients')->name('clients.')->middleware('check_policy:viewAny,Client')->group(function (): void {
+    Route::prefix('clients')->name('clients.')->group(function (): void {
         Route::get('/', [ClientController::class, 'index'])->name('index');
-        Route::get('create', [ClientController::class, 'create'])->middleware('check_policy:create,Client')->name('create');
-        Route::post('/', [ClientController::class, 'store'])->middleware('check_policy:create,Client')->name('store');
-        Route::get('{client}/modal', [ClientController::class, 'modal'])->middleware('check_policy:view')->name('modal');
-        Route::get('{client}/edit', [ClientController::class, 'edit'])->middleware('check_policy:update')->name('edit');
-        Route::patch('{client}', [ClientController::class, 'update'])->middleware('check_policy:update')->name('update');
-        Route::delete('{client}', [ClientController::class, 'destroy'])->middleware('check_policy:delete')->name('destroy');
+        Route::get('create', [ClientController::class, 'create'])->name('create');
+        Route::post('/', [ClientController::class, 'store'])->name('store');
+        Route::get('{client}/modal', [ClientController::class, 'modal'])->name('modal');
+        Route::get('{client}/edit', [ClientController::class, 'edit'])->name('edit');
+        Route::patch('{client}', [ClientController::class, 'update'])->name('update');
+        Route::delete('{client}', [ClientController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('products')->name('products.')->middleware('check_policy:viewAny,Product')->group(function (): void {
+    Route::prefix('products')->name('products.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\ProductController::class, 'index'])->name('index');
-        Route::get('create', [\App\Http\Controllers\ProductController::class, 'create'])->middleware('check_policy:create,Product')->name('create');
-        Route::post('/', [\App\Http\Controllers\ProductController::class, 'store'])->middleware('check_policy:create,Product')->name('store');
-        Route::get('{product}/modal', [\App\Http\Controllers\ProductController::class, 'modal'])->middleware('check_policy:view')->name('modal');
-        Route::get('{product}/edit', [\App\Http\Controllers\ProductController::class, 'edit'])->middleware('check_policy:update')->name('edit');
-        Route::patch('{product}', [\App\Http\Controllers\ProductController::class, 'update'])->middleware('check_policy:update')->name('update');
-        Route::delete('{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->middleware('check_policy:delete')->name('destroy');
+        Route::get('create', [\App\Http\Controllers\ProductController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ProductController::class, 'store'])->name('store');
+        Route::get('{product}/modal', [\App\Http\Controllers\ProductController::class, 'modal'])->name('modal');
+        Route::get('{product}/edit', [\App\Http\Controllers\ProductController::class, 'edit'])->name('edit');
+        Route::patch('{product}', [\App\Http\Controllers\ProductController::class, 'update'])->name('update');
+        Route::delete('{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('orders')->name('orders.')->middleware('check_policy:viewAny,Order')->group(function (): void {
+    Route::prefix('orders')->name('orders.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\OrderController::class, 'index'])->name('index');
-        Route::get('create', [\App\Http\Controllers\OrderController::class, 'create'])->middleware('check_policy:create,Order')->name('create');
-        Route::post('/', [\App\Http\Controllers\OrderController::class, 'store'])->middleware('check_policy:create,Order')->name('store');
-        Route::get('{order}/modal', [\App\Http\Controllers\OrderController::class, 'modal'])->middleware('check_policy:view')->name('modal');
-        Route::get('{order}/edit', [\App\Http\Controllers\OrderController::class, 'edit'])->middleware('check_policy:update')->name('edit');
-        Route::patch('{order}', [\App\Http\Controllers\OrderController::class, 'update'])->middleware('check_policy:update')->name('update');
-        Route::delete('{order}', [\App\Http\Controllers\OrderController::class, 'destroy'])->middleware('check_policy:delete')->name('destroy');
+        Route::get('create', [\App\Http\Controllers\OrderController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\OrderController::class, 'store'])->name('store');
+        Route::get('{order}/modal', [\App\Http\Controllers\OrderController::class, 'modal'])->name('modal');
+        Route::get('{order}/edit', [\App\Http\Controllers\OrderController::class, 'edit'])->name('edit');
+        Route::patch('{order}', [\App\Http\Controllers\OrderController::class, 'update'])->name('update');
+        Route::delete('{order}', [\App\Http\Controllers\OrderController::class, 'destroy'])->name('destroy');
     });
 
     // Order items management routes
-    Route::prefix('orders/{order}/items')->name('orders.items.')->middleware('check_policy:manageItems')->group(function (): void {
+    Route::prefix('orders/{order}/items')->name('orders.items.')->group(function (): void {
         Route::post('/', [\App\Http\Controllers\OrderController::class, 'addItem'])->name('store');
         Route::patch('{item}', [\App\Http\Controllers\OrderController::class, 'updateItem'])->name('update');
         Route::delete('{item}', [\App\Http\Controllers\OrderController::class, 'removeItem'])->name('destroy');
     });
 
-    Route::prefix('products/{product}/components')->name('products.components.')->middleware('check_policy:manageComponents')->group(function (): void {
+    Route::prefix('products/{product}/components')->name('products.components.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\ProductComponentController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\ProductComponentController::class, 'store'])->name('store');
         Route::patch('{componentId}', [\App\Http\Controllers\ProductComponentController::class, 'update'])->name('update');
         Route::delete('{componentId}', [\App\Http\Controllers\ProductComponentController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('clients/{client}/addresses')->name('clients.addresses.')->middleware('check_policy:manageAddresses')->group(function (): void {
+    Route::prefix('clients/{client}/addresses')->name('clients.addresses.')->group(function (): void {
         Route::get('/', [AddressController::class, 'index'])->name('index');
         Route::post('/', [AddressController::class, 'store'])->name('store');
         Route::patch('{addressId}', [AddressController::class, 'update'])->name('update');
