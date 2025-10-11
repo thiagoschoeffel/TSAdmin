@@ -12,6 +12,7 @@ import Pagination from '@/components/Pagination.vue';
 import ProductDetailsModal from '@/components/products/ProductDetailsModal.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
+import { formatCurrency, formatQuantity } from '@/utils/formatters';
 
 const props = defineProps({
   products: { type: Object, required: true },
@@ -85,7 +86,7 @@ const columns = [
   {
     header: 'Preço',
     key: 'price',
-    formatter: (value) => `R$ ${Number(value).toFixed(2)}`
+    formatter: (value) => formatCurrency(value)
   },
   {
     header: 'Unidade',
@@ -94,22 +95,22 @@ const columns = [
   {
     header: 'Comprimento',
     key: 'length',
-    formatter: (value) => value ? `${Number(value).toFixed(2)} cm` : '-'
+    formatter: (value) => value ? `${formatQuantity(value)} cm` : '-'
   },
   {
     header: 'Largura',
     key: 'width',
-    formatter: (value) => value ? `${Number(value).toFixed(2)} cm` : '-'
+    formatter: (value) => value ? `${formatQuantity(value)} cm` : '-'
   },
   {
     header: 'Altura',
     key: 'height',
-    formatter: (value) => value ? `${Number(value).toFixed(2)} cm` : '-'
+    formatter: (value) => value ? `${formatQuantity(value)} cm` : '-'
   },
   {
     header: 'Peso',
     key: 'weight',
-    formatter: (value) => value ? `${Number(value).toFixed(2)} kg` : '-'
+    formatter: (value) => value ? `${formatQuantity(value)} kg` : '-'
   },
   {
     header: 'Status',

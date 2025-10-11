@@ -13,6 +13,7 @@ import OrderDetailsModal from '@/components/orders/OrderDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
+import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({
   orders: { type: Object, required: true },
@@ -145,7 +146,7 @@ const columns = [
   {
     header: 'Total',
     key: 'total',
-    formatter: (value) => `R$ ${value}`
+    formatter: (value) => formatCurrency(value)
   },
   {
     header: 'Data do pedido',

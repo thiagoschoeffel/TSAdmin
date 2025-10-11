@@ -4,6 +4,7 @@ import Modal from '@/components/Modal.vue';
 import ProductTree from '@/components/products/ProductTree.vue';
 import Badge from '@/components/Badge.vue';
 import Button from '@/components/Button.vue';
+import { formatCurrency, formatQuantity } from '@/utils/formatters';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -121,7 +122,7 @@ const updatedBy = computed(() => {
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Preço</dt>
-            <dd class="text-sm text-slate-800">{{ payload.price }}</dd>
+            <dd class="text-sm text-slate-800">{{ formatCurrency(payload.price) }}</dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Unidade de Medida</dt>
@@ -133,19 +134,19 @@ const updatedBy = computed(() => {
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Comprimento</dt>
-            <dd class="text-sm text-slate-800">{{ payload.length ? `${Number(payload.length).toFixed(2)} cm` : '—' }}</dd>
+            <dd class="text-sm text-slate-800">{{ payload.length ? `${formatQuantity(payload.length)} cm` : '—' }}</dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Largura</dt>
-            <dd class="text-sm text-slate-800">{{ payload.width ? `${Number(payload.width).toFixed(2)} cm` : '—' }}</dd>
+            <dd class="text-sm text-slate-800">{{ payload.width ? `${formatQuantity(payload.width)} cm` : '—' }}</dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Altura</dt>
-            <dd class="text-sm text-slate-800">{{ payload.height ? `${Number(payload.height).toFixed(2)} cm` : '—' }}</dd>
+            <dd class="text-sm text-slate-800">{{ payload.height ? `${formatQuantity(payload.height)} cm` : '—' }}</dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Peso</dt>
-            <dd class="text-sm text-slate-800">{{ payload.weight ? `${Number(payload.weight).toFixed(2)} kg` : '—' }}</dd>
+            <dd class="text-sm text-slate-800">{{ payload.weight ? `${formatQuantity(payload.weight)} kg` : '—' }}</dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Status</dt>

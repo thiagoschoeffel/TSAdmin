@@ -14,7 +14,7 @@ import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import DataTable from '@/components/DataTable.vue';
-import { formatPriceInput, initializePriceDisplay } from '@/utils/formatters';
+import { formatPriceInput, initializePriceDisplay, formatCurrency, formatQuantity } from '@/utils/formatters';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -355,14 +355,14 @@ const componentColumns = [
   {
     header: 'Quantidade',
     key: 'quantity',
-    formatter: (value) => Number(value).toFixed(2).replace('.', ',')
+    formatter: (value) => formatQuantity(value)
   },
   {
     header: 'Preço Unitário',
     key: 'id',
     formatter: (value) => {
       const product = props.products.find(p => p.id == value);
-      return `R$ ${Number(product?.price || 0).toFixed(2)}`;
+      return formatCurrency(product?.price || 0);
     }
   },
   {
@@ -371,7 +371,7 @@ const componentColumns = [
     formatter: (value, component) => {
       const product = props.products.find(p => p.id == value);
       const total = Number(component.quantity) * Number(product?.price || 0);
-      return `R$ ${total.toFixed(2)}`;
+      return formatCurrency(total);
     }
   }
 ];
