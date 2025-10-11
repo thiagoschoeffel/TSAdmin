@@ -124,7 +124,7 @@ const performDelete = () => {
     <div class="lg:col-span-2 space-y-6">
       <!-- Add Product Section -->
       <div class="card">
-        <h2 class="text-xl font-semibold mb-6">Adicionar Produto</h2>
+        <h2 class="text-xl font-semibold mb-6">Adicionar produto</h2>
         <div class="space-y-4">
           <label class="form-label">
             Produto
@@ -171,7 +171,7 @@ const performDelete = () => {
 
       <!-- Items List -->
       <div class="card">
-        <h2 class="text-xl font-semibold mb-6">Itens do Pedido</h2>
+        <h2 class="text-xl font-semibold mb-6">Itens do pedido</h2>
         <div class="space-y-0">
           <div v-for="(item, index) in items" :key="index" class="flex items-center justify-between p-4" :class="{ 'border-t border-slate-200': index > 0, 'bg-slate-50': index % 2 === 0 }">
             <div class="flex-1">

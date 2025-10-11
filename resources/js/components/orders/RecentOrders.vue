@@ -35,7 +35,7 @@ const getStatusLabel = (status) => {
 <template>
   <div>
     <div>
-      <h2 class="text-xl font-semibold">Últimos Pedidos</h2>
+      <h2 class="text-xl font-semibold">Últimos pedidos</h2>
       <p class="mt-2 text-sm text-slate-500">Visualize os pedidos mais recentes criados no sistema.</p>
     </div>
     <div class="space-y-4 mt-6">

@@ -150,7 +150,7 @@ watch(modalOpen, (isOpen) => {
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 class="text-3xl font-semibold text-slate-900 flex items-center gap-2">
-            Novo Pedido
+            Novo pedido
           </h1>
           <p class="mt-2 text-sm text-slate-500">Crie um novo pedido adicionando produtos e finalizando com cliente e pagamento.</p>
         </div>
@@ -178,8 +178,8 @@ watch(modalOpen, (isOpen) => {
       v-model="modalOpen"
       :clients="clients"
       :addresses="addresses"
-      title="Finalizar Pedido"
-      confirm-text="Finalizar Pedido"
+      title="Finalizar pedido"
+      confirm-text="Finalizar pedido"
       v-model:selected-client="selectedClient"
       v-model:payment-method="paymentMethod"
       v-model:delivery-type="deliveryType"

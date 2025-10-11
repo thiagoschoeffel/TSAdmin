@@ -229,7 +229,7 @@ const getStatusLabel = (status) => {
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 class="text-3xl font-semibold text-slate-900 flex items-center gap-2">
-            Editar Pedido #{{ order.id }}
+            Editar pedido #{{ order.id }}
           </h1>
           <p class="mt-2 text-sm text-slate-500">Edite os itens do pedido e finalize com cliente e pagamento.</p>
         </div>
@@ -263,8 +263,8 @@ const getStatusLabel = (status) => {
       v-model="modalOpen"
       :clients="clients"
       :addresses="addresses"
-      title="Salvar Alterações"
-      confirm-text="Salvar Alterações"
+      title="Salvar alterações"
+      confirm-text="Salvar alterações"
       v-model:selected-client="selectedClient"
       v-model:payment-method="paymentMethod"
       v-model:delivery-type="deliveryType"

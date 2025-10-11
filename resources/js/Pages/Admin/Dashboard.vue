@@ -97,7 +97,7 @@ const chartSeries = [{
 
       <!-- Sales Chart -->
       <LineChart
-        title="Vendas dos Últimos 30 Dias"
+        title="Vendas dos últimos 30 dias"
         :series="chartSeries"
         :categories="salesChart?.categories || []"
         height="350"

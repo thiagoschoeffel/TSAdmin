@@ -160,7 +160,7 @@ const confirm = () => {
       </label>
 
       <label class="form-label" v-if="orderStatus !== undefined">
-        Status do Pedido
+        Status do pedido
         <InputSelect v-model="orderStatus" :options="[
           { value: 'pending', label: 'Pendente' },
           { value: 'confirmed', label: 'Confirmado' },
@@ -171,7 +171,7 @@ const confirm = () => {
       </label>
 
       <label class="form-label">
-        Forma de Pagamento
+        Forma de pagamento
         <InputSelect ref="paymentMethodRef" v-model="paymentMethod" @keydown="handlePaymentMethodKeydown" :options="[
           { value: 'cash', label: 'Dinheiro' },
           { value: 'card', label: 'Cartão' },
@@ -180,7 +180,7 @@ const confirm = () => {
       </label>
 
       <div>
-        <label class="form-label mb-2">Tipo de Entrega</label>
+        <label class="form-label mb-2">Tipo de entrega</label>
         <div class="flex">
           <Button
             @click="deliveryType = 'pickup'"
@@ -205,7 +205,7 @@ const confirm = () => {
 
       <div>
         <label class="form-label">
-          Endereço de Entrega
+          Endereço de entrega
           <InputSelect v-model="selectedAddress" :options="clientAddresses.map(address => ({
             value: address.id,
             label: `${address.description} - ${address.address}, ${address.address_number} - ${address.city}/${address.state}`
