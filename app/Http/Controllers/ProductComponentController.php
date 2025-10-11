@@ -12,7 +12,7 @@ class ProductComponentController extends Controller
 {
     public function index(Product $product): JsonResponse
     {
-        abort_unless(Auth::user()->canManage('products', 'view'), 403);
+        $this->authorize('manageComponents', $product);
 
         return response()->json([
             'components' => $product->components->map(function ($component) {
@@ -34,10 +34,7 @@ class ProductComponentController extends Controller
 
     public function store(Request $request, Product $product): JsonResponse
     {
-        abort_unless(
-            Auth::user()->canManage('products', 'create') || Auth::user()->canManage('products', 'update'),
-            403
-        );
+        $this->authorize('createComponent', $product);
 
         $request->validate([
             'component_id' => 'required|exists:products,id',
@@ -88,7 +85,7 @@ class ProductComponentController extends Controller
 
     public function update(Request $request, Product $product, $componentId): JsonResponse
     {
-        abort_unless(Auth::user()->canManage('products', 'update'), 403);
+        $this->authorize('updateComponent', $product);
 
         $request->validate([
             'quantity' => 'required|numeric|min:0.01',
@@ -121,10 +118,7 @@ class ProductComponentController extends Controller
 
     public function destroy(Product $product, $componentId): JsonResponse
     {
-        abort_unless(
-            Auth::user()->canManage('products', 'update') || Auth::user()->canManage('products', 'delete'),
-            403
-        );
+        $this->authorize('deleteComponent', $product);
 
         $product->components()->detach($componentId);
 

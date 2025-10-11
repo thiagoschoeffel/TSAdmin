@@ -15,7 +15,7 @@ class AddressController extends Controller
 {
     public function index(Client $client): JsonResponse
     {
-        abort_unless(Auth::user()->canManage('clients', 'view'), 403);
+        $this->authorize('manageAddresses', $client);
 
         return response()->json([
             'addresses' => $client->addresses->map(function ($address) {
@@ -41,10 +41,8 @@ class AddressController extends Controller
 
     public function store(StoreAddressRequest $request, Client $client): JsonResponse
     {
-        abort_unless(
-            Auth::user()->canManage('clients', 'create') || Auth::user()->canManage('clients', 'update'),
-            403
-        );
+        $this->authorize('createAddress', $client);
+
         $address = Address::create(array_merge($request->validated(), [
             'client_id' => $client->id,
             'created_by_id' => Auth::id(),
@@ -72,7 +70,7 @@ class AddressController extends Controller
 
     public function update(UpdateAddressRequest $request, Client $client, $addressId): JsonResponse
     {
-        abort_unless(Auth::user()->canManage('clients', 'update'), 403);
+        $this->authorize('updateAddress', $client);
         $address = $client->addresses()->findOrFail($addressId);
 
         $address->fill($request->validated());
@@ -103,10 +101,7 @@ class AddressController extends Controller
 
     public function destroy(Client $client, $addressId): JsonResponse
     {
-        abort_unless(
-            Auth::user()->canManage('clients', 'update') || Auth::user()->canManage('clients', 'delete'),
-            403
-        );
+        $this->authorize('deleteAddress', $client);
         $address = $client->addresses()->findOrFail($addressId);
         $address->delete();
 

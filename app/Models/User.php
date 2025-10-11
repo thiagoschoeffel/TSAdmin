@@ -56,7 +56,28 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'admin';
     }
 
+    /**
+     * Check if user has a specific permission.
+     *
+     * @deprecated Use Laravel Policies instead (e.g., $user->can('view', $model))
+     * This method is kept for internal use by policies only.
+     *
+     * @internal This method should only be called from Policy classes
+     */
     public function canManage(string $resource, string $ability): bool
+    {
+        return $this->hasPermission($resource, $ability);
+    }
+
+    /**
+     * Internal method to check if user has a specific permission.
+     * Used by policies to verify granular permissions.
+     *
+     * @param string $resource The resource name (e.g., 'clients', 'products')
+     * @param string $ability The ability name (e.g., 'view', 'create', 'update', 'delete')
+     * @return bool
+     */
+    private function hasPermission(string $resource, string $ability): bool
     {
         if ($this->isAdmin()) {
             return true;

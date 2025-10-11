@@ -103,7 +103,7 @@ class ProductController extends Controller
 
     public function modal(Product $product): JsonResponse
     {
-        abort_unless(Auth::user()->canManage('products', 'view'), 403);
+        $this->authorize('view', $product);
         $product->load(['createdBy', 'updatedBy', 'components.components']);
 
         return response()->json([

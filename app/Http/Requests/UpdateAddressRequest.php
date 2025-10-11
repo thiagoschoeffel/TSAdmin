@@ -11,7 +11,9 @@ class UpdateAddressRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->canManage('clients', 'update');
+        // Get the client from the route
+        $client = $this->route('client');
+        return $this->user()->can('updateAddress', $client);
     }
 
     public function rules(): array

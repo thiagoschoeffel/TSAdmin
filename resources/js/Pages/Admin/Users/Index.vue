@@ -18,6 +18,11 @@ const props = defineProps({
 });
 
 const page = usePage();
+const user = computed(() => page.props.auth?.user || null);
+const isAdmin = computed(() => user.value?.role === 'admin');
+const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.users?.create);
+const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.users?.update);
+const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.users?.delete);
 const meId = computed(() => page.props.auth?.user?.id);
 
 const search = ref(props.filters.search || '');
@@ -69,7 +74,7 @@ const openDetails = (user) => {
           </h1>
           <p class="mt-2 text-sm text-slate-500">Gerencie os usuários do sistema ou cadastre novos membros.</p>
         </div>
-        <Button variant="primary" :href="route('users.create')">Novo usuário</Button>
+        <Button v-if="canCreate" variant="primary" :href="route('users.create')">Novo usuário</Button>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">
@@ -143,11 +148,11 @@ const openDetails = (user) => {
                   </template>
                   <template #default="{ close }">
                     <template v-if="u.id !== meId">
-                      <Link class="menu-panel-link" :href="`/admin/users/${u.id}/edit`">
+                      <Link v-if="canUpdate" class="menu-panel-link" :href="`/admin/users/${u.id}/edit`">
                         <HeroIcon name="pencil" class="h-4 w-4" />
                         <span>Editar</span>
                       </Link>
-                      <button type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(u); close()">
+                      <button v-if="canDelete" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(u); close()">
                         <HeroIcon name="trash" class="h-4 w-4" />
                         <span>Excluir</span>
                       </button>

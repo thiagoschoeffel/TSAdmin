@@ -17,7 +17,8 @@ class ClientController extends Controller
 {
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->canManage('clients', 'view'), 403);
+        $this->authorize('viewAny', Client::class);
+
         $query = Client::query();
 
         if ($search = $request->string('search')->toString()) {
@@ -69,7 +70,8 @@ class ClientController extends Controller
 
     public function create(): Response
     {
-        abort_unless(Auth::user()->canManage('clients', 'create'), 403);
+        $this->authorize('create', Client::class);
+
         return Inertia::render('Admin/Clients/Create', [
             'states' => [
                 'AC',
@@ -105,7 +107,8 @@ class ClientController extends Controller
 
     public function store(StoreClientRequest $request): RedirectResponse
     {
-        abort_unless($request->user()->canManage('clients', 'create'), 403);
+        $this->authorize('create', Client::class);
+
         $data = $this->preparePayload($request->validated());
         $addresses = $data['addresses'] ?? [];
         unset($data['addresses']);
@@ -128,7 +131,7 @@ class ClientController extends Controller
 
     public function modal(Client $client): JsonResponse
     {
-        abort_unless(Auth::user()->canManage('clients', 'view'), 403);
+        $this->authorize('view', $client);
         $client->load(['createdBy', 'updatedBy', 'addresses']);
 
         return response()->json([
@@ -171,7 +174,7 @@ class ClientController extends Controller
 
     public function edit(Client $client): Response
     {
-        abort_unless(Auth::user()->canManage('clients', 'update'), 403);
+        $this->authorize('update', $client);
         $client->load('addresses');
 
         return Inertia::render('Admin/Clients/Edit', [
@@ -235,7 +238,7 @@ class ClientController extends Controller
 
     public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
-        abort_unless(Auth::user()->canManage('clients', 'update'), 403);
+        $this->authorize('update', $client);
 
         $data = $this->preparePayload($request->validated());
         unset($data['addresses']);
@@ -253,7 +256,7 @@ class ClientController extends Controller
 
     public function destroy(Client $client): RedirectResponse
     {
-        abort_unless(Auth::user()->canManage('clients', 'delete'), 403);
+        $this->authorize('delete', $client);
         $client->delete();
 
         return redirect()

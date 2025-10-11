@@ -20,6 +20,8 @@ class OrderController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Order::class);
+
         $query = Order::with(['client', 'user', 'address']);
 
         if ($search = $request->string('search')->toString()) {
@@ -78,6 +80,8 @@ class OrderController extends Controller
      */
     public function create(): Response
     {
+        $this->authorize('create', Order::class);
+
         $recentOrders = Order::with(['client', 'user', 'address'])
             ->orderBy('created_at', 'desc')
             ->limit(3)
@@ -123,6 +127,8 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Order::class);
+
         $request->validate([
             'client_id' => 'nullable|exists:clients,id',
             'items' => 'required|array|min:1',
@@ -173,6 +179,7 @@ class OrderController extends Controller
     public function edit(string $id): Response
     {
         $order = Order::with(['client', 'user', 'items.product', 'address'])->findOrFail($id);
+        $this->authorize('update', $order);
 
         $recentOrders = Order::with(['client', 'user', 'address'])
             ->where('id', '!=', $id)
@@ -249,6 +256,9 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $order = Order::findOrFail($id);
+        $this->authorize('update', $order);
+
         $request->validate([
             'client_id' => 'nullable|exists:clients,id',
             'status' => 'required|in:pending,confirmed,shipped,delivered,cancelled',
@@ -256,8 +266,6 @@ class OrderController extends Controller
             'delivery_type' => 'nullable|in:pickup,delivery',
             'address_id' => 'nullable|exists:addresses,id',
         ]);
-
-        $order = Order::findOrFail($id);
 
         // Atualizar dados básicos do pedido
         $order->update([
@@ -279,6 +287,7 @@ class OrderController extends Controller
     public function destroy(string $id)
     {
         $order = Order::findOrFail($id);
+        $this->authorize('delete', $order);
 
         // Delete all order items first
         $order->items()->delete();
@@ -294,11 +303,13 @@ class OrderController extends Controller
      */
     public function updateItem(Request $request, string $orderId, string $itemId)
     {
+        $order = Order::findOrFail($orderId);
+        $this->authorize('updateItem', $order);
+
         $request->validate([
             'quantity' => 'required|numeric|min:0.01|max:99999.99',
         ]);
 
-        $order = Order::findOrFail($orderId);
         $item = $order->items()->findOrFail($itemId);
 
         $quantity = (float) $request->quantity;
@@ -342,6 +353,8 @@ class OrderController extends Controller
     public function removeItem(string $orderId, string $itemId)
     {
         $order = Order::findOrFail($orderId);
+        $this->authorize('removeItem', $order);
+
         $item = $order->items()->findOrFail($itemId);
 
         $item->delete();
@@ -363,12 +376,14 @@ class OrderController extends Controller
      */
     public function addItem(Request $request, string $orderId)
     {
+        $order = Order::findOrFail($orderId);
+        $this->authorize('addItem', $order);
+
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|numeric|min:0.01|max:99999.99',
         ]);
 
-        $order = Order::findOrFail($orderId);
         $product = Product::findOrFail($request->product_id);
 
         $quantity = floatval($request->quantity);
@@ -426,18 +441,7 @@ class OrderController extends Controller
      */
     public function modal(Order $order): JsonResponse
     {
-        $user = Auth::user();
-        if (!$user) {
-            abort(403);
-        }
-
-        if ($user->role === 'admin') {
-            // Admin can view all orders
-        } elseif (isset($user->permissions['orders']['view']) && $user->permissions['orders']['view']) {
-            // User has specific permission
-        } else {
-            abort(403);
-        }
+        $this->authorize('view', $order);
 
         $order->load(['client', 'user', 'items.product', 'address', 'createdBy', 'updatedBy']);
 

@@ -6,8 +6,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        commands: __DIR__.'/../routes/console.php',
+        web: __DIR__ . '/../routes/web.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -15,11 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => \App\Http\Middleware\Authenticate::class,
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'check_policy' => \App\Http\Middleware\CheckPolicy::class,
         ]);
 
         $middleware->redirectTo(
-            guests: fn () => route('login'),
-            users: fn () => route('dashboard'),
+            guests: fn() => route('login'),
+            users: fn() => route('dashboard'),
         );
 
         // Inertia: adiciona o middleware ao grupo 'web' (não impacta rotas até que sejam Inertia)

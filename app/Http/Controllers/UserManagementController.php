@@ -17,6 +17,8 @@ class UserManagementController extends Controller
 {
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', User::class);
+
         $query = User::query();
 
         if ($search = $request->string('search')->toString()) {
@@ -56,6 +58,8 @@ class UserManagementController extends Controller
 
     public function create(): Response
     {
+        $this->authorize('create', User::class);
+
         return Inertia::render('Admin/Users/Create', [
             'resources' => config('permissions.resources', []),
         ]);
@@ -63,6 +67,8 @@ class UserManagementController extends Controller
 
     public function store(StoreUserRequest $request): RedirectResponse
     {
+        $this->authorize('create', User::class);
+
         $data = $request->validated();
 
         $data['permissions'] = $this->preparePermissions(
@@ -83,6 +89,7 @@ class UserManagementController extends Controller
 
     public function edit(User $user): Response
     {
+        $this->authorize('update', $user);
         $this->ensureNotCurrentUser($user);
 
         return Inertia::render('Admin/Users/Edit', [
@@ -100,6 +107,7 @@ class UserManagementController extends Controller
 
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
+        $this->authorize('update', $user);
         $this->ensureNotCurrentUser($user);
 
         $payload = $request->safe()->only(['name', 'email', 'status', 'role']);
@@ -131,6 +139,7 @@ class UserManagementController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
+        $this->authorize('delete', $user);
         $this->ensureNotCurrentUser($user);
 
         validator(
@@ -147,6 +156,8 @@ class UserManagementController extends Controller
 
     public function modal(User $user): JsonResponse
     {
+        $this->authorize('view', $user);
+
         return response()->json([
             'user' => [
                 'id' => $user->id,
