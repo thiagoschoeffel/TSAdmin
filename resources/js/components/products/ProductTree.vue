@@ -55,7 +55,7 @@ const childIndent = (lvl) => ({ marginLeft: `${(lvl + 1) * 11}px` })
               <div class="tree-content">
                 <div class="flex items-center gap-4">
                   <span class="font-medium text-slate-900 truncate">{{ node.name }}</span>
-                  <span class="text-sm text-slate-500">×{{ node.quantity }}</span>
+                  <span class="text-sm text-slate-500">x&nbsp;&nbsp;&nbsp;{{ node.quantity }}</span>
                   <Badge :variant="node.status === 'active' ? 'success' : 'danger'">
                     {{ node.status === 'active' ? 'Ativo' : 'Inativo' }}
                   </Badge>
