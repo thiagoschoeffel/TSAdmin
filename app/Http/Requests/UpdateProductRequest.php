@@ -18,6 +18,7 @@ class UpdateProductRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'unit_of_measure' => 'required|string|in:UND,KG,M2,M3,L,ML,PCT,CX,DZ',
             'status' => 'in:active,inactive',
             'components' => 'array',
             'components.*.id' => 'required|exists:products,id',

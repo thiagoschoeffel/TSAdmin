@@ -11,6 +11,7 @@ const form = useForm({
   name: '',
   description: '',
   price: '',
+  unit_of_measure: 'UND',
   status: 'active',
   components: [],
 });

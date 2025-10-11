@@ -12,6 +12,7 @@ class StoreProductRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
+            'unit_of_measure' => 'required|string|in:UND,KG,M2,M3,L,ML,PCT,CX,DZ',
             'status' => 'required|in:active,inactive',
             'components' => 'nullable|array',
             'components.*.id' => 'required|integer|exists:products,id',

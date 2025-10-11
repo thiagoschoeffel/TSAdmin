@@ -52,6 +52,7 @@ class ProductController extends Controller
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
             'price' => $data['price'],
+            'unit_of_measure' => $data['unit_of_measure'],
             'status' => $data['status'] ?? 'active',
             'created_by' => Auth::id(),
         ]);
@@ -81,6 +82,7 @@ class ProductController extends Controller
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
             'price' => $data['price'],
+            'unit_of_measure' => $data['unit_of_measure'],
             'status' => $data['status'] ?? 'active',
             'updated_by' => Auth::id(),
         ]);
@@ -122,6 +124,7 @@ class ProductController extends Controller
                         'id' => $component->id,
                         'name' => $component->name,
                         'quantity' => $component->pivot->quantity,
+                        'unit_of_measure' => $component->unit_of_measure,
                         'price' => $component->formattedPrice(),
                         'total' => 'R$ ' . number_format($component->price * $component->pivot->quantity, 2, ',', '.'),
                         'status' => $component->status,
@@ -150,6 +153,7 @@ class ProductController extends Controller
                 'id' => $component->id,
                 'name' => $component->name,
                 'quantity' => $component->pivot->quantity,
+                'unit_of_measure' => $component->unit_of_measure,
                 'price' => $component->formattedPrice(),
                 'total' => 'R$ ' . number_format($component->price * $component->pivot->quantity, 2, ',', '.'),
                 'status' => $component->status,

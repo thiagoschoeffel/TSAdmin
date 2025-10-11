@@ -410,6 +410,22 @@ const handleComponentAction = ({ action, item }) => {
         <span v-if="form.errors.price" class="text-sm font-medium text-rose-600">{{ form.errors.price }}</span>
       </label>
 
+      <label class="form-label">
+        Unidade de Medida
+        <InputSelect v-model="form.unit_of_measure" required :error="!!form.errors.unit_of_measure" :options="[
+          { value: 'UND', label: 'Unidade (UND)' },
+          { value: 'KG', label: 'Quilograma (KG)' },
+          { value: 'M2', label: 'Metro Quadrado (M²)' },
+          { value: 'M3', label: 'Metro Cúbico (M³)' },
+          { value: 'L', label: 'Litro (L)' },
+          { value: 'ML', label: 'Mililitro (ML)' },
+          { value: 'PCT', label: 'Pacote (PCT)' },
+          { value: 'CX', label: 'Caixa (CX)' },
+          { value: 'DZ', label: 'Dúzia (DZ)' },
+        ]" />
+        <span v-if="form.errors.unit_of_measure" class="text-sm font-medium text-rose-600">{{ form.errors.unit_of_measure }}</span>
+      </label>
+
       <div class="switch-field sm:col-span-2 lg:col-span-3">
         <span class="switch-label">Status do produto</span>
         <Switch v-model="form.status" true-value="active" false-value="inactive" />

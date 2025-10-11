@@ -92,6 +92,10 @@ const columns = [
     formatter: (value) => `R$ ${Number(value).toFixed(2)}`
   },
   {
+    header: 'Unidade',
+    key: 'unit_of_measure'
+  },
+  {
     header: 'Status',
     key: 'status',
     component: Badge,

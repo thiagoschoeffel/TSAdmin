@@ -18,6 +18,7 @@ const form = useForm({
   name: props.product.name,
   description: props.product.description,
   price: props.product.price,
+  unit_of_measure: props.product.unit_of_measure,
   status: props.product.status,
   components: components,
 });

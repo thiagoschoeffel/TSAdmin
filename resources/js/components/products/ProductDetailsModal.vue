@@ -124,6 +124,10 @@ const updatedBy = computed(() => {
             <dd class="text-sm text-slate-800">{{ payload.price }}</dd>
           </div>
           <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Unidade de Medida</dt>
+            <dd class="text-sm text-slate-800">{{ payload.unit_of_measure }}</dd>
+          </div>
+          <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Descrição</dt>
             <dd class="text-sm text-slate-800">{{ payload.description || '—' }}</dd>
           </div>

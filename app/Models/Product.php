@@ -16,6 +16,7 @@ class Product extends Model
         'code',
         'description',
         'price',
+        'unit_of_measure',
         'status',
         'created_by',
         'updated_by',

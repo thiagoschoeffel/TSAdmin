@@ -22,6 +22,10 @@ function isExpanded(id) {
 
 // compute an inline style for children indentation so child rows align
 const childIndent = (lvl) => ({ marginLeft: `${(lvl + 1) * 11}px` })
+
+function formatQuantity(quantity) {
+  return Number(quantity).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 </script>
 
 <template>
@@ -55,7 +59,7 @@ const childIndent = (lvl) => ({ marginLeft: `${(lvl + 1) * 11}px` })
               <div class="tree-content">
                 <div class="flex items-center gap-4">
                   <span class="font-medium text-slate-900 truncate">{{ node.name }}</span>
-                  <span class="text-sm text-slate-500">x&nbsp;&nbsp;&nbsp;{{ node.quantity }}</span>
+                  <span class="text-sm text-slate-500">x&nbsp;&nbsp;&nbsp;{{ formatQuantity(node.quantity) }}&nbsp;&nbsp;&nbsp;{{ node.unit_of_measure }}</span>
                   <Badge :variant="node.status === 'active' ? 'success' : 'danger'">
                     {{ node.status === 'active' ? 'Ativo' : 'Inativo' }}
                   </Badge>
