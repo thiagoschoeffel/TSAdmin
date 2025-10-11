@@ -132,6 +132,22 @@ const updatedBy = computed(() => {
             <dd class="text-sm text-slate-800">{{ payload.description || '—' }}</dd>
           </div>
           <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Comprimento</dt>
+            <dd class="text-sm text-slate-800">{{ payload.length ? `${Number(payload.length).toFixed(2)} cm` : '—' }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Largura</dt>
+            <dd class="text-sm text-slate-800">{{ payload.width ? `${Number(payload.width).toFixed(2)} cm` : '—' }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Altura</dt>
+            <dd class="text-sm text-slate-800">{{ payload.height ? `${Number(payload.height).toFixed(2)} cm` : '—' }}</dd>
+          </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Peso</dt>
+            <dd class="text-sm text-slate-800">{{ payload.weight ? `${Number(payload.weight).toFixed(2)} kg` : '—' }}</dd>
+          </div>
+          <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Status</dt>
             <dd>
               <Badge :variant="payload.status === 'active' ? 'success' : 'danger'">
