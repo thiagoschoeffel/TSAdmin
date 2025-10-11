@@ -174,6 +174,26 @@ onMounted(() => {
       goToNewOrder();
     }
   });
+
+  // Focus on product input when page loads
+  nextTick(() => {
+    const productInput = document.querySelector('input[placeholder*="Digite o nome ou código do produto"]');
+    if (productInput) {
+      productInput.focus();
+    }
+  });
+});
+
+// Watch modal to refocus on product input when modal closes
+watch(modalOpen, (isOpen) => {
+  if (!isOpen) {
+    nextTick(() => {
+      const productInput = document.querySelector('input[placeholder*="Digite o nome ou código do produto"]');
+      if (productInput) {
+        productInput.focus();
+      }
+    });
+  }
 });
 
 const getStatusVariant = (status) => {

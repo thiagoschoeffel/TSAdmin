@@ -1,7 +1,7 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { ref, computed, nextTick, onMounted } from 'vue';
+import { ref, computed, nextTick, onMounted, watch } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Button from '@/components/Button.vue';
 import OrderForm from '@/components/orders/OrderForm.vue';
@@ -119,6 +119,26 @@ onMounted(() => {
       openModal();
     }
   });
+
+  // Focus on product input when page loads
+  nextTick(() => {
+    const productInput = document.querySelector('input[placeholder*="Digite o nome ou código do produto"]');
+    if (productInput) {
+      productInput.focus();
+    }
+  });
+});
+
+// Watch modal to refocus on product input when modal closes
+watch(modalOpen, (isOpen) => {
+  if (!isOpen) {
+    nextTick(() => {
+      const productInput = document.querySelector('input[placeholder*="Digite o nome ou código do produto"]');
+      if (productInput) {
+        productInput.focus();
+      }
+    });
+  }
 });
 </script>
 
