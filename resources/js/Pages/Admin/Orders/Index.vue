@@ -3,6 +3,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
+import InputDatePicker from '@/components/InputDatePicker.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed, getCurrentInstance } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
@@ -32,13 +33,29 @@ const route = instance.appContext.config.globalProperties.route;
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
+// Filtro de período do pedido com hora
+const orderedPeriod = ref({
+  start: props.filters.ordered_from || null,
+  end: props.filters.ordered_to || null,
+});
 
 const filtering = ref(false);
 const submitFilters = () => {
   filtering.value = true;
-  router.get('/admin/orders', { search: search.value, status: status.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
+  const params = {
+    search: search.value,
+    status: status.value,
+    ordered_from: orderedPeriod.value?.start || null,
+    ordered_to: orderedPeriod.value?.end || null,
+  };
+  router.get('/admin/orders', params, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
 };
-const resetFilters = () => { search.value = ''; status.value = ''; submitFilters(); };
+const resetFilters = () => {
+  search.value = '';
+  status.value = '';
+  orderedPeriod.value = { start: null, end: null };
+  submitFilters();
+};
 
 // Estado para confirmação de exclusão
 const deleteState = ref({ open: false, processing: false, order: null });
@@ -208,6 +225,10 @@ const handleTableAction = ({ action, item }) => {
               { value: 'delivered', label: 'Entregue' },
               { value: 'cancelled', label: 'Cancelado' }
             ]" />
+          </label>
+          <label class="form-label">
+            Período do pedido
+            <InputDatePicker v-model="orderedPeriod" :range="true" :withTime="true" placeholder="Selecione o período" />
           </label>
         </div>
         <div class="flex flex-wrap gap-3">

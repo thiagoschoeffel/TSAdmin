@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -32,6 +33,37 @@ class OrderController extends Controller
 
         if ($status = $request->get('status')) {
             $query->where('status', $status);
+        }
+
+        // Filtro por período do pedido (ordered_at) com suporte a hora
+        $orderedFrom = $request->get('ordered_from');
+        $orderedTo = $request->get('ordered_to');
+        $from = null; $to = null;
+        try {
+            if ($orderedFrom) {
+                $from = Carbon::createFromFormat('Y-m-d H:i', $orderedFrom);
+            }
+        } catch (\Throwable $e) {
+            try {
+                $from = Carbon::createFromFormat('Y-m-d', $orderedFrom)->startOfDay();
+            } catch (\Throwable $e2) {}
+        }
+        try {
+            if ($orderedTo) {
+                $to = Carbon::createFromFormat('Y-m-d H:i', $orderedTo);
+            }
+        } catch (\Throwable $e) {
+            try {
+                $to = Carbon::createFromFormat('Y-m-d', $orderedTo)->endOfDay();
+            } catch (\Throwable $e2) {}
+        }
+
+        if ($from && $to) {
+            $query->whereBetween('ordered_at', [$from, $to]);
+        } elseif ($from) {
+            $query->where('ordered_at', '>=', $from);
+        } elseif ($to) {
+            $query->where('ordered_at', '<=', $to);
         }
 
         $orders = $query
@@ -70,6 +102,8 @@ class OrderController extends Controller
             'filters' => [
                 'search' => $request->string('search')->toString(),
                 'status' => $request->get('status'),
+                'ordered_from' => $orderedFrom,
+                'ordered_to' => $orderedTo,
             ],
             'orders' => $orders,
         ]);
