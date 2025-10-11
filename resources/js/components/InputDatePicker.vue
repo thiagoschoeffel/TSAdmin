@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import Dropdown from './Dropdown.vue'
+import InputSelect from './InputSelect.vue'
 import { ChevronRightIcon, CalendarDaysIcon, ClockIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
@@ -172,6 +173,8 @@ const monthB = computed(() => props.range ? monthDays(nextMonth.value) : [])
 const gridClass = computed(() => ['grid gap-3', props.range ? 'grid-cols-2' : 'grid-cols-1'].join(' '))
 const hours = Array.from({ length: 24 }, (_, i) => i)
 const minutes = Array.from({ length: 60 }, (_, i) => i)
+const hourOptions = computed(() => hours.map(h => ({ value: h, label: fmt2(h) })))
+const minuteOptions = computed(() => minutes.map(m => ({ value: m, label: fmt2(m) })))
 
 function prevMonth() { viewMonth.value = new Date(viewMonth.value.getFullYear(), viewMonth.value.getMonth()-1, 1) }
 function nextMonthFn() { viewMonth.value = new Date(viewMonth.value.getFullYear(), viewMonth.value.getMonth()+1, 1) }
@@ -397,23 +400,15 @@ function applySingle(close) {
             <div v-if="props.withTime && (!props.range || (props.range && rangeStart))" class="mt-2 flex items-center gap-2 text-sm">
               <ClockIcon class="h-4 w-4 text-slate-500" />
               <template v-if="!props.range">
-                <select v-model.number="singleH" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
-                  <option v-for="h in hours" :key="h" :value="h">{{ fmt2(h) }}</option>
-                </select>
+                <div class="w-18"><InputSelect v-model="singleH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
                 <span>:</span>
-                <select v-model.number="singleM" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
-                  <option v-for="m in minutes" :key="m" :value="m">{{ fmt2(m) }}</option>
-                </select>
+                <div class="w-18"><InputSelect v-model="singleM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
               </template>
               <template v-else>
                 <div class="text-slate-500">Início</div>
-                <select v-model.number="startH" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
-                  <option v-for="h in hours" :key="'sh'+h" :value="h">{{ fmt2(h) }}</option>
-                </select>
+                <div class="w-18"><InputSelect v-model="startH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
                 <span>:</span>
-                <select v-model.number="startM" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
-                  <option v-for="m in minutes" :key="'sm'+m" :value="m">{{ fmt2(m) }}</option>
-                </select>
+                <div class="w-18"><InputSelect v-model="startM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
               </template>
             </div>
           </div>
@@ -445,13 +440,9 @@ function applySingle(close) {
             <div v-if="props.withTime && rangeEnd" class="mt-2 flex items-center gap-2 text-sm">
               <ClockIcon class="h-4 w-4 text-slate-500" />
               <div class="text-slate-500">Fim</div>
-              <select v-model.number="endH" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
-                <option v-for="h in hours" :key="'eh'+h" :value="h">{{ fmt2(h) }}</option>
-              </select>
+              <div class="w-18"><InputSelect v-model="endH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
               <span>:</span>
-              <select v-model.number="endM" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm">
-                <option v-for="m in minutes" :key="'em'+m" :value="m">{{ fmt2(m) }}</option>
-              </select>
+              <div class="w-18"><InputSelect v-model="endM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
             </div>
           </div>
         </div>
