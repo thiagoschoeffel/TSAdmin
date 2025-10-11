@@ -56,7 +56,7 @@ const columns = [
     component: 'button',
     props: (client) => ({
       type: 'button',
-      class: (isAdmin.value || user.value?.permissions?.clients?.view) ? 'link' : 'text-slate-900',
+      class: (isAdmin.value || user.value?.permissions?.clients?.view) ? 'font-bold text-blue-600 cursor-pointer' : 'text-slate-900',
       onClick: () => openDetails(client)
     })
   },

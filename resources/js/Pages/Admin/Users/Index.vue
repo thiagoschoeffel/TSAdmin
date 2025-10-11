@@ -73,7 +73,7 @@ const columns = [
     component: 'button',
     props: (user) => ({
       type: 'button',
-      class: 'link',
+      class: 'font-bold text-blue-600 cursor-pointer',
       onClick: () => openDetails(user)
     })
   },

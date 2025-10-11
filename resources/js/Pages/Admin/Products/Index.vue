@@ -78,7 +78,7 @@ const columns = [
     component: 'button',
     props: (product) => ({
       type: 'button',
-      class: canView.value ? 'link' : 'text-slate-900',
+      class: canView.value ? 'font-bold text-blue-600 cursor-pointer' : 'text-slate-900',
       onClick: () => openDetails(product)
     })
   },
