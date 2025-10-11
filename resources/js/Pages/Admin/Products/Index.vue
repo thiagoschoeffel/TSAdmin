@@ -96,6 +96,26 @@ const columns = [
     key: 'unit_of_measure'
   },
   {
+    header: 'Comprimento',
+    key: 'length',
+    formatter: (value) => value ? `${Number(value).toFixed(2)} cm` : '-'
+  },
+  {
+    header: 'Largura',
+    key: 'width',
+    formatter: (value) => value ? `${Number(value).toFixed(2)} cm` : '-'
+  },
+  {
+    header: 'Altura',
+    key: 'height',
+    formatter: (value) => value ? `${Number(value).toFixed(2)} cm` : '-'
+  },
+  {
+    header: 'Peso',
+    key: 'weight',
+    formatter: (value) => value ? `${Number(value).toFixed(2)} kg` : '-'
+  },
+  {
     header: 'Status',
     key: 'status',
     component: Badge,

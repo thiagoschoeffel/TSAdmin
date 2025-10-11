@@ -83,12 +83,19 @@ class ProductFactory extends Factory
 
         $product = $faker->randomElement($products);
 
+        // Adicionar dimensões e peso baseado no tipo de produto
+        $dimensions = $this->getDimensionsForProduct($product['name'], $product['unit_of_measure']);
+
         return [
             'name' => $product['name'],
             'code' => $faker->unique()->regexify('[A-Z]{3}[0-9]{3}'),
             'description' => $product['description'],
             'price' => $product['price'],
             'unit_of_measure' => $product['unit_of_measure'],
+            'length' => $dimensions['length'],
+            'width' => $dimensions['width'],
+            'height' => $dimensions['height'],
+            'weight' => $dimensions['weight'],
             'status' => $faker->randomElement(['active', 'inactive']),
             'created_by' => User::factory(),
             'updated_by' => null,
@@ -179,6 +186,86 @@ class ProductFactory extends Factory
                 // Para bebidas e sobremesas, nada
             }
         });
+    }
+
+    private function getDimensionsForProduct(string $productName, string $unitOfMeasure): array
+    {
+        // Dimensões padrão (null para produtos que não fazem sentido ter dimensões físicas)
+        $default = [
+            'length' => null,
+            'width' => null,
+            'height' => null,
+            'weight' => null,
+        ];
+
+        // Dimensões por categoria de produto
+        $dimensions = [
+            // Marmitas completas (embalagens retangulares típicas)
+            'Feijoada Completa' => ['length' => 20.0, 'width' => 15.0, 'height' => 8.0, 'weight' => 1.2],
+            'Arroz com Feijão' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 1.0],
+            'Moqueca de Peixe' => ['length' => 20.0, 'width' => 15.0, 'height' => 8.0, 'weight' => 1.1],
+            'Strogonoff de Frango' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 0.9],
+            'Lasanha à Bolonhesa' => ['length' => 22.0, 'width' => 16.0, 'height' => 6.0, 'weight' => 1.3],
+            'Churrasco Misto' => ['length' => 20.0, 'width' => 15.0, 'height' => 9.0, 'weight' => 1.4],
+            'Baião de Dois' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 1.0],
+            'Frango com Quiabo' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 0.9],
+            'Carne de Panela' => ['length' => 20.0, 'width' => 15.0, 'height' => 8.0, 'weight' => 1.2],
+            'Peixe Assado' => ['length' => 20.0, 'width' => 15.0, 'height' => 8.0, 'weight' => 1.1],
+            'Bobó de Camarão' => ['length' => 20.0, 'width' => 15.0, 'height' => 8.0, 'weight' => 1.0],
+            'Vatapá' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 0.9],
+            'Sarapatel' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 1.0],
+            'Picanha na Chapa' => ['length' => 20.0, 'width' => 15.0, 'height' => 8.0, 'weight' => 1.3],
+            'Costela Bovina' => ['length' => 20.0, 'width' => 15.0, 'height' => 9.0, 'weight' => 1.4],
+            'Frango Xadrez' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 0.9],
+            'Escondidinho de Carne' => ['length' => 16.0, 'width' => 12.0, 'height' => 6.0, 'weight' => 0.8],
+            'Rabada' => ['length' => 20.0, 'width' => 15.0, 'height' => 8.0, 'weight' => 1.2],
+            'Buchada de Bode' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 1.1],
+            'Moela de Frango' => ['length' => 16.0, 'width' => 12.0, 'height' => 6.0, 'weight' => 0.7],
+            'Dobradinha' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 1.0],
+            'Tripas' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 0.9],
+            'Carne Louca' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 1.0],
+            'Galinhada' => ['length' => 18.0, 'width' => 14.0, 'height' => 7.0, 'weight' => 0.9],
+            'Canja de Galinha' => ['length' => 16.0, 'width' => 12.0, 'height' => 8.0, 'weight' => 0.8],
+
+            // Componentes individuais (porções menores)
+            'Arroz Branco' => ['length' => 12.0, 'width' => 10.0, 'height' => 4.0, 'weight' => 0.3],
+            'Feijão Carioca' => ['length' => 10.0, 'width' => 8.0, 'height' => 4.0, 'weight' => 0.4],
+            'Farofa' => ['length' => 8.0, 'width' => 6.0, 'height' => 3.0, 'weight' => 0.1],
+            'Salada de Alface' => ['length' => 12.0, 'width' => 10.0, 'height' => 3.0, 'weight' => 0.2],
+            'Bife Acebolado' => ['length' => 15.0, 'width' => 12.0, 'height' => 2.0, 'weight' => 0.5],
+            'Frango Grelhado' => ['length' => 15.0, 'width' => 12.0, 'height' => 2.0, 'weight' => 0.4],
+            'Batata Frita' => ['length' => 12.0, 'width' => 10.0, 'height' => 3.0, 'weight' => 0.2],
+            'Batata Palha' => ['length' => 10.0, 'width' => 8.0, 'height' => 2.0, 'weight' => 0.1],
+            'Purê de Batata' => ['length' => 10.0, 'width' => 8.0, 'height' => 4.0, 'weight' => 0.3],
+            'Legumes Grelhados' => ['length' => 12.0, 'width' => 10.0, 'height' => 3.0, 'weight' => 0.2],
+            'Quiabo Refogado' => ['length' => 10.0, 'width' => 8.0, 'height' => 3.0, 'weight' => 0.2],
+            'Angu' => ['length' => 10.0, 'width' => 8.0, 'height' => 4.0, 'weight' => 0.3],
+            'Pirão' => ['length' => 8.0, 'width' => 6.0, 'height' => 4.0, 'weight' => 0.2],
+            'Couve Refogada' => ['length' => 10.0, 'width' => 8.0, 'height' => 3.0, 'weight' => 0.2],
+            'Vinagrete' => ['length' => 8.0, 'width' => 6.0, 'height' => 3.0, 'weight' => 0.1],
+            'Queijo Coalho' => ['length' => 6.0, 'width' => 4.0, 'height' => 2.0, 'weight' => 0.05],
+            'Laranja' => ['length' => 8.0, 'width' => 8.0, 'height' => 8.0, 'weight' => 0.2],
+            'Tutu de Feijão' => ['length' => 10.0, 'width' => 8.0, 'height' => 4.0, 'weight' => 0.3],
+            'Caruru' => ['length' => 10.0, 'width' => 8.0, 'height' => 3.0, 'weight' => 0.2],
+
+            // Bebidas (dimensões de embalagens reais)
+            'Refrigerante 350ml' => ['length' => 6.5, 'width' => 6.5, 'height' => 12.0, 'weight' => 0.37],
+            'Refrigerante 600ml' => ['length' => 7.0, 'width' => 7.0, 'height' => 20.0, 'weight' => 0.62],
+            'Suco Natural de Laranja' => ['length' => 6.0, 'width' => 6.0, 'height' => 15.0, 'weight' => 0.35],
+            'Suco Natural de Limão' => ['length' => 6.0, 'width' => 6.0, 'height' => 15.0, 'weight' => 0.35],
+            'Água Mineral' => ['length' => 6.0, 'width' => 6.0, 'height' => 18.0, 'weight' => 0.52],
+            'Cerveja 350ml' => ['length' => 6.5, 'width' => 6.5, 'height' => 20.0, 'weight' => 0.42],
+            'Chá Gelado' => ['length' => 6.0, 'width' => 6.0, 'height' => 15.0, 'weight' => 0.32],
+
+            // Sobremesas (porções individuais)
+            'Pudim' => ['length' => 8.0, 'width' => 8.0, 'height' => 6.0, 'weight' => 0.25],
+            'Mousse de Maracujá' => ['length' => 8.0, 'width' => 8.0, 'height' => 5.0, 'weight' => 0.2],
+            'Brigadeiro' => ['length' => 4.0, 'width' => 4.0, 'height' => 3.0, 'weight' => 0.03],
+            'Doce de Leite' => ['length' => 6.0, 'width' => 6.0, 'height' => 4.0, 'weight' => 0.1],
+            'Torta de Limão' => ['length' => 10.0, 'width' => 10.0, 'height' => 4.0, 'weight' => 0.3],
+        ];
+
+        return $dimensions[$productName] ?? $default;
     }
 
     private function getUnitForComponent(string $componentName): string

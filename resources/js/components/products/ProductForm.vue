@@ -447,6 +447,32 @@ const handleComponentAction = ({ action, item }) => {
       <span v-if="form.errors.status" class="text-sm font-medium text-rose-600 sm:col-span-2 lg:col-span-3">{{ form.errors.status }}</span>
     </div>
 
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <label class="form-label">
+        Comprimento (cm)
+        <InputNumber v-model="form.length" :formatted="true" :precision="2" :min="0" :step="0.01" placeholder="0,00" :error="!!form.errors.length" />
+        <span v-if="form.errors.length" class="text-sm font-medium text-rose-600">{{ form.errors.length }}</span>
+      </label>
+
+      <label class="form-label">
+        Largura (cm)
+        <InputNumber v-model="form.width" :formatted="true" :precision="2" :min="0" :step="0.01" placeholder="0,00" :error="!!form.errors.width" />
+        <span v-if="form.errors.width" class="text-sm font-medium text-rose-600">{{ form.errors.width }}</span>
+      </label>
+
+      <label class="form-label">
+        Altura (cm)
+        <InputNumber v-model="form.height" :formatted="true" :precision="2" :min="0" :step="0.01" placeholder="0,00" :error="!!form.errors.height" />
+        <span v-if="form.errors.height" class="text-sm font-medium text-rose-600">{{ form.errors.height }}</span>
+      </label>
+
+      <label class="form-label">
+        Peso (kg)
+        <InputNumber v-model="form.weight" :formatted="true" :precision="2" :min="0" :step="0.01" placeholder="0,00" :error="!!form.errors.weight" />
+        <span v-if="form.errors.weight" class="text-sm font-medium text-rose-600">{{ form.errors.weight }}</span>
+      </label>
+    </div>
+
     <label class="form-label">
       Descrição
       <InputTextarea v-model="form.description" :error="!!form.errors.description" />
