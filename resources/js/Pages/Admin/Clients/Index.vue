@@ -11,6 +11,7 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ClientDetailsModal from '@/components/clients/ClientDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import Badge from '@/components/Badge.vue';
+import DataTable from '@/components/DataTable.vue';
 
 const props = defineProps({
   clients: { type: Object, required: true },
@@ -46,6 +47,76 @@ const performDelete = async () => {
 
 const details = ref({ open: false, clientId: null });
 const openDetails = (client) => { details.value.clientId = client.id; details.value.open = true; };
+
+// DataTable configuration
+const columns = [
+  {
+    header: 'Nome',
+    key: 'name',
+    component: 'button',
+    props: (client) => ({
+      type: 'button',
+      class: (isAdmin.value || user.value?.permissions?.clients?.view) ? 'link' : 'text-slate-900',
+      onClick: () => openDetails(client)
+    })
+  },
+  {
+    header: 'Tipo',
+    key: 'person_type',
+    formatter: (value) => value === 'company' ? 'Jurídica' : 'Física'
+  },
+  {
+    header: 'Documento',
+    key: 'formatted_document'
+  },
+  {
+    header: 'Status',
+    key: 'status',
+    component: Badge,
+    props: (client) => ({
+      variant: client.status === 'active' ? 'success' : 'danger'
+    }),
+    formatter: (value) => value === 'active' ? 'Ativo' : 'Inativo'
+  }
+];
+
+const actions = computed(() => {
+  const acts = [];
+  if (canUpdate.value) {
+    acts.push({
+      key: 'edit',
+      label: 'Editar',
+      icon: 'pencil',
+      component: Link,
+      props: (client) => ({
+        href: `/admin/clients/${client.id}/edit`,
+        class: 'menu-panel-link'
+      })
+    });
+  }
+  if (canDelete.value) {
+    acts.push({
+      key: 'delete',
+      label: 'Excluir',
+      icon: 'trash',
+      class: 'menu-panel-link text-rose-600 hover:text-rose-700'
+    });
+  }
+  if (acts.length === 0) {
+    acts.push({
+      key: 'no-actions',
+      label: 'Nenhuma ação disponível',
+      class: 'menu-panel-link pointer-events-none text-slate-400'
+    });
+  }
+  return acts;
+});
+
+const handleTableAction = ({ action, item }) => {
+  if (action.key === 'delete') {
+    confirmDelete(item);
+  }
+};
 </script>
 
 <template>
@@ -97,59 +168,13 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
         </div>
       </form>
 
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Tipo</th>
-              <th>Documento</th>
-              <th>Status</th>
-              <th class="w-24">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="c in clients.data" :key="c.id">
-              <td>
-                <button v-if="isAdmin || user?.permissions?.clients?.view" type="button" class="link" @click="openDetails(c)">{{ c.name }}</button>
-                <span v-else class="text-slate-900">{{ c.name }}</span>
-              </td>
-              <td>{{ c.person_type === 'company' ? 'Jurídica' : 'Física' }}</td>
-              <td>{{ c.formatted_document }}</td>
-              <td class="table-actions">
-                <Badge :variant="c.status === 'active' ? 'success' : 'danger'">
-                  {{ c.status === 'active' ? 'Ativo' : 'Inativo' }}
-                </Badge>
-              </td>
-              <td class="whitespace-nowrap">
-                <Dropdown>
-                  <template #trigger="{ toggle }">
-                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
-                      <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </Button>
-                  </template>
-                  <template #default="{ close }">
-                    <template v-if="canUpdate || canDelete">
-                      <Link v-if="canUpdate" class="menu-panel-link" :href="`/admin/clients/${c.id}/edit`">
-                        <HeroIcon name="pencil" class="h-4 w-4" />
-                        <span>Editar</span>
-                      </Link>
-                      <button v-if="canDelete" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(c); close()">
-                        <HeroIcon name="trash" class="h-4 w-4" />
-                        <span>Excluir</span>
-                      </button>
-                    </template>
-                    <span v-else class="menu-panel-link pointer-events-none text-slate-400">Nenhuma ação disponível</span>
-                  </template>
-                </Dropdown>
-              </td>
-            </tr>
-            <tr v-if="!clients.data || clients.data.length === 0">
-              <td colspan="5" class="table-empty text-center">Nenhum cliente cadastrado até o momento.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        :columns="columns"
+        :data="clients.data"
+        :actions="actions"
+        empty-message="Nenhum cliente cadastrado até o momento."
+        @action="handleTableAction"
+      />
 
       <Pagination v-if="clients && clients.total" :paginator="clients" />
     </section>
@@ -166,10 +191,6 @@ const openDetails = (client) => { details.value.clientId = client.id; details.va
 </template>
 
 <style scoped>
-.table-wrapper { overflow:auto }
-.table { width:100%; border-collapse:separate; border-spacing:0; }
-.table th, .table td { padding:.75rem; border-bottom:1px solid #e2e8f0; }
-.table thead th { font-size:.875rem; font-weight:700; color:#334155 }
 /* Usa estilos globais definidos em resources/css/app.css para menu-trigger e menu-panel-link */
 </style>
 

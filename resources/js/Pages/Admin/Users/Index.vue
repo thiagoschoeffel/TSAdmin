@@ -4,13 +4,14 @@ import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, getCurrentInstance } from 'vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import UserDetailsModal from '@/components/users/UserDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import Badge from '@/components/Badge.vue';
+import DataTable from '@/components/DataTable.vue';
 
 const props = defineProps({
   users: { type: Object, required: true },
@@ -24,6 +25,10 @@ const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.use
 const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.users?.update);
 const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.users?.delete);
 const meId = computed(() => page.props.auth?.user?.id);
+
+// Ziggy `route` helper from app globalProperties
+const instance = getCurrentInstance();
+const route = instance.appContext.config.globalProperties.route;
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
@@ -58,6 +63,84 @@ const details = ref({ open: false, userId: null });
 const openDetails = (user) => {
   details.value.userId = user.id;
   details.value.open = true;
+};
+
+// DataTable configuration
+const columns = [
+  {
+    header: 'Nome',
+    key: 'name',
+    component: 'button',
+    props: (user) => ({
+      type: 'button',
+      class: 'link',
+      onClick: () => openDetails(user)
+    })
+  },
+  {
+    header: 'E-mail',
+    key: 'email'
+  },
+  {
+    header: 'Perfil',
+    key: 'role',
+    formatter: (value) => value === 'admin' ? 'Administrador' : 'Usuário comum'
+  },
+  {
+    header: 'Status',
+    key: 'status',
+    component: Badge,
+    props: (user) => ({
+      variant: user.status === 'active' ? 'success' : 'danger'
+    }),
+    formatter: (value) => value === 'active' ? 'Ativo' : 'Inativo'
+  }
+];
+
+const actions = computed(() => {
+  return (user, route) => {
+    const acts = [];
+    if (user.id !== meId.value) {
+      if (canUpdate.value) {
+        acts.push({
+          key: 'edit',
+          label: 'Editar',
+          icon: 'pencil',
+          component: Link,
+          props: () => ({
+            href: `/admin/users/${user.id}/edit`,
+            class: 'menu-panel-link'
+          })
+        });
+      }
+      if (canDelete.value) {
+        acts.push({
+          key: 'delete',
+          label: 'Excluir',
+          icon: 'trash',
+          class: 'menu-panel-link text-rose-600 hover:text-rose-700'
+        });
+      }
+    } else {
+      acts.push({
+        key: 'profile',
+        label: 'Meu perfil',
+        icon: 'user-circle',
+        component: Link,
+        props: () => ({
+          href: route('profile.edit'),
+          class: 'menu-panel-link'
+        })
+      });
+    }
+    return acts;
+  };
+});
+
+const handleTableAction = ({ action, item }) => {
+  if (action.key === 'delete') {
+    confirmDelete(item);
+  }
 };
 </script>
 
@@ -111,68 +194,13 @@ const openDetails = (user) => {
 
 
 
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>E-mail</th>
-              <th>Perfil</th>
-              <th>Status</th>
-              <th class="w-24 whitespace-nowrap">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="u in users.data" :key="u.id">
-              <td>
-                <button type="button" class="link" @click="openDetails(u)">{{ u.name }}</button>
-              </td>
-              <td>
-                {{ u.email }}
-                <Badge :variant="u.email_verified_at ? 'success' : 'danger'" class="ml-2">
-                  {{ u.email_verified_at ? 'Verificado' : 'Não verificado' }}
-                </Badge>
-              </td>
-              <td>{{ u.role === 'admin' ? 'Administrador' : 'Usuário comum' }}</td>
-              <td class="table-actions">
-                <Badge :variant="u.status === 'active' ? 'success' : 'danger'">
-                  {{ u.status === 'active' ? 'Ativo' : 'Inativo' }}
-                </Badge>
-              </td>
-              <td class="whitespace-nowrap">
-                <Dropdown>
-                  <template #trigger="{ toggle }">
-                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
-                      <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </Button>
-                  </template>
-                  <template #default="{ close }">
-                    <template v-if="u.id !== meId">
-                      <Link v-if="canUpdate" class="menu-panel-link" :href="`/admin/users/${u.id}/edit`">
-                        <HeroIcon name="pencil" class="h-4 w-4" />
-                        <span>Editar</span>
-                      </Link>
-                      <button v-if="canDelete" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(u); close()">
-                        <HeroIcon name="trash" class="h-4 w-4" />
-                        <span>Excluir</span>
-                      </button>
-                    </template>
-                    <template v-else>
-                      <Link class="menu-panel-link" :href="route('profile.edit')">
-                        <HeroIcon name="user-circle" class="h-4 w-4" />
-                        <span>Meu perfil</span>
-                      </Link>
-                    </template>
-                  </template>
-                </Dropdown>
-              </td>
-            </tr>
-            <tr v-if="!users.data || users.data.length === 0">
-              <td colspan="5" class="table-empty text-center">Nenhum usuário encontrado.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        :columns="columns"
+        :data="users.data"
+        :actions="actions"
+        empty-message="Nenhum usuário encontrado."
+        @action="handleTableAction"
+      />
 
       <Pagination v-if="users && users.total" :paginator="users" />
     </section>

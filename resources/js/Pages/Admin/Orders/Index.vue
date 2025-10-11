@@ -4,13 +4,14 @@ import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, getCurrentInstance } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import OrderDetailsModal from '@/components/orders/OrderDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import Badge from '@/components/Badge.vue';
+import DataTable from '@/components/DataTable.vue';
 
 const props = defineProps({
   orders: { type: Object, required: true },
@@ -24,6 +25,10 @@ const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.ord
 const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.update);
 const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.delete);
 const canView = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.view);
+
+// Ziggy `route` helper from app globalProperties
+const instance = getCurrentInstance();
+const route = instance.appContext.config.globalProperties.route;
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
@@ -88,6 +93,87 @@ const getStatusLabel = (status) => {
   };
   return labels[status] || status;
 };
+
+// DataTable configuration
+const columns = [
+  {
+    header: 'ID',
+    key: 'id',
+    component: 'button',
+    props: (order) => ({
+      type: 'button',
+      class: canView.value ? 'link' : 'text-slate-900',
+      onClick: () => openDetails(order)
+    })
+  },
+  {
+    header: 'Cliente',
+    key: 'client',
+    formatter: (value) => value?.name || 'Cliente não informado'
+  },
+  {
+    header: 'Usuário',
+    key: 'user',
+    formatter: (value) => value?.name || '-'
+  },
+  {
+    header: 'Status',
+    key: 'status',
+    component: Badge,
+    props: (order) => ({
+      variant: getStatusVariant(order.status)
+    }),
+    formatter: (value) => getStatusLabel(value)
+  },
+  {
+    header: 'Total',
+    key: 'total',
+    formatter: (value) => `R$ ${value}`
+  },
+  {
+    header: 'Data do pedido',
+    key: 'ordered_at',
+    formatter: (value) => value || '-'
+  }
+];
+
+const actions = computed(() => {
+  const acts = [];
+  if (canUpdate.value) {
+    acts.push({
+      key: 'edit',
+      label: 'Editar',
+      icon: 'pencil',
+      component: Link,
+      props: (order) => ({
+        href: route('orders.edit', order.id),
+        class: 'menu-panel-link'
+      })
+    });
+  }
+  if (canDelete.value) {
+    acts.push({
+      key: 'delete',
+      label: 'Excluir',
+      icon: 'trash',
+      class: 'menu-panel-link text-rose-600 hover:text-rose-700'
+    });
+  }
+  if (acts.length === 0) {
+    acts.push({
+      key: 'no-actions',
+      label: 'Nenhuma ação disponível',
+      class: 'menu-panel-link pointer-events-none text-slate-400'
+    });
+  }
+  return acts;
+});
+
+const handleTableAction = ({ action, item }) => {
+  if (action.key === 'delete') {
+    confirmDelete(item);
+  }
+};
 </script>
 
 <template>
@@ -134,63 +220,13 @@ const getStatusLabel = (status) => {
         </div>
       </form>
 
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Usuário</th>
-              <th>Status</th>
-              <th>Total</th>
-              <th>Data do pedido</th>
-              <th class="w-24 whitespace-nowrap">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="order in orders.data" :key="order.id">
-              <td>
-                <button v-if="canView" type="button" class="link" @click="openDetails(order)">{{ order.id }}</button>
-                <span v-else class="text-slate-900">{{ order.id }}</span>
-              </td>
-              <td>{{ order.client.name }}</td>
-              <td>{{ order.user.name }}</td>
-              <td class="table-actions">
-                <Badge :variant="getStatusVariant(order.status)">
-                  {{ getStatusLabel(order.status) }}
-                </Badge>
-              </td>
-              <td>R$ {{ order.total }}</td>
-              <td>{{ order.ordered_at || '-' }}</td>
-              <td class="whitespace-nowrap">
-                <Dropdown>
-                  <template #trigger="{ toggle }">
-                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
-                      <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </Button>
-                  </template>
-                  <template #default="{ close }">
-                    <template v-if="canUpdate || canDelete">
-                      <Link v-if="canUpdate" class="menu-panel-link" :href="route('orders.edit', order.id)">
-                        <HeroIcon name="pencil" class="h-4 w-4" />
-                        <span>Editar</span>
-                      </Link>
-                      <button v-if="canDelete" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="confirmDelete(order); close()">
-                        <HeroIcon name="trash" class="h-4 w-4" />
-                        <span>Excluir</span>
-                      </button>
-                    </template>
-                    <span v-else class="menu-panel-link pointer-events-none text-slate-400">Nenhuma ação disponível</span>
-                  </template>
-                </Dropdown>
-              </td>
-            </tr>
-            <tr v-if="!orders.data || orders.data.length === 0">
-              <td colspan="7" class="table-empty text-center">Nenhum pedido encontrado.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        :columns="columns"
+        :data="orders.data"
+        :actions="actions"
+        empty-message="Nenhum pedido encontrado."
+        @action="handleTableAction"
+      />
 
       <Pagination v-if="orders && orders.total" :paginator="orders" />
     </section>
