@@ -12,6 +12,7 @@ import { useToasts } from '@/components/toast/useToasts.js';
 import { ref, computed, nextTick } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Badge from '@/components/Badge.vue';
+import { formatDocument, formatPhone, formatPostalCode, digitsOnly } from '@/utils/masks.js';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -118,28 +119,12 @@ const focusFirstAddressField = () => {
   });
 };
 
-const digitsOnly = (v = '') => String(v).replace(/\D+/g, '');
-const applyMask = (value, pattern) => {
-  let index = 0;
-  const numbers = digitsOnly(value);
-  return pattern
-    .replace(/#/g, () => numbers[index++] ?? '')
-    .replace(/([-/\\.() ])+$/, '');
+const formatDocumentField = () => {
+  props.form.document = formatDocument(props.form.document, props.form.person_type);
 };
-const formatDocument = () => {
-  const digits = digitsOnly(props.form.document);
-  props.form.document = props.form.person_type === 'company'
-    ? applyMask(digits, '##.###.###/####-##')
-    : applyMask(digits, '###.###.###-##');
-};
-const formatPhone = (key) => {
-  const digits = digitsOnly(props.form[key]);
-  const pattern = digits.length > 10 ? '(##) #####-####' : '(##) ####-####';
-  props.form[key] = applyMask(digits, pattern);
-};
-const formatPostalCode = (value) => {
-  const digits = digitsOnly(value);
-  return applyMask(digits, '#####-###');
+
+const formatPhoneField = (key) => {
+  props.form[key] = formatPhone(props.form[key]);
 };
 
 // Métodos para gerenciar endereços
@@ -381,13 +366,13 @@ const hasAddressErrors = computed(() => {
         <InputSelect v-model="form.person_type" :options="[
           { value: 'individual', label: 'Pessoa Física' },
           { value: 'company', label: 'Pessoa Jurídica' }
-        ]" placeholder="" required :error="!!form.errors.person_type" @change="formatDocument" />
+        ]" placeholder="" required :error="!!form.errors.person_type" @change="formatDocumentField" />
         <span v-if="form.errors.person_type" class="text-sm font-medium text-rose-600">{{ form.errors.person_type }}</span>
       </label>
 
       <label class="form-label">
         CPF/CNPJ
-        <InputText v-model="form.document" required :error="!!form.errors.document" @input="formatDocument" />
+        <InputText v-model="form.document" required :error="!!form.errors.document" @input="formatDocumentField" :maxlength="form.person_type === 'company' ? 18 : 14" />
         <span v-if="form.errors.document" class="text-sm font-medium text-rose-600">{{ form.errors.document }}</span>
       </label>
 
@@ -420,7 +405,7 @@ const hasAddressErrors = computed(() => {
           </label>
           <label class="form-label">
             CEP
-            <InputText v-model="formattedPostalCode" required :error="!!addressErrors.postal_code" @blur="fetchAddress" />
+            <InputText v-model="formattedPostalCode" required :error="!!addressErrors.postal_code" @blur="fetchAddress" maxlength="9" />
             <span v-if="addressErrors.postal_code" class="text-sm font-medium text-rose-600">{{ addressErrors.postal_code }}</span>
           </label>
           <label class="form-label">
@@ -444,13 +429,13 @@ const hasAddressErrors = computed(() => {
           </label>
           <label class="form-label">
             Cidade
-            <InputText v-model="newAddress.city" readonly :error="!!addressErrors.city" />
+            <InputText v-model="newAddress.city" disabled :error="!!addressErrors.city" />
             <span v-if="addressErrors.city" class="text-sm font-medium text-rose-600">{{ addressErrors.city }}</span>
             <span class="text-xs text-slate-500">Preenchido automaticamente via CEP</span>
           </label>
           <label class="form-label">
             Estado (UF)
-            <InputText v-model="newAddress.state" readonly :error="!!addressErrors.state" />
+            <InputText v-model="newAddress.state" disabled :error="!!addressErrors.state" />
             <span v-if="addressErrors.state" class="text-sm font-medium text-rose-600">{{ addressErrors.state }}</span>
             <span class="text-xs text-slate-500">Preenchido automaticamente via CEP</span>
           </label>
@@ -546,12 +531,12 @@ const hasAddressErrors = computed(() => {
         </label>
         <label class="form-label">
           Telefone principal
-          <InputText v-model="form.contact_phone_primary" :required="form.person_type === 'company'" :error="!!form.errors.contact_phone_primary" @input="formatPhone('contact_phone_primary')" />
+          <InputText v-model="form.contact_phone_primary" :required="form.person_type === 'company'" :error="!!form.errors.contact_phone_primary" @input="formatPhoneField('contact_phone_primary')" maxlength="15" />
           <span v-if="form.errors.contact_phone_primary" class="text-sm font-medium text-rose-600">{{ form.errors.contact_phone_primary }}</span>
         </label>
         <label class="form-label">
           Telefone secundário
-          <InputText v-model="form.contact_phone_secondary" :required="form.person_type === 'company'" :error="!!form.errors.contact_phone_secondary" @input="formatPhone('contact_phone_secondary')" />
+          <InputText v-model="form.contact_phone_secondary" :required="form.person_type === 'company'" :error="!!form.errors.contact_phone_secondary" @input="formatPhoneField('contact_phone_secondary')" maxlength="15" />
           <span v-if="form.errors.contact_phone_secondary" class="text-sm font-medium text-rose-600">{{ form.errors.contact_phone_secondary }}</span>
         </label>
         <label class="form-label">

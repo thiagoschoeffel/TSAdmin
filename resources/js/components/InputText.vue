@@ -39,8 +39,8 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  list: {
-    type: String,
+  maxlength: {
+    type: [String, Number],
     default: ''
   },
   error: {
@@ -155,7 +155,7 @@ defineExpose({
     :readonly="readonly"
     :autocomplete="autocomplete"
     :inputmode="inputmode"
-    :list="list"
+    :maxlength="maxlength"
     :class="finalClasses"
     @input="handleInput"
     @blur="handleBlur"
