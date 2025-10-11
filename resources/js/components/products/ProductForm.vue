@@ -7,6 +7,7 @@ import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
 import InputTextarea from '@/components/InputTextarea.vue';
 import InputCurrency from '@/components/InputCurrency.vue';
+import InputNumber from '@/components/InputNumber.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { useToasts } from '@/components/toast/useToasts.js';
 import { usePage } from '@inertiajs/vue3';
@@ -40,9 +41,13 @@ const editingComponentIndex = ref(-1);
 const showAddForm = ref(false);
 const newComponent = ref({
   id: '',
-  quantity: '',
+  quantity: 1,
 });
 const componentErrors = ref({});
+
+// Estado para autocomplete do produto
+const productInput = ref('');
+const selectedProduct = ref(null);
 
 // Estado para confirmação de exclusão de componente
 const deleteComponentState = ref({ open: false, processing: false, componentIndex: null });
@@ -64,6 +69,16 @@ const availableProducts = computed(() => {
   return props.products.filter(p => !addedIds.includes(p.id));
 });
 
+// Computed para sugestões de produtos no autocomplete
+const productSuggestions = computed(() => {
+  if (!productInput.value) return [];
+  const query = productInput.value.toLowerCase();
+  return availableProducts.value.filter(p =>
+    p.name.toLowerCase().includes(query) ||
+    (p.code && p.code.toLowerCase().includes(query))
+  ).slice(0, 10);
+});
+
 // Computed para verificar se há ciclos
 const hasCycle = (componentId, currentProductId = props.productId) => {
   if (!currentProductId) return false;
@@ -73,12 +88,53 @@ const hasCycle = (componentId, currentProductId = props.productId) => {
   return component.components?.some(c => c.id == currentProductId) || false;
 };
 
+// Funções para autocomplete do produto
+const handleProductInput = () => {
+  const exactMatch = availableProducts.value.find(p =>
+    p.name.toLowerCase() === productInput.value.toLowerCase() ||
+    (p.code && p.code.toLowerCase() === productInput.value.toLowerCase())
+  );
+  selectedProduct.value = exactMatch || null;
+  if (exactMatch) {
+    newComponent.value.id = exactMatch.id;
+  } else {
+    newComponent.value.id = '';
+  }
+};
+
+const handleProductKeydown = (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (selectedProduct.value) {
+      // Produto já selecionado, foco no campo quantidade
+      nextTick(() => {
+        const quantityInput = document.querySelector('input[placeholder*="Quantidade"]');
+        if (quantityInput) quantityInput.focus();
+      });
+    } else if (productSuggestions.value.length > 0) {
+      selectProduct(productSuggestions.value[0]);
+    } else {
+      e.target.blur();
+    }
+  }
+};
+
+const selectProduct = (product) => {
+  selectedProduct.value = product;
+  productInput.value = product.name;
+  newComponent.value.id = product.id;
+  nextTick(() => {
+    const quantityInput = document.querySelector('input[placeholder*="Quantidade"]');
+    if (quantityInput) quantityInput.focus();
+  });
+};
+
 // Métodos para gerenciar componentes
 const addComponent = async () => {
   // Validação dos campos obrigatórios
   const errors = {};
 
-  if (!newComponent.value.id) {
+  if (!selectedProduct.value || !newComponent.value.id) {
     errors.id = 'Produto é obrigatório';
   }
 
@@ -132,6 +188,12 @@ const editComponent = (index) => {
     ...props.form.components[index],
     id: String(props.form.components[index].id) // Garantir que seja string para o select
   };
+  // Setar o texto do produto para o autocomplete
+  const product = props.products.find(p => p.id == props.form.components[index].id);
+  if (product) {
+    productInput.value = product.name;
+    selectedProduct.value = product;
+  }
   componentErrors.value = {}; // Limpa erros ao editar
   showAddForm.value = true;
 };
@@ -197,8 +259,10 @@ const performDeleteComponent = async () => {
 const resetNewComponent = () => {
   newComponent.value = {
     id: '',
-    quantity: '',
+    quantity: 1,
   };
+  productInput.value = '';
+  selectedProduct.value = null;
   componentErrors.value = {}; // Limpa erros ao resetar
 };
 
@@ -307,15 +371,27 @@ const hasComponentErrors = computed(() => {
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="form-label">
             Produto
-            <InputSelect v-model="newComponent.id" :options="availableProducts.map(product => ({
-              value: product.id,
-              label: `${product.name} - R$ ${Number(product.price).toFixed(2)}`
-            }))" required :error="!!componentErrors.id" />
+            <InputText
+              v-model="productInput"
+              @input="handleProductInput"
+              @change="handleProductInput"
+              @keydown="handleProductKeydown"
+              type="text"
+              list="component-products"
+              placeholder="Digite o nome ou código do produto..."
+              required
+              :error="!!componentErrors.id"
+            />
+            <datalist id="component-products">
+              <option v-for="product in productSuggestions" :key="product.id" :value="product.name">
+                {{ product.name }} ({{ product.code || 'Sem código' }})
+              </option>
+            </datalist>
             <span v-if="componentErrors.id" class="text-sm font-medium text-rose-600">{{ componentErrors.id }}</span>
           </label>
-          <label class="form-label">
+                    <label class="form-label">
             Quantidade
-            <InputText v-model="newComponent.quantity" type="number" step="0.01" min="0.01" required :error="!!componentErrors.quantity" />
+            <InputNumber v-model="newComponent.quantity" :formatted="true" :precision="2" :min="0.01" :step="0.01" required :error="!!componentErrors.quantity" />
             <span v-if="componentErrors.quantity" class="text-sm font-medium text-rose-600">{{ componentErrors.quantity }}</span>
           </label>
           <div class="flex items-end gap-2 sm:col-span-2">

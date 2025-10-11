@@ -23,7 +23,7 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.put(`/admin/products/${props.product.id}`);
+  form.patch(`/admin/products/${props.product.id}`);
 };
 </script>
 
