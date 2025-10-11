@@ -151,7 +151,7 @@ const saveOrder = () => {
     // Items are already managed individually, no need to send them
   };
 
-  router.put(`/admin/orders/${props.order.id}`, data, {
+  router.patch(`/admin/orders/${props.order.id}`, data, {
     onSuccess: () => {
       modalOpen.value = false;
     },
