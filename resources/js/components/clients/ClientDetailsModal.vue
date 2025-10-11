@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import Modal from '@/components/Modal.vue';
 import Badge from '@/components/Badge.vue';
 import Button from '@/components/Button.vue';
+import DataTable from '@/components/DataTable.vue';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -92,6 +93,29 @@ const updatedBy = computed(() => {
   if (payload.value?.updated_at === payload.value?.created_at) return 'Nunca atualizado';
   return payload.value?.updated_by ?? 'Conta removida';
 });
+
+// DataTable configuration for addresses
+const addressColumns = [
+  {
+    header: 'Descrição',
+    key: 'description',
+    formatter: (value) => value || 'Sem descrição'
+  },
+  {
+    header: 'Endereço',
+    key: 'address',
+    formatter: (value, address) => `${address.address}, ${address.address_number}${address.address_complement ? ` - ${address.address_complement}` : ''}, ${address.neighborhood}, ${address.city}/${address.state}`
+  },
+  {
+    header: 'Status',
+    key: 'status',
+    component: Badge,
+    props: (address) => ({
+      variant: address.status === 'active' ? 'success' : 'danger'
+    }),
+    formatter: (value) => value === 'active' ? 'Ativo' : 'Inativo'
+  }
+];
 </script>
 
 <template>
@@ -172,38 +196,11 @@ const updatedBy = computed(() => {
 
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-slate-900">Endereços</h2>
-        <div class="table-wrapper">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Descrição</th>
-                <th>Endereço</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="address in payload.addresses" :key="address.id">
-                <td>
-                  {{ address.description || 'Sem descrição' }}
-                </td>
-                <td>
-                  {{ address.address }}, {{ address.address_number }}
-                  <span v-if="address.address_complement"> - {{ address.address_complement }}</span>
-                  <br>
-                  <span class="text-slate-500">{{ address.neighborhood }}, {{ address.city }}/{{ address.state }}</span>
-                </td>
-                <td class="table-actions">
-                  <Badge :variant="address.status === 'active' ? 'success' : 'danger'">
-                    {{ address.status === 'active' ? 'Ativo' : 'Inativo' }}
-                  </Badge>
-                </td>
-              </tr>
-              <tr v-if="!payload.addresses || payload.addresses.length === 0">
-                <td colspan="3" class="table-empty">Nenhum endereço cadastrado para este cliente.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          :columns="addressColumns"
+          :data="payload.addresses || []"
+          empty-message="Nenhum endereço cadastrado para este cliente."
+        />
       </section>
 
       <section class="space-y-3">
