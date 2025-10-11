@@ -3,13 +3,21 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Badge from '@/components/Badge.vue';
+import LineChart from '@/components/LineChart.vue';
 
 const props = defineProps({
   stats: Object,
+  salesChart: Object,
 });
 
 const page = usePage();
 const name = page.props.auth?.user?.name ?? 'usuário';
+
+// Prepare chart data
+const chartSeries = [{
+  name: 'Vendas',
+  data: props.salesChart?.data || []
+}];
 </script>
 
 <template>
@@ -86,6 +94,14 @@ const name = page.props.auth?.user?.name ?? 'usuário';
           </div>
         </div>
       </div>
+
+      <!-- Sales Chart -->
+      <LineChart
+        title="Vendas dos Últimos 30 Dias"
+        :series="chartSeries"
+        :categories="salesChart?.categories || []"
+        height="350"
+      />
     </section>
   </AdminLayout>
 </template>

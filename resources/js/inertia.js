@@ -6,6 +6,7 @@ window.Ziggy = Ziggy;
 import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import VueApexCharts from "vue3-apexcharts";
 
 createInertiaApp({
     resolve: (name) =>
@@ -22,6 +23,7 @@ createInertiaApp({
         // Also register our wrapper as a global property to ensure consistent behavior
         // in templates and scripts that call `route(...)` directly.
         app.config.globalProperties.route = route;
+        app.use(VueApexCharts);
         app.use(plugin).mount(el);
     },
     progress: {
