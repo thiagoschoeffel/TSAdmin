@@ -13,6 +13,7 @@ import { useToasts } from '@/components/toast/useToasts.js';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref, computed, onMounted, nextTick } from 'vue';
+import DataTable from '@/components/DataTable.vue';
 import { formatPriceInput, initializePriceDisplay } from '@/utils/formatters';
 
 const page = usePage();
@@ -330,6 +331,68 @@ const hasComponentErrors = computed(() => {
     return componentErrors.length > 0;
   });
 });
+
+// DataTable configuration for components
+const componentColumns = [
+  {
+    header: 'Produto',
+    key: 'id',
+    formatter: (value) => {
+      const product = props.products.find(p => p.id == value);
+      return product?.name || 'Produto não encontrado';
+    }
+  },
+  {
+    header: 'Quantidade',
+    key: 'quantity'
+  },
+  {
+    header: 'Preço Unitário',
+    key: 'id',
+    formatter: (value) => {
+      const product = props.products.find(p => p.id == value);
+      return `R$ ${Number(product?.price || 0).toFixed(2)}`;
+    }
+  },
+  {
+    header: 'Total',
+    key: 'id',
+    formatter: (value, component) => {
+      const product = props.products.find(p => p.id == value);
+      const total = Number(component.quantity) * Number(product?.price || 0);
+      return `R$ ${total.toFixed(2)}`;
+    }
+  }
+];
+
+const componentActions = computed(() => {
+  return (component, index) => {
+    const acts = [];
+    if (canUpdateProducts.value) {
+      acts.push({
+        key: 'edit',
+        label: 'Editar',
+        icon: 'pencil'
+      });
+      acts.push({
+        key: 'delete',
+        label: 'Excluir',
+        icon: 'trash',
+        class: 'text-rose-600 hover:text-rose-700'
+      });
+    }
+    return acts;
+  };
+});
+
+const handleComponentAction = ({ action, item }) => {
+  const index = props.form.components.indexOf(item);
+  if (action.key === 'edit') {
+    editComponent(index);
+  } else if (action.key === 'delete') {
+    confirmDeleteComponent(index);
+  }
+};
 </script>
 
 <template>
@@ -406,51 +469,13 @@ const hasComponentErrors = computed(() => {
       </div>
 
       <!-- Tabela de componentes -->
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Produto</th>
-              <th>Quantidade</th>
-              <th>Preço Unitário</th>
-              <th>Total</th>
-              <th class="w-24">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(component, index) in form.components" :key="index">
-              <td>
-                {{ products.find(p => p.id == component.id)?.name || 'Produto não encontrado' }}
-              </td>
-              <td>{{ component.quantity }}</td>
-              <td>R$ {{ Number(products.find(p => p.id == component.id)?.price || 0).toFixed(2) }}</td>
-              <td>R$ {{ (Number(component.quantity) * Number(products.find(p => p.id == component.id)?.price || 0)).toFixed(2) }}</td>
-              <td class="whitespace-nowrap">
-                <Dropdown>
-                  <template #trigger="{ toggle }">
-                    <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
-                      <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
-                    </Button>
-                  </template>
-                  <template #default="{ close }">
-                    <button v-if="canUpdateProducts" type="button" class="menu-panel-link" @click="editComponent(index); close()">
-                      <HeroIcon name="pencil" class="h-4 w-4" />
-                      <span>Editar</span>
-                    </button>
-                    <button v-if="canUpdateProducts" type="button" class="menu-panel-link text-rose-600 hover:text-rose-700" @click="removeComponent(index); close()">
-                      <HeroIcon name="trash" class="h-4 w-4" />
-                      <span>Excluir</span>
-                    </button>
-                  </template>
-                </Dropdown>
-              </td>
-            </tr>
-            <tr v-if="!form.components || form.components.length === 0">
-              <td colspan="5" class="table-empty">Nenhum componente adicionado.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        :columns="componentColumns"
+        :data="form.components || []"
+        :actions="componentActions"
+        empty-message="Nenhum componente adicionado."
+        @action="handleComponentAction"
+      />
 
       <!-- Botão para adicionar novo componente -->
       <div v-if="!showAddForm && canUpdateProducts" class="flex justify-center pt-4">

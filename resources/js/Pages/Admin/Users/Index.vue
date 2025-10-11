@@ -98,7 +98,7 @@ const columns = [
 ];
 
 const actions = computed(() => {
-  return (user, route) => {
+  return (user, index, route) => {
     const acts = [];
     if (user.id !== meId.value) {
       if (canUpdate.value) {

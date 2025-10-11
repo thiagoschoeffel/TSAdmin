@@ -79,14 +79,14 @@ const handleAction = (action, item) => {
             </template>
           </td>
           <td v-if="typeof actions === 'function' || actions.length > 0" class="whitespace-nowrap border-b border-slate-200 px-3 py-3 text-sm text-slate-800">
-            <Dropdown v-if="typeof actions === 'function' ? actions(item, route).length > 0 : actions.length > 0">
+            <Dropdown v-if="typeof actions === 'function' ? actions(item, data.indexOf(item), route).length > 0 : actions.length > 0">
               <template #trigger="{ toggle }">
                 <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
                   <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />
                 </Button>
               </template>
               <template #default="{ close }">
-                <template v-for="action in (typeof actions === 'function' ? actions(item, route) : actions)" :key="action.key">
+                <template v-for="action in (typeof actions === 'function' ? actions(item, data.indexOf(item), route) : actions)" :key="action.key">
                   <component
                     v-if="action.component"
                     :is="action.component"
@@ -99,7 +99,7 @@ const handleAction = (action, item) => {
                   <button
                     v-else
                     type="button"
-                    :class="action.class || 'menu-panel-link'"
+                    :class="action.class ? `menu-panel-link ${action.class}` : 'menu-panel-link'"
                     @click="handleAction(action, item); close()"
                   >
                     <HeroIcon v-if="action.icon" :name="action.icon" class="h-4 w-4" />
