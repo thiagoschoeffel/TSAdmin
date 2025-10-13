@@ -12,7 +12,12 @@ class ClientPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->canManage('clients', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['view'] ?? false);
     }
 
     /**
@@ -20,7 +25,12 @@ class ClientPolicy
      */
     public function view(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['view'] ?? false);
     }
 
     /**
@@ -28,7 +38,12 @@ class ClientPolicy
      */
     public function create(User $user): bool
     {
-        return $user->canManage('clients', 'create');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['create'] ?? false);
     }
 
     /**
@@ -36,7 +51,12 @@ class ClientPolicy
      */
     public function update(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['update'] ?? false);
     }
 
     /**
@@ -44,7 +64,12 @@ class ClientPolicy
      */
     public function delete(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['delete'] ?? false);
     }
 
     /**
@@ -52,7 +77,12 @@ class ClientPolicy
      */
     public function restore(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['update'] ?? false);
     }
 
     /**
@@ -60,7 +90,12 @@ class ClientPolicy
      */
     public function forceDelete(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['delete'] ?? false);
     }
 
     /**
@@ -68,7 +103,12 @@ class ClientPolicy
      */
     public function manageAddresses(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['view'] ?? false);
     }
 
     /**
@@ -76,7 +116,12 @@ class ClientPolicy
      */
     public function createAddress(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'create') || $user->canManage('clients', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['create'] ?? false) || (bool)($permissions['clients']['update'] ?? false);
     }
 
     /**
@@ -84,7 +129,12 @@ class ClientPolicy
      */
     public function updateAddress(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['update'] ?? false);
     }
 
     /**
@@ -92,6 +142,11 @@ class ClientPolicy
      */
     public function deleteAddress(User $user, Client $client): bool
     {
-        return $user->canManage('clients', 'update') || $user->canManage('clients', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['update'] ?? false) || (bool)($permissions['clients']['delete'] ?? false);
     }
 }

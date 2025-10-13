@@ -16,6 +16,8 @@ class ProductController extends Controller
 {
     public function index(): InertiaResponse
     {
+        $this->authorize('viewAny', Product::class);
+
         $query = Product::with('components');
 
         if ($search = request('search')) {
@@ -36,6 +38,8 @@ class ProductController extends Controller
 
     public function create(): InertiaResponse
     {
+        $this->authorize('create', Product::class);
+
         $products = Product::all();
         return Inertia::render('Admin/Products/Create', [
             'products' => $products,
@@ -44,6 +48,8 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
+        $this->authorize('create', Product::class);
+
         $data = $request->validated();
         $product = Product::create([
             'name' => $data['name'],
@@ -68,8 +74,12 @@ class ProductController extends Controller
 
     public function edit(Product $product): InertiaResponse
     {
+        $this->authorize('update', $product);
+
         $product->load('components');
-        $product->components = $product->components->sortBy('name');
+        // Sort components by name and reindex; ensure we update the relation
+        $sorted = $product->components->sortBy('name')->values();
+        $product->setRelation('components', $sorted);
         $products = Product::where('id', '!=', $product->id)->get();
         return Inertia::render('Admin/Products/Edit', [
             'product' => $product,
@@ -79,6 +89,8 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
+        $this->authorize('update', $product);
+
         $data = $request->validated();
         $product->update([
             'name' => $data['name'],

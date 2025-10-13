@@ -51,7 +51,8 @@ class StoreProductRequest extends FormRequest
         });
     }
 
-    private function hasCircularDependency($productId, $componentIds)
+    // Protected for testability so we can override in tests
+    protected function hasCircularDependency($productId, $componentIds)
     {
         // Para criação, ainda não há produto, então só verificar entre os componentes
         // Mas como é criação, não há risco de ciclo ainda

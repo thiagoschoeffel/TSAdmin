@@ -12,7 +12,12 @@ class OrderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->canManage('orders', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['view'] ?? false);
     }
 
     /**
@@ -20,7 +25,12 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['view'] ?? false);
     }
 
     /**
@@ -28,7 +38,12 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->canManage('orders', 'create');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['create'] ?? false);
     }
 
     /**
@@ -36,7 +51,12 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['update'] ?? false);
     }
 
     /**
@@ -44,7 +64,12 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['delete'] ?? false);
     }
 
     /**
@@ -52,7 +77,12 @@ class OrderPolicy
      */
     public function restore(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['update'] ?? false);
     }
 
     /**
@@ -60,7 +90,12 @@ class OrderPolicy
      */
     public function forceDelete(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['delete'] ?? false);
     }
 
     /**
@@ -68,7 +103,12 @@ class OrderPolicy
      */
     public function manageItems(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['view'] ?? false);
     }
 
     /**
@@ -76,7 +116,12 @@ class OrderPolicy
      */
     public function addItem(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'create') || $user->canManage('orders', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['create'] ?? false) || (bool)($permissions['orders']['update'] ?? false);
     }
 
     /**
@@ -84,7 +129,12 @@ class OrderPolicy
      */
     public function updateItem(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['update'] ?? false);
     }
 
     /**
@@ -92,6 +142,11 @@ class OrderPolicy
      */
     public function removeItem(User $user, Order $order): bool
     {
-        return $user->canManage('orders', 'update') || $user->canManage('orders', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['update'] ?? false) || (bool)($permissions['orders']['delete'] ?? false);
     }
 }

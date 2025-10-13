@@ -21,6 +21,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'email_verified_at',
         'password',
         'status',
         'role',
@@ -57,34 +58,55 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Check if user has a specific permission.
-     *
-     * @deprecated Use Laravel Policies instead (e.g., $user->can('view', $model))
-     * This method is kept for internal use by policies only.
-     *
-     * @internal This method should only be called from Policy classes
+     * Check if user can perform an action on a model
      */
-    public function canManage(string $resource, string $ability): bool
+    public function can($ability, $model = null): bool
     {
-        return $this->hasPermission($resource, $ability);
-    }
-
-    /**
-     * Internal method to check if user has a specific permission.
-     * Used by policies to verify granular permissions.
-     *
-     * @param string $resource The resource name (e.g., 'clients', 'products')
-     * @param string $ability The ability name (e.g., 'view', 'create', 'update', 'delete')
-     * @return bool
-     */
-    private function hasPermission(string $resource, string $ability): bool
-    {
+        // If user is admin, allow everything
         if ($this->isAdmin()) {
             return true;
         }
 
-        $permissions = $this->permissions ?? [];
-        return (bool)($permissions[$resource][$ability] ?? false);
+        // If no model provided, return false
+        if ($model === null) {
+            return false;
+        }
+
+        // If model is a class string, check general permissions
+        if (is_string($model)) {
+            $permissions = $this->permissions ?? [];
+            $modelName = strtolower(class_basename($model));
+
+            // Map common abilities to permission keys
+            $permissionMap = [
+                'viewAny' => 'view',
+                'view' => 'view',
+                'create' => 'create',
+                'update' => 'update',
+                'delete' => 'delete',
+            ];
+
+            $permissionKey = $permissionMap[$ability] ?? $ability;
+
+            // Check if user has wildcard permission for this model
+            if (isset($permissions[$modelName]['*']) && $permissions[$modelName]['*']) {
+                return true;
+            }
+
+            // Check specific permission
+            return (bool)($permissions[$modelName][$permissionKey] ?? false);
+        }
+
+        // If model is an instance, use the policy directly
+        if (is_object($model)) {
+            $policyClass = \Illuminate\Support\Facades\Gate::getPolicyFor($model);
+            if ($policyClass && method_exists($policyClass, $ability)) {
+                $policy = new $policyClass();
+                return $policy->{$ability}($this, $model);
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -38,3 +38,8 @@ Thumbs.db
 # Ignore untracked heroicons sets we don't use
 resources/svg/heroicons/mini/
 resources/svg/heroicons/solid/
+
+# Coverage reports
+coverage/
+coverage-unit/
+coverage-user/

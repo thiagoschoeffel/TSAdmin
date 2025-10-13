@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Faker\Factory as Faker;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -24,20 +24,17 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
-
-        // Gerar permissões variadas
-        $permissions = $this->generateRandomPermissions();
+        static $sequence = 0;
 
         return [
-            'name' => $faker->name(),
-            'email' => $faker->unique()->safeEmail(),
-            'email_verified_at' => $faker->boolean(90) ? now() : null, // 10% não verificados
+            'name' => fake()->name(),
+            'email' => 'user' . (++$sequence) . '@example.com',
+            'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'status' => $faker->randomElement(['active', 'inactive']),
+            'status' => fake()->randomElement(['active', 'inactive']),
             'role' => 'user',
-            'permissions' => $permissions,
+            'permissions' => $this->generateRandomPermissions(),
         ];
     }
 

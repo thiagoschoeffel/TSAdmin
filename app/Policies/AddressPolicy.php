@@ -12,7 +12,12 @@ class AddressPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->canManage('clients', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['view'] ?? false);
     }
 
     /**
@@ -20,7 +25,12 @@ class AddressPolicy
      */
     public function view(User $user, Address $address): bool
     {
-        return $user->canManage('clients', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['view'] ?? false);
     }
 
     /**
@@ -28,7 +38,12 @@ class AddressPolicy
      */
     public function create(User $user): bool
     {
-        return $user->canManage('clients', 'create') || $user->canManage('clients', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['create'] ?? false) || (bool)($permissions['clients']['update'] ?? false);
     }
 
     /**
@@ -36,7 +51,12 @@ class AddressPolicy
      */
     public function update(User $user, Address $address): bool
     {
-        return $user->canManage('clients', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['update'] ?? false);
     }
 
     /**
@@ -44,7 +64,12 @@ class AddressPolicy
      */
     public function delete(User $user, Address $address): bool
     {
-        return $user->canManage('clients', 'update') || $user->canManage('clients', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['update'] ?? false) || (bool)($permissions['clients']['delete'] ?? false);
     }
 
     /**
@@ -52,7 +77,12 @@ class AddressPolicy
      */
     public function restore(User $user, Address $address): bool
     {
-        return $user->canManage('clients', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['update'] ?? false);
     }
 
     /**
@@ -60,6 +90,11 @@ class AddressPolicy
      */
     public function forceDelete(User $user, Address $address): bool
     {
-        return $user->canManage('clients', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['clients']['delete'] ?? false);
     }
 }

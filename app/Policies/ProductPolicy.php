@@ -12,7 +12,12 @@ class ProductPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->canManage('products', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['view'] ?? false);
     }
 
     /**
@@ -20,7 +25,12 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['view'] ?? false);
     }
 
     /**
@@ -28,7 +38,12 @@ class ProductPolicy
      */
     public function create(User $user): bool
     {
-        return $user->canManage('products', 'create');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['create'] ?? false);
     }
 
     /**
@@ -36,7 +51,12 @@ class ProductPolicy
      */
     public function update(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['update'] ?? false);
     }
 
     /**
@@ -44,7 +64,12 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['delete'] ?? false);
     }
 
     /**
@@ -52,7 +77,12 @@ class ProductPolicy
      */
     public function restore(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['update'] ?? false);
     }
 
     /**
@@ -60,7 +90,12 @@ class ProductPolicy
      */
     public function forceDelete(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['delete'] ?? false);
     }
 
     /**
@@ -68,7 +103,12 @@ class ProductPolicy
      */
     public function manageComponents(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'view');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['view'] ?? false);
     }
 
     /**
@@ -76,7 +116,12 @@ class ProductPolicy
      */
     public function createComponent(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'create') || $user->canManage('products', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['create'] ?? false) || (bool)($permissions['products']['update'] ?? false);
     }
 
     /**
@@ -84,7 +129,12 @@ class ProductPolicy
      */
     public function updateComponent(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'update');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['update'] ?? false);
     }
 
     /**
@@ -92,6 +142,11 @@ class ProductPolicy
      */
     public function deleteComponent(User $user, Product $product): bool
     {
-        return $user->canManage('products', 'update') || $user->canManage('products', 'delete');
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['products']['update'] ?? false) || (bool)($permissions['products']['delete'] ?? false);
     }
 }

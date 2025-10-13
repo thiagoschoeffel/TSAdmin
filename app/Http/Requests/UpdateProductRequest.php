@@ -8,7 +8,11 @@ class UpdateProductRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $product = \App\Models\Product::findOrFail($this->route('product'));
+        $routeParam = $this->route('product');
+        $product = $routeParam instanceof \App\Models\Product
+            ? $routeParam
+            : \App\Models\Product::findOrFail($routeParam);
+
         return $this->user()->can('update', $product);
     }
 
