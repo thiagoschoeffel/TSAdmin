@@ -40,4 +40,3 @@ class ProductComponentControllerTest extends TestCase
         $this->assertFalse($result);
     }
 }
-
