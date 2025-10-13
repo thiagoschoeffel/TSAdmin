@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
     protected function registerInertiaExceptionHandlers(): void
     {
         // Só registra se a classe Inertia existir
-        if (!class_exists(Inertia::class)) {
+        if (!$this->inertiaAvailable()) {
             return;
         }
 
@@ -57,16 +57,6 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        // Tratar HttpException com status 403 (abort(403) gera HttpExceptionInterface)
-        $handler->renderable(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, Request $request) {
-            if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
-                if ($e->getStatusCode() === 403) {
-                    $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
-                    return Inertia::render('Errors/403', array_merge($globals, ['url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(403);
-                }
-            }
-        });
-
         // Tratar Unauthenticated separadamente: redirecionar ao login (evita transformar em 500)
         $handler->renderable(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
             // Para requisições Inertia / HTML, redirecionar ao formulário de login
@@ -85,6 +75,20 @@ class AppServiceProvider extends ServiceProvider
                 session()->flash('flash_id', (string) Str::uuid());
                 $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
                 return Inertia::render('Errors/403', array_merge($globals, ['url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(403);
+            }
+        });
+
+        // Tratar HttpException com status 403 (abort(403) gera HttpExceptionInterface)
+        // Mantido após o handler específico de AccessDenied para não sobrepor flashes
+        $handler->renderable(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, Request $request) {
+            if ($request->header('X-Inertia') || str_contains($request->header('Accept', ''), 'text/html')) {
+                if ($e->getStatusCode() === 403) {
+                    // Ensure a user-friendly toast is flashed even for generic 403s
+                    session()->flash('error', __('validation.custom_messages.access_denied'));
+                    session()->flash('flash_id', (string) Str::uuid());
+                    $globals = app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request);
+                    return Inertia::render('Errors/403', array_merge($globals, ['url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(403);
+                }
             }
         });
 
@@ -138,5 +142,11 @@ class AppServiceProvider extends ServiceProvider
                 return Inertia::render('Errors/500', array_merge($globals, ['message' => config('app.debug') ? $e->getMessage() : null, 'url' => $request->getRequestUri()]))->toResponse($request)->setStatusCode(500);
             }
         });
+    }
+
+    // Extraído para facilitar testes do caminho de retorno antecipado
+    protected function inertiaAvailable(): bool
+    {
+        return class_exists(Inertia::class);
     }
 }

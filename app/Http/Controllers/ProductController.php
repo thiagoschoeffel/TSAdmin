@@ -77,7 +77,9 @@ class ProductController extends Controller
         $this->authorize('update', $product);
 
         $product->load('components');
-        $product->components = $product->components->sortBy('name');
+        // Sort components by name and reindex; ensure we update the relation
+        $sorted = $product->components->sortBy('name')->values();
+        $product->setRelation('components', $sorted);
         $products = Product::where('id', '!=', $product->id)->get();
         return Inertia::render('Admin/Products/Edit', [
             'product' => $product,

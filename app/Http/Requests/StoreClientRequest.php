@@ -40,6 +40,16 @@ class StoreClientRequest extends FormRequest
             'contact_phone_secondary' => [$isCompany ? 'required' : 'nullable', 'digits_between:10,11'],
             'contact_email' => [$isCompany ? 'required' : 'nullable', 'email', 'max:255'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
+            'addresses' => ['nullable', 'array'],
+            'addresses.*.description' => ['required_with:addresses', 'string', 'max:255'],
+            'addresses.*.postal_code' => ['required_with:addresses', 'string', 'max:20'],
+            'addresses.*.address' => ['required_with:addresses', 'string', 'max:255'],
+            'addresses.*.address_number' => ['required_with:addresses', 'string', 'max:20'],
+            'addresses.*.address_complement' => ['nullable', 'string', 'max:255'],
+            'addresses.*.neighborhood' => ['required_with:addresses', 'string', 'max:255'],
+            'addresses.*.city' => ['required_with:addresses', 'string', 'max:255'],
+            'addresses.*.state' => ['required_with:addresses', 'string', 'max:2'],
+            'addresses.*.status' => ['required_with:addresses', Rule::in(['active', 'inactive'])],
         ];
     }
 

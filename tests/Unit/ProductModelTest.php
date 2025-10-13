@@ -98,6 +98,9 @@ class ProductModelTest extends TestCase
         $component = Product::factory()->create();
         $parent = Product::factory()->create();
 
+        // Ensure no existing relationship
+        $parent->components()->detach($component);
+
         $parent->components()->attach($component, ['quantity' => 1]);
 
         $this->assertCount(1, $component->parents);

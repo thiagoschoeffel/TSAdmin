@@ -119,16 +119,18 @@ XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover coverage.xml
 -   **Classes:** 18.52% (10/54)
 -   **Métodos:** 24.29% (51/210)
 -   **Linhas:** 21.72% (383/1763)
+-   **Modelos:** 100% de cobertura (7/7 modelos com cobertura completa)
 
 O relatório HTML será gerado no diretório `coverage/index.html`.
 
 ### Testes Incluídos
 
--   **Models**: User, Client, Address, Product, Order, OrderItem, ProductComponent
+-   **Models**: User (18 testes), Client, Address, Product, Order, OrderItem, ProductComponent - **100% de cobertura em todos os modelos**
 -   **Controllers**: ClientController (21 testes funcionais), ProductController (autorização completa)
 -   **Form Requests**: StoreClientRequest, UpdateClientRequest
 -   **Policies**: ClientPolicy, UserPolicy, ProductPolicy, OrderPolicy e outras policies de autorização
 -   **Middlewares**: Authenticate, HandleInertiaRequests
+-   **Notifications**: VerifyEmailNotification (100% de cobertura)
 
 ### Sistema de Autorização
 

@@ -40,6 +40,7 @@ class ClientControllerTest extends TestCase
     public function test_index_requires_view_permission(): void
     {
         $user = User::factory()->create([
+            'email_verified_at' => now(), // Ensure email is verified
             'permissions' => [], // No permissions
         ]);
 
@@ -72,6 +73,23 @@ class ClientControllerTest extends TestCase
             $page->component('Admin/Clients/Index')
                 ->has('clients.data', 1)
                 ->where('clients.data.0.name', 'João Silva');
+        });
+    }
+
+    public function test_index_filters_by_search_with_digits(): void
+    {
+        // Um cliente com nome e documento contendo dígitos
+        Client::factory()->create(['name' => 'Cliente X', 'document' => '12345678901']);
+        // Um cliente que não deve aparecer
+        Client::factory()->create(['name' => 'Outro', 'document' => '99999999999']);
+
+        // Busca por parte do documento
+        $response = $this->actingAs($this->user)->get(route('clients.index', ['search' => '78901']));
+
+        $response->assertInertia(function ($page) {
+            $page->component('Admin/Clients/Index')
+                ->has('clients.data', 1)
+                ->where('clients.data.0.document', '12345678901');
         });
     }
 
@@ -113,6 +131,7 @@ class ClientControllerTest extends TestCase
     public function test_create_requires_create_permission(): void
     {
         $user = User::factory()->create([
+            'email_verified_at' => now(), // Ensure email is verified
             'permissions' => ['clients' => ['view' => true]], // Only view permission
         ]);
 
@@ -155,6 +174,43 @@ class ClientControllerTest extends TestCase
         $this->assertDatabaseHas('clients', $clientData);
     }
 
+    public function test_store_creates_client_with_addresses(): void
+    {
+        $clientData = [
+            'name' => 'Empresa Teste',
+            'person_type' => 'company',
+            'document' => '12345678000199',
+            'status' => 'active',
+            'contact_name' => 'Contato Empresa',
+            'contact_phone_primary' => '11999999999',
+            'contact_phone_secondary' => '11888888888',
+            'contact_email' => 'empresa@teste.com',
+            'addresses' => [
+                [
+                    'description' => 'Matriz',
+                    'postal_code' => '12345678',
+                    'address' => 'Rua Principal',
+                    'address_number' => '100',
+                    'address_complement' => '',
+                    'neighborhood' => 'Centro',
+                    'city' => 'Cidade',
+                    'state' => 'SP',
+                    'status' => 'active',
+                ]
+            ]
+        ];
+        $response = $this->actingAs($this->admin)->post(route('clients.store'), $clientData);
+        $response->assertRedirect(route('clients.index'));
+        $this->assertDatabaseHas('clients', [
+            'name' => 'Empresa Teste',
+            'person_type' => 'company',
+        ]);
+        $this->assertDatabaseHas('addresses', [
+            'address' => 'Rua Principal',
+            'city' => 'Cidade',
+        ]);
+    }
+
     public function test_modal_requires_authentication(): void
     {
         $client = Client::factory()->create();
@@ -162,6 +218,17 @@ class ClientControllerTest extends TestCase
         $response = $this->get(route('clients.modal', $client));
 
         $response->assertRedirect(route('login'));
+    }
+
+    public function test_modal_requires_view_permission(): void
+    {
+        $client = Client::factory()->create();
+        $user = User::factory()->create([
+            'email_verified_at' => now(),
+            'permissions' => [], // Nenhuma permissão
+        ]);
+        $response = $this->actingAs($user)->get(route('clients.modal', $client));
+        $response->assertForbidden();
     }
 
     public function test_modal_returns_client_data(): void
@@ -195,6 +262,7 @@ class ClientControllerTest extends TestCase
     {
         $client = Client::factory()->create();
         $user = User::factory()->create([
+            'email_verified_at' => now(), // Ensure email is verified
             'permissions' => ['clients' => ['view' => true]], // Only view permission
         ]);
 
@@ -256,6 +324,7 @@ class ClientControllerTest extends TestCase
     {
         $client = Client::factory()->create();
         $user = User::factory()->create([
+            'email_verified_at' => now(), // Ensure email is verified
             'permissions' => ['clients' => ['view' => true]], // Only view permission
         ]);
 
@@ -274,5 +343,27 @@ class ClientControllerTest extends TestCase
             ->assertSessionHas('status', 'Cliente removido com sucesso.');
 
         $this->assertDatabaseMissing('clients', ['id' => $client->id]);
+    }
+
+    public function test_prepare_payload_sets_contact_email_null_and_clears_contact_name_for_individual(): void
+    {
+        $clientData = [
+            'name' => 'Pessoa Física',
+            'person_type' => 'individual',
+            'document' => '12345678901',
+            'status' => 'active',
+            'contact_email' => '',
+            'contact_name' => 'Deve ser limpo',
+            'contact_phone_primary' => '11999999999',
+            'contact_phone_secondary' => '11888888888',
+        ];
+        $response = $this->actingAs($this->admin)->post(route('clients.store'), $clientData);
+        $response->assertRedirect(route('clients.index'));
+        $this->assertDatabaseHas('clients', [
+            'name' => 'Pessoa Física',
+            'person_type' => 'individual',
+            'contact_email' => null,
+            'contact_name' => null,
+        ]);
     }
 }

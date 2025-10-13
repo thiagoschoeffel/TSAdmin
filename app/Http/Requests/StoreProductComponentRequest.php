@@ -11,8 +11,19 @@ class StoreProductComponentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $product = \App\Models\Product::findOrFail($this->route('product'));
-        return $this->user()->can('createComponent', $product);
+        // Resolve product from route parameter safely (avoid collisions with input keys)
+        $route = $this->route();
+        $param = $route ? $route->parameter('product') : null;
+
+        if ($param instanceof \App\Models\Product) {
+            $product = $param;
+        } elseif (is_scalar($param) && ctype_digit((string)$param)) {
+            $product = \App\Models\Product::find((int)$param);
+        } else {
+            return false;
+        }
+
+        return $this->user()?->can('createComponent', $product) ?? false;
     }
 
     /**
