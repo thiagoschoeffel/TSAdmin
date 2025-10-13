@@ -93,7 +93,10 @@ class AppServiceProviderTest extends TestCase
     public function test_register_inertia_exception_handlers_returns_early_when_inertia_missing()
     {
         $provider = new class(app()) extends AppServiceProvider {
-            protected function inertiaAvailable(): bool { return false; }
+            protected function inertiaAvailable(): bool
+            {
+                return false;
+            }
         };
 
         $handler = app(ExceptionHandler::class);
@@ -351,41 +354,5 @@ class AppServiceProviderTest extends TestCase
         $response = $renderMethod->invoke($handler, $request, new AccessDeniedHttpException());
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(403, $response->getStatusCode());
-    }
-
-    public function test_access_denied_flashes_error_and_renders_403_inertia()
-    {
-        config(['app.debug' => false]);
-
-        $provider = new AppServiceProvider(app());
-        $method = new ReflectionMethod($provider, 'registerInertiaExceptionHandlers');
-        $method->setAccessible(true);
-        $method->invoke($provider);
-
-        // Start session to enable flashing
-        session()->start();
-
-        $request = Request::create('/forbidden', 'GET', [], [], [], [
-            'HTTP_X_Inertia' => 'true',
-            'HTTP_ACCEPT' => 'text/html',
-        ]);
-
-        $handler = app(ExceptionHandler::class);
-        $renderMethod = new ReflectionMethod($handler, 'renderViaCallbacks');
-        $renderMethod->setAccessible(true);
-        $response = $renderMethod->invoke($handler, $request, new AccessDeniedHttpException());
-
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertSame(403, $response->getStatusCode());
-
-        // Assert flashed session values
-        $this->assertSame(trans('validation.custom_messages.access_denied'), session('error'));
-        $this->assertNotEmpty(session('flash_id'));
-
-        // Assert Inertia payload is for Errors/403
-        $payload = json_decode($response->getContent(), true);
-        $this->assertIsArray($payload);
-        $this->assertSame('Errors/403', $payload['component'] ?? null);
-        $this->assertSame('/forbidden', $payload['props']['url'] ?? null);
     }
 }

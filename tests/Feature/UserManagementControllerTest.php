@@ -6,6 +6,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
@@ -331,7 +332,7 @@ class UserManagementControllerTest extends TestCase
         $method->setAccessible(true);
 
         // Logout to ensure Auth::check() === false
-        auth()->logout();
+        Auth::logout();
 
         $someone = User::factory()->create();
         // Should not throw
