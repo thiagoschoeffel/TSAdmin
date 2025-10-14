@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Client;
 use App\Models\User;
+use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -343,6 +344,19 @@ class ClientControllerTest extends TestCase
             ->assertSessionHas('status', 'Cliente removido com sucesso.');
 
         $this->assertDatabaseMissing('clients', ['id' => $client->id]);
+    }
+
+    public function test_destroy_blocks_deleting_client_with_orders(): void
+    {
+        $client = Client::factory()->create();
+        Order::factory()->create(['client_id' => $client->id]);
+
+        $response = $this->actingAs($this->admin)->delete(route('clients.destroy', $client));
+
+        $response->assertRedirect()
+            ->assertSessionHasErrors();
+
+        $this->assertDatabaseHas('clients', ['id' => $client->id]);
     }
 
     public function test_prepare_payload_sets_contact_email_null_and_clears_contact_name_for_individual(): void

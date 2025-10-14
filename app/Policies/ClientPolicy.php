@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Client;
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class ClientPolicy
 {
@@ -62,8 +63,12 @@ class ClientPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Client $client): bool
+    public function delete(User $user, Client $client): bool|Response
     {
+        if ($client->orders()->exists()) {
+            return Response::deny(__('client.delete_blocked_has_orders'));
+        }
+
         if ($user->isAdmin()) {
             return true;
         }
@@ -88,8 +93,12 @@ class ClientPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Client $client): bool
+    public function forceDelete(User $user, Client $client): bool|Response
     {
+        if ($client->orders()->exists()) {
+            return Response::deny(__('client.delete_blocked_has_orders'));
+        }
+
         if ($user->isAdmin()) {
             return true;
         }

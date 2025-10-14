@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use DomainException;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class Client extends Model
 {
@@ -98,5 +101,24 @@ class Client extends Model
             $length === 10 => preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2-$3', $phone),
             default => $phone,
         };
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Client $client): void {
+            if ($client->orders()->exists()) {
+                Log::warning('Tentativa de exclusão de cliente com pedidos bloqueada', [
+                    'client_id' => $client->id,
+                    'client_name' => $client->name,
+                    'user_id' => Auth::id(),
+                ]);
+                throw new DomainException(__('client.delete_blocked_has_orders'));
+            }
+        });
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 }

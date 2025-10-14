@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use DomainException;
 
 class ClientController extends Controller
 {
@@ -256,12 +258,22 @@ class ClientController extends Controller
 
     public function destroy(Client $client): RedirectResponse
     {
-        $this->authorize('delete', $client);
-        $client->delete();
+        try {
+            $this->authorize('delete', $client);
+            $client->delete();
 
-        return redirect()
-            ->route('clients.index')
-            ->with('status', 'Cliente removido com sucesso.');
+            return redirect()
+                ->route('clients.index')
+                ->with('status', 'Cliente removido com sucesso.');
+        } catch (AuthorizationException $e) {
+            $message = $e->getMessage();
+            if ($message === __('client.delete_blocked_has_orders')) {
+                return back()->withErrors($message);
+            }
+            abort(403, $message);
+        } catch (DomainException $e) {
+            return back()->withErrors($e->getMessage());
+        }
     }
 
     protected function preparePayload(array $data): array

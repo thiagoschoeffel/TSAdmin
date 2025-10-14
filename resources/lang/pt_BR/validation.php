@@ -115,4 +115,7 @@ return [
         'email_verified' => 'Seu e-mail foi verificado com sucesso. Bem-vindo!',
         'verification_resent' => 'Link de verificação reenviado. Verifique seu e-mail.',
     ],
+    'client' => [
+        'delete_blocked_has_orders' => 'Cliente possui pedidos e não pode ser excluído.',
+    ],
 ];

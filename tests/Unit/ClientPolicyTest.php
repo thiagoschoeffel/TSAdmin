@@ -4,7 +4,9 @@ namespace Tests\Unit;
 
 use App\Models\Client;
 use App\Models\User;
+use App\Models\Order;
 use App\Policies\ClientPolicy;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -66,6 +68,18 @@ class ClientPolicyTest extends TestCase
         $this->assertTrue($this->policy->delete($this->adminUser, $this->client));
     }
 
+    public function test_admin_cannot_delete_client_with_orders()
+    {
+        $client = Client::factory()->create();
+        Order::factory()->create(['client_id' => $client->id]);
+
+        $response = $this->policy->delete($this->adminUser, $client);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertFalse($response->allowed());
+        $this->assertEquals(__('client.delete_blocked_has_orders'), $response->message());
+    }
+
     public function test_admin_can_restore_client()
     {
         $this->assertTrue($this->policy->restore($this->adminUser, $this->client));
@@ -74,6 +88,18 @@ class ClientPolicyTest extends TestCase
     public function test_admin_can_force_delete_client()
     {
         $this->assertTrue($this->policy->forceDelete($this->adminUser, $this->client));
+    }
+
+    public function test_admin_cannot_force_delete_client_with_orders()
+    {
+        $client = Client::factory()->create();
+        Order::factory()->create(['client_id' => $client->id]);
+
+        $response = $this->policy->forceDelete($this->adminUser, $client);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertFalse($response->allowed());
+        $this->assertEquals(__('client.delete_blocked_has_orders'), $response->message());
     }
 
     public function test_admin_can_manage_addresses()
