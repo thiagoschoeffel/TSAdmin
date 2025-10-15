@@ -65,6 +65,18 @@ watch(() => page.props.flash, (f) => {
                 <span>Usuários</span>
               </span>
             </Link>
+            <Link class="group transition hover:text-white" :href="route('leads.index')">
+              <span class="inline-flex items-center gap-2">
+                <HeroIcon name="chat-bubble-left-right" class="h-4 w-4 transition-colors group-hover:text-white" />
+                <span>Leads</span>
+              </span>
+            </Link>
+            <Link class="group transition hover:text-white" :href="route('opportunities.index')">
+              <span class="inline-flex items-center gap-2">
+                <HeroIcon name="document-currency-dollar" class="h-4 w-4 transition-colors group-hover:text-white" />
+                <span>Oportunidades</span>
+              </span>
+            </Link>
             <Link v-if="canViewClients" class="group transition hover:text-white" :href="route('clients.index')">
               <span class="inline-flex items-center gap-2">
                 <HeroIcon name="identification" class="h-4 w-4 transition-colors group-hover:text-white" />

@@ -102,6 +102,7 @@ class ProductController extends Controller
         $this->authorize('update', $product);
 
         $data = $request->validated();
+
         if (!empty($data['components'])) {
             $componentIdsFromRequest = collect($data['components'])->pluck('id')->map(fn($id) => (int)$id)->toArray();
             $currentComponentIds = $product->components()->pluck('products.id')->map(fn($id) => (int)$id)->toArray();

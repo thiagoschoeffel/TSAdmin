@@ -410,19 +410,19 @@ const handleComponentAction = ({ action, item }) => {
   <form @submit.prevent="onSubmit" class="space-y-6">
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <label class="form-label">
-        Nome
+        Nome *
         <InputText v-model="form.name" required :error="!!form.errors.name" />
         <span v-if="form.errors.name" class="text-sm font-medium text-rose-600">{{ form.errors.name }}</span>
       </label>
 
       <label class="form-label">
-        Preço
+        Preço *
         <InputCurrency v-model="form.price" required :error="!!form.errors.price" placeholder="R$ 0,00" />
         <span v-if="form.errors.price" class="text-sm font-medium text-rose-600">{{ form.errors.price }}</span>
       </label>
 
       <label class="form-label">
-        Unidade de Medida
+        Unidade de Medida *
         <InputSelect v-model="form.unit_of_measure" required :error="!!form.errors.unit_of_measure" :options="[
           { value: 'UND', label: 'Unidade (UND)' },
           { value: 'KG', label: 'Quilograma (KG)' },
@@ -486,7 +486,7 @@ const handleComponentAction = ({ action, item }) => {
       <div v-if="showAddForm" class="border border-slate-200 rounded-lg p-4 bg-slate-50">
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="form-label">
-            Produto
+            Produto *
             <InputText
               ref="productInputRef"
               v-model="productInput"
@@ -507,7 +507,7 @@ const handleComponentAction = ({ action, item }) => {
             <span v-if="componentErrors.id" class="text-sm font-medium text-rose-600">{{ componentErrors.id }}</span>
           </label>
                     <label class="form-label">
-            Quantidade
+            Quantidade *
             <InputNumber ref="quantityInputRef" v-model="newComponent.quantity" :formatted="true" :precision="2" :min="0.01" :step="0.01" required :error="!!componentErrors.quantity" />
             <span v-if="componentErrors.quantity" class="text-sm font-medium text-rose-600">{{ componentErrors.quantity }}</span>
           </label>

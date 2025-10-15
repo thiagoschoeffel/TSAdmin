@@ -160,6 +160,7 @@ watch(modalOpen, (isOpen) => {
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 class="text-3xl font-semibold text-slate-900 flex items-center gap-2">
+            <HeroIcon name="shopping-bag" class="h-7 w-7 text-slate-700" />
             Novo pedido
           </h1>
           <p class="mt-2 text-sm text-slate-500">Crie um novo pedido adicionando produtos e finalizando com cliente e pagamento.</p>

@@ -31,5 +31,14 @@ return [
                 'export_pdf' => 'Exportar PDF de pedidos',
             ],
         ],
+        'leads' => [
+            'label' => 'Gestão de leads',
+            'abilities' => [
+                'view' => 'Visualizar leads',
+                'create' => 'Criar leads',
+                'update' => 'Editar leads',
+                'delete' => 'Excluir leads',
+            ],
+        ],
     ],
 ];

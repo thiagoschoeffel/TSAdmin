@@ -17,6 +17,8 @@ import {
   ShoppingBagIcon,
   InformationCircleIcon,
   PrinterIcon,
+  ChatBubbleLeftRightIcon,
+  DocumentCurrencyDollarIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -41,6 +43,8 @@ const map = {
   'shopping-bag': ShoppingBagIcon,
   'information-circle': InformationCircleIcon,
   'printer': PrinterIcon,
+  'chat-bubble-left-right': ChatBubbleLeftRightIcon,
+  'document-currency-dollar': DocumentCurrencyDollarIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);

@@ -7,11 +7,13 @@ use App\Models\Client;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Lead;
 use App\Policies\AddressPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\UserPolicy;
+use App\Policies\LeadPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -27,6 +29,7 @@ class AuthServiceProvider extends ServiceProvider
         Product::class => ProductPolicy::class,
         Order::class => OrderPolicy::class,
         Address::class => AddressPolicy::class,
+        Lead::class => LeadPolicy::class,
     ];
 
     /**

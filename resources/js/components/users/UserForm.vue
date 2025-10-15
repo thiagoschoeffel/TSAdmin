@@ -22,13 +22,13 @@ const onSubmit = () => emit('submit');
   <form @submit.prevent="onSubmit" class="space-y-6">
     <div class="grid gap-4 sm:grid-cols-2">
       <label class="form-label">
-        Nome
+        Nome *
         <InputText v-model="form.name" required autocomplete="name" :error="!!form.errors.name" />
         <span v-if="form.errors.name" class="text-sm font-medium text-rose-600">{{ form.errors.name }}</span>
       </label>
 
       <label class="form-label">
-        E-mail
+        E-mail *
         <InputText type="email" v-model="form.email" required autocomplete="email" :error="!!form.errors.email" />
         <span v-if="form.errors.email" class="text-sm font-medium text-rose-600">{{ form.errors.email }}</span>
       </label>
@@ -47,12 +47,12 @@ const onSubmit = () => emit('submit');
       <legend class="text-sm font-semibold text-slate-700">Credenciais de acesso</legend>
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="form-label">
-          Senha
+          Senha *
           <InputText type="password" v-model="form.password" required autocomplete="new-password" :error="!!form.errors.password" />
           <span v-if="form.errors.password" class="text-sm font-medium text-rose-600">{{ form.errors.password }}</span>
         </label>
         <label class="form-label">
-          Confirmar senha
+          Confirmar senha *
           <InputText type="password" v-model="form.password_confirmation" required autocomplete="new-password" />
         </label>
       </div>
@@ -78,7 +78,7 @@ const onSubmit = () => emit('submit');
       <span class="text-sm font-semibold text-slate-700">Perfil de acesso</span>
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="form-label">
-          Função
+          Função *
           <InputSelect v-model="form.role" :options="[
             { value: 'user', label: 'Usuário comum' },
             { value: 'admin', label: 'Administrador' }

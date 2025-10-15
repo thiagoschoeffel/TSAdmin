@@ -155,7 +155,7 @@ const confirm = () => {
   <Modal v-model="modalOpen" :title="title" size="md" :lockScroll="true">
     <div class="space-y-4">
       <label class="form-label">
-        Cliente
+        Cliente *
         <InputText
           ref="clientInputRef"
           v-model="clientInput"
@@ -189,7 +189,7 @@ const confirm = () => {
       </label>
 
       <label class="form-label">
-        Forma de pagamento
+        Forma de pagamento *
         <InputSelect ref="paymentMethodRef" v-model="paymentMethod" @keydown="handlePaymentMethodKeydown" :options="[
           { value: 'cash', label: 'Dinheiro' },
           { value: 'card', label: 'Cartão' },
@@ -223,11 +223,11 @@ const confirm = () => {
 
       <div>
         <label class="form-label">
-          Endereço de entrega
+          Endereço de entrega{{ deliveryType === 'delivery' ? ' *' : '' }}
           <InputSelect v-model="selectedAddress" :options="clientAddresses.map(address => ({
             value: address.id,
             label: `${address.description} - ${address.address}, ${address.address_number} - ${address.city}/${address.state}`
-          }))" :disabled="deliveryType === 'pickup'" />
+          }))" :disabled="deliveryType === 'pickup'" :required="deliveryType === 'delivery'" />
         </label>
       </div>
     </div>

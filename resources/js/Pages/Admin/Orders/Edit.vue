@@ -242,6 +242,7 @@ const getStatusLabel = (status) => {
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 class="text-3xl font-semibold text-slate-900 flex items-center gap-2">
+            <HeroIcon name="shopping-bag" class="h-7 w-7 text-slate-700" />
             Editar pedido #{{ order.id }}
           </h1>
           <p class="mt-2 text-sm text-slate-500">Edite os itens do pedido e finalize com cliente e pagamento.</p>

@@ -56,6 +56,32 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{user}', [UserManagementController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('leads')->name('leads.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\LeadController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\LeadController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\LeadController::class, 'store'])->name('store');
+        Route::get('{lead}/modal', [\App\Http\Controllers\LeadController::class, 'modal'])->name('modal');
+        Route::get('{lead}/edit', [\App\Http\Controllers\LeadController::class, 'edit'])->name('edit');
+        Route::patch('{lead}', [\App\Http\Controllers\LeadController::class, 'update'])->name('update');
+        Route::delete('{lead}', [\App\Http\Controllers\LeadController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('leads/{lead}/interactions')->name('leads.interactions.')->group(function (): void {
+        Route::get('/', [App\Http\Controllers\LeadInteractionController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\LeadInteractionController::class, 'store'])->name('store');
+        Route::patch('{interactionId}', [App\Http\Controllers\LeadInteractionController::class, 'update'])->name('update');
+        Route::delete('{interactionId}', [App\Http\Controllers\LeadInteractionController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('opportunities')->name('opportunities.')->group(function (): void {
+        Route::get('/', [App\Http\Controllers\OpportunityController::class, 'index'])->name('index');
+        Route::get('create', [App\Http\Controllers\OpportunityController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\OpportunityController::class, 'store'])->name('store');
+        Route::get('{opportunity}/edit', [App\Http\Controllers\OpportunityController::class, 'edit'])->name('edit');
+        Route::patch('{opportunity}', [App\Http\Controllers\OpportunityController::class, 'update'])->name('update');
+        Route::delete('{opportunity}', [App\Http\Controllers\OpportunityController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('clients')->name('clients.')->group(function (): void {
         Route::get('/', [ClientController::class, 'index'])->name('index');
         Route::get('create', [ClientController::class, 'create'])->name('create');

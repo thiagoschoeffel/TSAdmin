@@ -35,6 +35,7 @@ class AuthServiceProviderTest extends TestCase
             Product::class => ProductPolicy::class,
             Order::class => OrderPolicy::class,
             Address::class => AddressPolicy::class,
+            \App\Models\Lead::class => \App\Policies\LeadPolicy::class,
         ];
 
         $reflection = new \ReflectionClass($this->provider);
@@ -62,6 +63,7 @@ class AuthServiceProviderTest extends TestCase
             Product::class => ProductPolicy::class,
             Order::class => OrderPolicy::class,
             Address::class => AddressPolicy::class,
+            \App\Models\Lead::class => \App\Policies\LeadPolicy::class,
         ];
 
         $this->assertEquals($expectedPolicies, $policies, 'Provider should have all expected policy mappings');
