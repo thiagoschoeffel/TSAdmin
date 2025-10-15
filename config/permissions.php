@@ -28,6 +28,7 @@ return [
                 'update' => 'Editar pedidos',
                 'delete' => 'Excluir pedidos',
                 'update_status' => 'Alterar status de pedidos',
+                'export_pdf' => 'Exportar PDF de pedidos',
             ],
         ],
     ],

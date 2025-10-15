@@ -179,4 +179,17 @@ class OrderPolicy
         $permissions = $user->permissions ?? [];
         return (bool)($permissions['orders']['update'] ?? false) || (bool)($permissions['orders']['delete'] ?? false);
     }
+
+    /**
+     * Determine whether the user can export PDF for the order.
+     */
+    public function exportPdf(User $user, Order $order): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['export_pdf'] ?? false);
+    }
 }

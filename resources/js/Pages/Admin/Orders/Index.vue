@@ -157,6 +157,19 @@ const columns = [
 
 const actions = computed(() => {
   const acts = [];
+  if (canView.value) {
+    acts.push({
+      key: 'print',
+      label: 'Imprimir',
+      icon: 'printer',
+      component: 'a',
+      props: (order) => ({
+        href: route('orders.pdf.show', order.id),
+        target: '_blank',
+        class: 'menu-panel-link'
+      })
+    });
+  }
   if (canUpdate.value) {
     acts.push({
       key: 'edit',

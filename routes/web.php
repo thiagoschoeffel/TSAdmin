@@ -84,6 +84,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::get('{order}/edit', [\App\Http\Controllers\OrderController::class, 'edit'])->name('edit');
         Route::patch('{order}', [\App\Http\Controllers\OrderController::class, 'update'])->name('update');
         Route::delete('{order}', [\App\Http\Controllers\OrderController::class, 'destroy'])->name('destroy');
+        Route::get('{order}/pdf', [\App\Http\Controllers\OrdersPdfController::class, 'show'])->name('pdf.show');
     });
 
     // Order items management routes
