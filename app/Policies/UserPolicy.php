@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
@@ -42,10 +43,18 @@ class UserPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, User $model): bool
+    public function delete(User $user, User $model): bool|Response
     {
         // Admin pode excluir qualquer usuário, exceto ele mesmo
-        return $user->isAdmin() && $user->id !== $model->id;
+        if (!$user->isAdmin() || $user->id === $model->id) {
+            return false;
+        }
+
+        if ($model->clients()->exists() || $model->products()->exists() || $model->orders()->exists()) {
+            return Response::deny(__('user.delete_blocked_has_related_records'));
+        }
+
+        return true;
     }
 
     /**
@@ -59,8 +68,16 @@ class UserPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, User $model): bool
+    public function forceDelete(User $user, User $model): bool|Response
     {
-        return $user->isAdmin();
+        if (!$user->isAdmin()) {
+            return false;
+        }
+
+        if ($model->clients()->exists() || $model->products()->exists() || $model->orders()->exists()) {
+            return Response::deny(__('user.delete_blocked_has_related_records'));
+        }
+
+        return true;
     }
 }

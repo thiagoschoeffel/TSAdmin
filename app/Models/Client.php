@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Observers\ClientObserver;
 use DomainException;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class Client extends Model
 {
@@ -105,6 +106,8 @@ class Client extends Model
 
     protected static function booted(): void
     {
+        static::observe(ClientObserver::class);
+
         static::deleting(function (Client $client): void {
             if ($client->orders()->exists()) {
                 Log::warning('Tentativa de exclusão de cliente com pedidos bloqueada', [

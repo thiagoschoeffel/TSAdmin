@@ -360,7 +360,7 @@ class UserManagementControllerTest extends TestCase
         $response = $this->delete(route('users.destroy', $user));
 
         $response->assertRedirect();
-        $response->assertSessionHasErrors('user_id', 'Não é possível remover este usuário, pois ele está associado a clientes cadastrados.');
+        $response->assertSessionHas('error', 'Usuário possui registros relacionados (clientes, produtos ou pedidos) e não pode ser excluído.');
 
         $this->assertDatabaseHas('users', ['id' => $user->id]);
     }

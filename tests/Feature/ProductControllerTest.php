@@ -2,9 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\Client;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\App;
 use Tests\TestCase;
 
 class ProductControllerTest extends TestCase
@@ -21,6 +25,7 @@ class ProductControllerTest extends TestCase
             'email_verified_at' => now(),
         ]);
         $this->actingAs($this->admin);
+        App::setLocale('pt_BR');
     }
 
     public function test_index_displays_products_list()
@@ -216,6 +221,28 @@ class ProductControllerTest extends TestCase
         $this->assertSoftDeleted('products', ['id' => $product->id]);
     }
 
+    public function test_destroy_blocks_deleting_product_with_orders()
+    {
+        $product = Product::factory()->create();
+        $client = Client::factory()->create();
+        $order = Order::factory()->create(['client_id' => $client->id]);
+        OrderItem::factory()->create(['order_id' => $order->id, 'product_id' => $product->id]);
+
+        $response = $this->delete(route('products.destroy', $product));
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'Produto possui pedidos e não pode ser excluído.');
+        $this->assertDatabaseHas('products', ['id' => $product->id]);
+    }
+
+    public function test_destroy_allows_deleting_product_without_orders()
+    {
+        $product = Product::factory()->create();
+        $response = $this->delete(route('products.destroy', $product));
+        $response->assertRedirect(route('products.index'));
+        $response->assertSessionHas('status', 'Produto removido com sucesso!');
+        $this->assertSoftDeleted('products', ['id' => $product->id]);
+    }
+
     public function test_modal_returns_product_data_with_component_tree()
     {
         $root = Product::factory()->create([
@@ -241,9 +268,18 @@ class ProductControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'product' => [
-                'id', 'name', 'description', 'price', 'unit_of_measure', 'status',
-                'created_at', 'updated_at', 'created_by', 'updated_by',
-                'components', 'component_tree',
+                'id',
+                'name',
+                'description',
+                'price',
+                'unit_of_measure',
+                'status',
+                'created_at',
+                'updated_at',
+                'created_by',
+                'updated_by',
+                'components',
+                'component_tree',
             ],
         ]);
 

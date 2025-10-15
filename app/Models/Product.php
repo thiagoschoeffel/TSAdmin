@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Observers\ProductObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -27,6 +29,11 @@ class Product extends Model
         'deleted_by',
     ];
 
+    protected static function booted(): void
+    {
+        static::observe(ProductObserver::class);
+    }
+
     // Produtos que compõem este produto
     public function components()
     {
@@ -47,6 +54,11 @@ class Product extends Model
             'component_id',
             'product_id'
         )->withPivot('quantity')->withTimestamps();
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 
     public function createdBy(): BelongsTo

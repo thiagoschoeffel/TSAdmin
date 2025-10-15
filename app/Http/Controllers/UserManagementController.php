@@ -10,8 +10,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Auth\Access\AuthorizationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use DomainException;
 
 class UserManagementController extends Controller
 {
@@ -139,19 +142,41 @@ class UserManagementController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-        $this->authorize('delete', $user);
-        $this->ensureNotCurrentUser($user);
+        try {
+            $this->authorize('delete', $user);
+            $this->ensureNotCurrentUser($user);
 
-        validator(
-            ['user_id' => $user->id],
-            ['user_id' => [new UserHasNoClients()]]
-        )->validate();
+            $user->delete();
 
-        $user->delete();
-
-        return redirect()
-            ->route('users.index')
-            ->with('status', 'Usuário removido com sucesso.');
+            return redirect()
+                ->route('users.index')
+                ->with('status', 'Usuário removido com sucesso.');
+        } catch (AuthorizationException $e) {
+            $message = $e->getMessage();
+            if ($message === __('user.delete_blocked_has_related_records')) {
+                Log::warning('Tentativa de exclusão de usuário com registros relacionados bloqueada', [
+                    'user_id' => $user->id,
+                    'current_user_id' => Auth::id(),
+                    'message' => $message,
+                ]);
+                return back()->with('error', $message);
+            }
+            abort(403, $message);
+        } catch (DomainException $e) {
+            Log::warning('Tentativa de exclusão de usuário com registros relacionados bloqueada (Observer)', [
+                'user_id' => $user->id,
+                'current_user_id' => Auth::id(),
+                'message' => $e->getMessage(),
+            ]);
+            return back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Erro ao excluir usuário', [
+                'user_id' => $user->id,
+                'current_user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+            ]);
+            return back()->with('error', 'Erro interno ao excluir usuário.');
+        }
     }
 
     public function modal(User $user): JsonResponse

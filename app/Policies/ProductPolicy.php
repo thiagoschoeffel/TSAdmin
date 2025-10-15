@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class ProductPolicy
 {
@@ -62,14 +63,27 @@ class ProductPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Product $product): bool
+    public function delete(User $user, Product $product): bool|Response
     {
         if ($user->isAdmin()) {
+            if ($product->orderItems()->exists()) {
+                return Response::deny(__('product.delete_blocked_has_orders'));
+            }
             return true;
         }
 
         $permissions = $user->permissions ?? [];
-        return (bool)($permissions['products']['delete'] ?? false);
+        $hasPermission = (bool)($permissions['products']['delete'] ?? false);
+
+        if (!$hasPermission) {
+            return false;
+        }
+
+        if ($product->orderItems()->exists()) {
+            return Response::deny(__('product.delete_blocked_has_orders'));
+        }
+
+        return true;
     }
 
     /**
@@ -88,14 +102,24 @@ class ProductPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Product $product): bool
+    public function forceDelete(User $user, Product $product): bool|Response
     {
         if ($user->isAdmin()) {
+            if ($product->orderItems()->exists()) {
+                return Response::deny(__('product.delete_blocked_has_orders'));
+            }
             return true;
         }
 
         $permissions = $user->permissions ?? [];
-        return (bool)($permissions['products']['delete'] ?? false);
+        $hasPermission = (bool)($permissions['products']['delete'] ?? false);
+
+        if (!$hasPermission) {
+            return false;
+        }
+
+        // Check if product has associated orders
+        return !$product->orderItems()->exists();
     }
 
     /**

@@ -8,8 +8,11 @@ use App\Http\Requests\UpdateProductRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Auth\Access\AuthorizationException;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use DomainException;
 
 class ProductController extends Controller
 {
@@ -116,9 +119,36 @@ class ProductController extends Controller
 
     public function destroy(Product $product): RedirectResponse
     {
-        $this->authorize('delete', $product);
-        $product->delete();
-        return redirect()->route('products.index')->with('status', 'Produto removido com sucesso!');
+        try {
+            $this->authorize('delete', $product);
+            $product->delete();
+            return redirect()->route('products.index')->with('status', 'Produto removido com sucesso!');
+        } catch (AuthorizationException $e) {
+            $message = $e->getMessage();
+            if ($message === __('product.delete_blocked_has_orders')) {
+                Log::warning('Tentativa de exclusão de produto com pedidos bloqueada', [
+                    'product_id' => $product->id,
+                    'user_id' => Auth::id(),
+                    'message' => $message,
+                ]);
+                return back()->with('error', $message);
+            }
+            abort(403, $message);
+        } catch (DomainException $e) {
+            Log::warning('Tentativa de exclusão de produto com pedidos bloqueada (Observer)', [
+                'product_id' => $product->id,
+                'user_id' => Auth::id(),
+                'message' => $e->getMessage(),
+            ]);
+            return back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Erro ao excluir produto', [
+                'product_id' => $product->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+            ]);
+            return back()->with('error', 'Erro interno ao excluir produto.');
+        }
     }
 
     public function modal(Product $product): JsonResponse

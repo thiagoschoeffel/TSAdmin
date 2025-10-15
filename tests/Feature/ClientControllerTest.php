@@ -354,7 +354,7 @@ class ClientControllerTest extends TestCase
         $response = $this->actingAs($this->admin)->delete(route('clients.destroy', $client));
 
         $response->assertRedirect()
-            ->assertSessionHasErrors();
+            ->assertSessionHas('error', 'Cliente possui pedidos e não pode ser excluído.');
 
         $this->assertDatabaseHas('clients', ['id' => $client->id]);
     }

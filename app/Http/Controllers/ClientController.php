@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use DomainException;
@@ -268,11 +269,28 @@ class ClientController extends Controller
         } catch (AuthorizationException $e) {
             $message = $e->getMessage();
             if ($message === __('client.delete_blocked_has_orders')) {
-                return back()->withErrors($message);
+                Log::warning('Tentativa de exclusão de cliente com pedidos bloqueada', [
+                    'client_id' => $client->id,
+                    'user_id' => Auth::id(),
+                    'message' => $message,
+                ]);
+                return back()->with('error', $message);
             }
             abort(403, $message);
         } catch (DomainException $e) {
-            return back()->withErrors($e->getMessage());
+            Log::warning('Tentativa de exclusão de cliente com pedidos bloqueada (Observer)', [
+                'client_id' => $client->id,
+                'user_id' => Auth::id(),
+                'message' => $e->getMessage(),
+            ]);
+            return back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Erro ao excluir cliente', [
+                'client_id' => $client->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+            ]);
+            return back()->with('error', 'Erro interno ao excluir cliente.');
         }
     }
 
