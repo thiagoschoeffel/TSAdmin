@@ -88,8 +88,8 @@ class ProductControllerTest extends TestCase
 
     public function test_store_creates_product_with_components()
     {
-        $rice = Product::factory()->create(['name' => 'Arroz', 'price' => 6.00, 'unit_of_measure' => 'PCT']);
-        $beans = Product::factory()->create(['name' => 'Feijão', 'price' => 5.00, 'unit_of_measure' => 'PCT']);
+        $rice = Product::factory()->create(['name' => 'Arroz', 'price' => 6.00, 'unit_of_measure' => 'PCT', 'status' => 'active']);
+        $beans = Product::factory()->create(['name' => 'Feijão', 'price' => 5.00, 'unit_of_measure' => 'PCT', 'status' => 'active']);
 
         $payload = [
             'name' => 'PF Arroz e Feijão',
@@ -166,6 +166,10 @@ class ProductControllerTest extends TestCase
     {
         $product = Product::factory()->create(['status' => 'inactive']);
         $rice = Product::factory()->create(['name' => 'Arroz', 'price' => 6.00, 'unit_of_measure' => 'PCT']);
+        // Adiciona componente antes
+        $product->components()->sync([$rice->id => ['quantity' => 1]]);
+        $product->load('components');
+        $pivotId = $product->components()->first()->pivot->id;
 
         $payload = [
             'name' => 'PF Atualizado',
@@ -174,7 +178,7 @@ class ProductControllerTest extends TestCase
             'unit_of_measure' => 'UND',
             // status omitido -> deve virar 'active' pelo controller
             'components' => [
-                ['id' => $rice->id, 'quantity' => 3],
+                ['id' => $rice->id, 'quantity' => 3, 'pivot_id' => $pivotId],
             ],
         ];
 
@@ -350,5 +354,151 @@ class ProductControllerTest extends TestCase
         $this->actingAs($user);
 
         $this->get(route('products.index'))->assertStatus(403);
+    }
+
+    public function test_store_denies_creating_product_with_inactive_component()
+    {
+        $activeProduct = Product::factory()->create(['status' => 'active']);
+        $inactiveProduct = Product::factory()->create(['status' => 'inactive']);
+
+        $data = [
+            'name' => 'Produto Composto',
+            'price' => 100.00,
+            'unit_of_measure' => 'UND',
+            'status' => 'active',
+            'components' => [
+                ['id' => $inactiveProduct->id, 'quantity' => 1.0],
+            ],
+        ];
+
+        $response = $this->post(route('products.store'), $data);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('components.0.id');
+        $this->assertDatabaseMissing('products', ['name' => 'Produto Composto']);
+    }
+
+    public function test_store_allows_creating_product_with_only_active_components()
+    {
+        $activeProduct1 = Product::factory()->create(['status' => 'active']);
+        $activeProduct2 = Product::factory()->create(['status' => 'active']);
+
+        $data = [
+            'name' => 'Produto Composto',
+            'price' => 100.00,
+            'unit_of_measure' => 'UND',
+            'status' => 'active',
+            'components' => [
+                ['id' => $activeProduct1->id, 'quantity' => 1.0],
+                ['id' => $activeProduct2->id, 'quantity' => 2.0],
+            ],
+        ];
+
+        $response = $this->post(route('products.store'), $data);
+
+        $response->assertRedirect(route('products.index'));
+        $this->assertDatabaseHas('products', ['name' => 'Produto Composto']);
+        $product = Product::where('name', 'Produto Composto')->first();
+        $this->assertCount(2, $product->components);
+    }
+
+    public function test_update_allows_editing_existing_item_when_component_is_now_inactive_without_replacing_it()
+    {
+        $product = Product::factory()->create(['status' => 'active']);
+        $component = Product::factory()->create(['status' => 'active']);
+        $product->components()->attach($component->id, ['quantity' => 1.0]);
+        $product->load('components');
+        $pivotId = $product->components()->first()->pivot->id;
+
+        // Change component to inactive
+        $component->update(['status' => 'inactive']);
+
+        $data = [
+            'name' => 'Produto Atualizado',
+            'price' => 150.00,
+            'unit_of_measure' => 'UND',
+            'status' => 'active',
+            'components' => [
+                ['pivot_id' => $pivotId, 'id' => $component->id, 'quantity' => 2.0],
+            ],
+        ];
+
+        $response = $this->patch(route('products.update', $product), $data);
+
+        $response->assertRedirect(route('products.index'));
+        $product->refresh();
+        $this->assertEquals('Produto Atualizado', $product->name);
+        $this->assertEquals(2.0, $product->components()->first()->pivot->quantity);
+    }
+
+    public function test_update_denies_adding_new_inactive_component_to_product()
+    {
+        $product = Product::factory()->create(['status' => 'active']);
+        $activeComponent = Product::factory()->create(['status' => 'active']);
+        $inactiveComponent = Product::factory()->create(['status' => 'inactive']);
+
+        $data = [
+            'name' => 'Produto Atualizado',
+            'price' => 150.00,
+            'unit_of_measure' => 'UND',
+            'status' => 'active',
+            'components' => [
+                ['id' => $activeComponent->id, 'quantity' => 1.0],
+                ['id' => $inactiveComponent->id, 'quantity' => 1.0],
+            ],
+        ];
+
+        $response = $this->patch(route('products.update', $product), $data);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('components.1.id');
+    }
+
+    public function test_update_denies_replacing_component_with_inactive_product()
+    {
+        $product = Product::factory()->create(['status' => 'active']);
+        $oldComponent = Product::factory()->create(['status' => 'active']);
+        $newInactiveComponent = Product::factory()->create(['status' => 'inactive']);
+        $product->components()->attach($oldComponent->id, ['quantity' => 1.0]);
+
+        $data = [
+            'name' => 'Produto Atualizado',
+            'price' => 150.00,
+            'unit_of_measure' => 'UND',
+            'status' => 'active',
+            'components' => [
+                ['pivot_id' => $product->components()->first()->pivot->id, 'id' => $newInactiveComponent->id, 'quantity' => 1.0],
+            ],
+        ];
+
+        $response = $this->patch(route('products.update', $product), $data);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('components.0.id');
+    }
+
+    public function test_update_allows_updating_quantity_of_item_with_inactive_component_without_changing_component()
+    {
+        $product = Product::factory()->create(['status' => 'active']);
+        $component = Product::factory()->create(['status' => 'inactive']);
+        $product->components()->attach($component->id, ['quantity' => 1.0]);
+        $product->load('components');
+        $pivotId = $product->components()->first()->pivot->id;
+
+        $data = [
+            'name' => 'Produto Atualizado',
+            'price' => 150.00,
+            'unit_of_measure' => 'UND',
+            'status' => 'active',
+            'components' => [
+                ['pivot_id' => $pivotId, 'id' => $component->id, 'quantity' => 3.0],
+            ],
+        ];
+
+        $response = $this->patch(route('products.update', $product), $data);
+
+        $response->assertRedirect(route('products.index'));
+        $product->refresh();
+        $this->assertEquals(3.0, $product->components()->first()->pivot->quantity);
     }
 }

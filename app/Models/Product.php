@@ -42,7 +42,7 @@ class Product extends Model
             'product_components',
             'product_id',
             'component_id'
-        )->withPivot('quantity')->withTimestamps();
+        )->withPivot('id', 'quantity')->withTimestamps();
     }
 
     // Produtos dos quais este produto faz parte
@@ -53,7 +53,7 @@ class Product extends Model
             'product_components',
             'component_id',
             'product_id'
-        )->withPivot('quantity')->withTimestamps();
+        )->withPivot('id', 'quantity')->withTimestamps();
     }
 
     public function orderItems()

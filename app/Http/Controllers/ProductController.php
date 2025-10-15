@@ -42,7 +42,7 @@ class ProductController extends Controller
     {
         $this->authorize('create', Product::class);
 
-        $products = Product::all();
+        $products = Product::active()->get();
         return Inertia::render('Admin/Products/Create', [
             'products' => $products,
         ]);
@@ -82,7 +82,15 @@ class ProductController extends Controller
         // Sort components by name and reindex; ensure we update the relation
         $sorted = $product->components->sortBy('name')->values();
         $product->setRelation('components', $sorted);
-        $products = Product::where('id', '!=', $product->id)->get();
+
+        $products = Product::active()->where('id', '!=', $product->id)->get();
+
+        // Include inactive components for display
+        $inactiveComponents = $product->components->where('status', 'inactive');
+        if ($inactiveComponents->isNotEmpty()) {
+            $products = $products->merge($inactiveComponents);
+        }
+
         return Inertia::render('Admin/Products/Edit', [
             'product' => $product,
             'products' => $products,

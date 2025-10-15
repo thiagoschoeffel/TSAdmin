@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends FormRequest
 {
@@ -27,7 +28,11 @@ class StoreProductRequest extends FormRequest
             'height' => 'nullable|numeric|min:0',
             'weight' => 'nullable|numeric|min:0',
             'components' => 'nullable|array',
-            'components.*.id' => 'required|integer|exists:products,id',
+            'components.*.id' => [
+                'required',
+                'integer',
+                Rule::exists('products', 'id')->where('status', 'active'),
+            ],
             'components.*.quantity' => 'required|numeric|min:0.01',
         ];
     }

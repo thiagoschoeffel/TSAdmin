@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class StoreProductComponentRequest extends FormRequest
 {
@@ -34,8 +36,26 @@ class StoreProductComponentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'component_id' => 'required|exists:products,id',
+            'component_id' => [
+                'required',
+                Rule::exists('products', 'id')->where('status', 'active'),
+            ],
             'quantity' => 'required|numeric|min:0.01',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($validator->errors()->has('component_id')) {
+                $componentId = $this->component_id;
+                $productId = $this->route('product')->id;
+                \Illuminate\Support\Facades\Log::warning('Tentativa de adicionar componente inativo via API', [
+                    'product_id' => $productId,
+                    'component_product_id' => $componentId,
+                    'user_id' => Auth::id(),
+                ]);
+            }
+        });
     }
 }
