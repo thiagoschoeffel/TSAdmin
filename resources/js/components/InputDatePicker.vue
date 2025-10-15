@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import Dropdown from './Dropdown.vue'
 import InputSelect from './InputSelect.vue'
+import Button from './Button.vue'
 import { ChevronRightIcon, CalendarDaysIcon, ClockIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
@@ -449,10 +450,10 @@ function applySingle(close) {
 
         <!-- Ações -->
         <div v-if="props.withTime || props.range" class="mt-3 flex items-center justify-end gap-2">
-          <button type="button" class="rounded-md px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100" @click.stop="clearValue" v-if="clearable">Limpar</button>
-          <button v-if="props.range && !props.withTime" type="button" class="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50" :disabled="!rangeStart || !rangeEnd" @click.stop="applyRange(close)">Aplicar</button>
-          <button v-else-if="props.range && props.withTime" type="button" class="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50" :disabled="!rangeStart || !rangeEnd" @click.stop="applyRange(close)">Aplicar</button>
-          <button v-else-if="!props.range && props.withTime" type="button" class="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50" :disabled="!singleDate" @click.stop="applySingle(close)">Aplicar</button>
+          <Button v-if="clearable" variant="ghost" size="sm" @click.stop="clearValue">Limpar</Button>
+          <Button v-if="props.range && !props.withTime" variant="primary" size="sm" :disabled="!rangeStart || !rangeEnd" @click.stop="applyRange(close)">Aplicar</Button>
+          <Button v-else-if="props.range && props.withTime" variant="primary" size="sm" :disabled="!rangeStart || !rangeEnd" @click.stop="applyRange(close)">Aplicar</Button>
+          <Button v-else-if="!props.range && props.withTime" variant="primary" size="sm" :disabled="!singleDate" @click.stop="applySingle(close)">Aplicar</Button>
         </div>
       </div>
       </template>
