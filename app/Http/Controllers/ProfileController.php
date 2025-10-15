@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
-use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +14,7 @@ class ProfileController extends Controller
     public function edit(): Response
     {
         return Inertia::render('Admin/Profile/Edit', [
-            'user' => auth()->user(),
+            'user' => Auth::user(),
         ]);
     }
 
@@ -40,12 +39,11 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        if (Client::where('created_by_id', $user->id)->exists()) {
-            return redirect()
-                ->route('profile.edit')
-                ->withErrors([
-                    'profile' => 'Não é possível remover a conta enquanto houver clientes associados ao seu usuário.',
-                ]);
+        // Verificar se o usuário tem registros relacionados que impedem a exclusão
+        if ($user->clients()->exists() || $user->products()->exists() || $user->orders()->exists()) {
+            return back()->withErrors([
+                'profile' => __('user.delete_blocked_has_related_records'),
+            ]);
         }
 
         Auth::logout();

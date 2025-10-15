@@ -2,8 +2,8 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/vue3';
+import { ref, onMounted, watch } from 'vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { useToasts } from '@/components/toast/useToasts';
 import Badge from '@/components/Badge.vue';
@@ -32,12 +32,25 @@ const destroyAccount = () => {
   confirmDelete.value = true;
 };
 
+const deleteAccount = () => {
+  router.delete('/admin/profile');
+};
+
 // Verificar erros de perfil ao montar o componente
 onMounted(() => {
   if (page.props.errors?.profile) {
     toastError(page.props.errors.profile);
+    confirmDelete.value = false; // Fecha o modal se houver erro ao montar
   }
 });
+
+// Watcher para erros que podem aparecer após redirecionamento
+watch(() => page.props.errors, (newErrors) => {
+  if (newErrors?.profile) {
+    toastError(newErrors.profile);
+    confirmDelete.value = false; // Fecha o modal se houver erro
+  }
+}, { deep: true });
 </script>
 
 <template>
@@ -151,7 +164,7 @@ onMounted(() => {
                       confirm-text="Excluir"
                       variant="danger"
                       :processing="form.processing"
-                      @confirm="() => form.delete('/admin/profile')" />
+                      @confirm="deleteAccount" />
       </div>
     </section>
   </AdminLayout>
