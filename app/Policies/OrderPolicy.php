@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class OrderPolicy
 {
@@ -62,14 +63,22 @@ class OrderPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Order $order): bool
+    public function delete(User $user, Order $order)
     {
         if ($user->isAdmin()) {
-            return true;
+            return $order->status === 'pending'
+                ? Response::allow()
+                : Response::deny(__('order.delete_blocked_not_pending'));
         }
 
         $permissions = $user->permissions ?? [];
-        return (bool)($permissions['orders']['delete'] ?? false);
+        if (!(bool)($permissions['orders']['delete'] ?? false)) {
+            return Response::deny();
+        }
+
+        return $order->status === 'pending'
+            ? Response::allow()
+            : Response::deny(__('order.delete_blocked_not_pending'));
     }
 
     /**
@@ -88,14 +97,22 @@ class OrderPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Order $order): bool
+    public function forceDelete(User $user, Order $order)
     {
         if ($user->isAdmin()) {
-            return true;
+            return $order->status === 'pending'
+                ? Response::allow()
+                : Response::deny(__('order.delete_blocked_not_pending'));
         }
 
         $permissions = $user->permissions ?? [];
-        return (bool)($permissions['orders']['delete'] ?? false);
+        if (!(bool)($permissions['orders']['delete'] ?? false)) {
+            return Response::deny();
+        }
+
+        return $order->status === 'pending'
+            ? Response::allow()
+            : Response::deny(__('order.delete_blocked_not_pending'));
     }
 
     /**

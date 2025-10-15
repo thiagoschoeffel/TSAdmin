@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 use App\Policies\OrderPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -63,7 +64,9 @@ class OrderPolicyTest extends TestCase
 
     public function test_admin_can_delete_order()
     {
-        $this->assertTrue($this->policy->delete($this->adminUser, $this->order));
+        $order = Order::factory()->create(['status' => 'pending']);
+        $response = $this->policy->delete($this->adminUser, $order);
+        $this->assertTrue($response->allowed());
     }
 
     public function test_admin_can_restore_order()
@@ -73,7 +76,9 @@ class OrderPolicyTest extends TestCase
 
     public function test_admin_can_force_delete_order()
     {
-        $this->assertTrue($this->policy->forceDelete($this->adminUser, $this->order));
+        $order = Order::factory()->create(['status' => 'pending']);
+        $response = $this->policy->forceDelete($this->adminUser, $order);
+        $this->assertTrue($response->allowed());
     }
 
     public function test_admin_can_manage_items()
@@ -182,8 +187,10 @@ class OrderPolicyTest extends TestCase
             'role' => 'user',
             'permissions' => ['orders' => ['delete' => true]]
         ]);
+        $order = Order::factory()->create(['status' => 'pending']);
 
-        $this->assertTrue($this->policy->delete($user, $this->order));
+        $response = $this->policy->delete($user, $order);
+        $this->assertTrue($response->allowed());
     }
 
     public function test_user_without_delete_permission_cannot_delete_order()
@@ -193,7 +200,8 @@ class OrderPolicyTest extends TestCase
             'permissions' => ['orders' => ['delete' => false]]
         ]);
 
-        $this->assertFalse($this->policy->delete($user, $this->order));
+        $response = $this->policy->delete($user, $this->order);
+        $this->assertFalse($response->allowed());
     }
 
     public function test_user_with_update_permission_can_restore_order()
@@ -222,8 +230,10 @@ class OrderPolicyTest extends TestCase
             'role' => 'user',
             'permissions' => ['orders' => ['delete' => true]]
         ]);
+        $order = Order::factory()->create(['status' => 'pending']);
 
-        $this->assertTrue($this->policy->forceDelete($user, $this->order));
+        $response = $this->policy->forceDelete($user, $order);
+        $this->assertTrue($response->allowed());
     }
 
     public function test_user_without_delete_permission_cannot_force_delete_order()
@@ -233,7 +243,8 @@ class OrderPolicyTest extends TestCase
             'permissions' => ['orders' => ['delete' => false]]
         ]);
 
-        $this->assertFalse($this->policy->forceDelete($user, $this->order));
+        $response = $this->policy->forceDelete($user, $this->order);
+        $this->assertFalse($response->allowed());
     }
 
     public function test_user_with_view_permission_can_manage_items()
@@ -347,12 +358,106 @@ class OrderPolicyTest extends TestCase
         $this->assertFalse($this->policy->view($user, $this->order));
         $this->assertFalse($this->policy->create($user));
         $this->assertFalse($this->policy->update($user, $this->order));
-        $this->assertFalse($this->policy->delete($user, $this->order));
+        $responseDelete = $this->policy->delete($user, $this->order);
+        $this->assertFalse($responseDelete->allowed());
         $this->assertFalse($this->policy->restore($user, $this->order));
-        $this->assertFalse($this->policy->forceDelete($user, $this->order));
+        $responseForceDelete = $this->policy->forceDelete($user, $this->order);
+        $this->assertFalse($responseForceDelete->allowed());
         $this->assertFalse($this->policy->manageItems($user, $this->order));
         $this->assertFalse($this->policy->addItem($user, $this->order));
         $this->assertFalse($this->policy->updateItem($user, $this->order));
         $this->assertFalse($this->policy->removeItem($user, $this->order));
+    }
+
+    public function test_admin_cannot_delete_order_with_non_pending_status()
+    {
+        $order = Order::factory()->create(['status' => 'confirmed']);
+
+        $response = $this->policy->delete($this->adminUser, $order);
+
+        $this->assertFalse($response->allowed());
+        $this->assertEquals(__('order.delete_blocked_not_pending'), $response->message());
+    }
+
+    public function test_admin_cannot_force_delete_order_with_non_pending_status()
+    {
+        $order = Order::factory()->create(['status' => 'shipped']);
+
+        $response = $this->policy->forceDelete($this->adminUser, $order);
+
+        $this->assertFalse($response->allowed());
+        $this->assertEquals(__('order.delete_blocked_not_pending'), $response->message());
+    }
+
+    public function test_admin_can_delete_order_with_pending_status()
+    {
+        $order = Order::factory()->create(['status' => 'pending']);
+
+        $response = $this->policy->delete($this->adminUser, $order);
+
+        $this->assertTrue($response->allowed());
+    }
+
+    public function test_admin_can_force_delete_order_with_pending_status()
+    {
+        $order = Order::factory()->create(['status' => 'pending']);
+
+        $response = $this->policy->forceDelete($this->adminUser, $order);
+
+        $this->assertTrue($response->allowed());
+    }
+
+    public function test_user_with_delete_permission_cannot_delete_order_with_non_pending_status()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => ['orders' => ['delete' => true]]
+        ]);
+        $order = Order::factory()->create(['status' => 'delivered']);
+
+        $response = $this->policy->delete($user, $order);
+
+        $this->assertFalse($response->allowed());
+        $this->assertEquals(__('order.delete_blocked_not_pending'), $response->message());
+    }
+
+    public function test_user_with_delete_permission_cannot_force_delete_order_with_non_pending_status()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => ['orders' => ['delete' => true]]
+        ]);
+        $order = Order::factory()->create(['status' => 'cancelled']);
+
+        $response = $this->policy->forceDelete($user, $order);
+
+        $this->assertFalse($response->allowed());
+        $this->assertEquals(__('order.delete_blocked_not_pending'), $response->message());
+    }
+
+    public function test_user_with_delete_permission_can_delete_order_with_pending_status()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => ['orders' => ['delete' => true]]
+        ]);
+        $order = Order::factory()->create(['status' => 'pending']);
+
+        $response = $this->policy->delete($user, $order);
+
+        $this->assertTrue($response->allowed());
+    }
+
+    public function test_user_with_delete_permission_can_force_delete_order_with_pending_status()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => ['orders' => ['delete' => true]]
+        ]);
+        $order = Order::factory()->create(['status' => 'pending']);
+
+        $response = $this->policy->forceDelete($user, $order);
+
+        $this->assertTrue($response->allowed());
     }
 }

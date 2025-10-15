@@ -394,7 +394,7 @@ class OrderControllerTest extends TestCase
 
     public function test_destroy_deletes_order_and_items()
     {
-        $order = Order::factory()->create(['user_id' => $this->user->id]);
+        $order = Order::factory()->create(['user_id' => $this->user->id, 'status' => 'pending']);
         $order->items()->create([
             'product_id' => Product::factory()->create()->id,
             'quantity' => 1,
@@ -409,6 +409,18 @@ class OrderControllerTest extends TestCase
 
         $this->assertDatabaseMissing('orders', ['id' => $order->id]);
         $this->assertDatabaseMissing('order_items', ['order_id' => $order->id]);
+    }
+
+    public function test_destroy_fails_if_order_status_is_not_pending()
+    {
+        $order = Order::factory()->create(['user_id' => $this->user->id, 'status' => 'confirmed']);
+
+        $response = $this->delete(route('orders.destroy', $order));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error', __('order.delete_blocked_not_pending'));
+
+        $this->assertDatabaseHas('orders', ['id' => $order->id]);
     }
 
     public function test_update_item_modifies_quantity_and_total()

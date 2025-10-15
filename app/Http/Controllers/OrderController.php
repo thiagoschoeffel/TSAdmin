@@ -6,10 +6,12 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Client;
 use App\Models\Address;
+use DomainException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -302,15 +304,34 @@ class OrderController extends Controller
     public function destroy(string $id)
     {
         $order = Order::findOrFail($id);
-        $this->authorize('delete', $order);
 
-        // Delete all order items first
-        $order->items()->delete();
+        try {
+            $this->authorize('delete', $order);
 
-        // Delete the order
-        $order->delete();
+            // Delete all order items first
+            $order->items()->delete();
 
-        return redirect()->route('orders.index')->with('status', 'Pedido excluído com sucesso.');
+            // Delete the order
+            $order->delete();
+
+            return redirect()->route('orders.index')->with('status', 'Pedido excluído com sucesso.');
+        } catch (AuthorizationException $e) {
+            Log::warning('Tentativa de exclusão de pedido não autorizada', [
+                'order_id' => $id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (DomainException $e) {
+            Log::error('Erro ao excluir pedido', [
+                'order_id' => $id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     /**
