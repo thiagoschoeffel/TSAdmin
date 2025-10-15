@@ -27,6 +27,7 @@ return [
                 'create' => 'Criar pedidos',
                 'update' => 'Editar pedidos',
                 'delete' => 'Excluir pedidos',
+                'update_status' => 'Alterar status de pedidos',
             ],
         ],
     ],

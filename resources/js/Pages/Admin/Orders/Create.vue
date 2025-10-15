@@ -87,8 +87,13 @@ const finalizeOrder = () => {
     return;
   }
 
+  if (!selectedClient.value) {
+    toastError('Selecione um cliente para o pedido.');
+    return;
+  }
+
   const data = {
-    client_id: selectedClient.value?.id || null,
+    client_id: selectedClient.value.id,
     items: items.value.map(item => ({
       product_id: item.product_id,
       quantity: item.quantity,

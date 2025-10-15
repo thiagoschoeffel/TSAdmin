@@ -52,15 +52,14 @@ class UserFactory extends Factory
      */
     private function generateRandomPermissions(): array
     {
-        $resources = ['clients', 'products', 'orders'];
-        $abilities = ['view', 'create', 'update', 'delete'];
-
+        $resources = config('permissions.resources', []);
         $permissions = [];
 
-        foreach ($resources as $resource) {
-            $permissions[$resource] = [];
+        foreach ($resources as $resourceKey => $resource) {
+            $abilities = array_keys($resource['abilities'] ?? []);
+            $permissions[$resourceKey] = [];
             foreach ($abilities as $ability) {
-                $permissions[$resource][$ability] = fake()->boolean(70); // 70% chance de ter a permissão
+                $permissions[$resourceKey][$ability] = fake()->boolean(70); // 70% chance de ter a permissão
             }
         }
 

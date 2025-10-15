@@ -142,8 +142,14 @@ const saveOrder = () => {
     return;
   }
 
+  // Validação: verificar se há cliente selecionado
+  if (!selectedClient.value) {
+    toastError('Selecione um cliente para o pedido.');
+    return;
+  }
+
   const data = {
-    client_id: selectedClient.value?.id || null,
+    client_id: selectedClient.value.id,
     status: orderStatus.value,
     payment_method: paymentMethod.value,
     delivery_type: deliveryType.value,

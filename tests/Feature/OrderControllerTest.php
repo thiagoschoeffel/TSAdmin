@@ -650,4 +650,103 @@ class OrderControllerTest extends TestCase
         $this->assertGreaterThanOrEqual(1, count($responseData['order']['items']));
         $this->assertEquals($product->id, $responseData['order']['items'][0]['product_id']);
     }
+
+    public function test_update_status_denies_without_permission()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => [
+                'orders' => ['view' => true, 'create' => true, 'update' => true, 'delete' => true],
+            ],
+            'email_verified_at' => now(),
+        ]);
+        $this->actingAs($user);
+
+        $order = Order::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+        ]);
+
+        $updateData = [
+            'client_id' => $order->client_id,
+            'status' => 'confirmed',
+            'payment_method' => 'cash',
+            'delivery_type' => 'pickup',
+            'address_id' => null,
+        ];
+
+        $response = $this->patch(route('orders.update', $order), $updateData);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error', __('auth.forbidden_orders_status_update'));
+
+        $order->refresh();
+        $this->assertEquals('pending', $order->status);
+    }
+
+    public function test_update_status_allows_with_permission()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => [
+                'orders' => ['view' => true, 'create' => true, 'update' => true, 'delete' => true, 'update_status' => true],
+            ],
+            'email_verified_at' => now(),
+        ]);
+        $this->actingAs($user);
+
+        $order = Order::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+        ]);
+
+        $updateData = [
+            'client_id' => $order->client_id,
+            'status' => 'confirmed',
+            'payment_method' => 'cash',
+            'delivery_type' => 'pickup',
+            'address_id' => null,
+        ];
+
+        $response = $this->patch(route('orders.update', $order), $updateData);
+
+        $response->assertRedirect(route('orders.index'));
+        $response->assertSessionHas('status', 'Pedido atualizado com sucesso.');
+
+        $order->refresh();
+        $this->assertEquals('confirmed', $order->status);
+    }
+
+    public function test_update_without_status_change_allows_without_permission()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => [
+                'orders' => ['view' => true, 'create' => true, 'update' => true, 'delete' => true],
+            ],
+            'email_verified_at' => now(),
+        ]);
+        $this->actingAs($user);
+
+        $order = Order::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+        ]);
+
+        $updateData = [
+            'client_id' => $order->client_id,
+            'status' => 'pending', // same status
+            'payment_method' => 'cash',
+            'delivery_type' => 'pickup',
+            'address_id' => null,
+        ];
+
+        $response = $this->patch(route('orders.update', $order), $updateData);
+
+        $response->assertRedirect(route('orders.index'));
+        $response->assertSessionHas('status', 'Pedido atualizado com sucesso.');
+
+        $order->refresh();
+        $this->assertEquals('pending', $order->status);
+    }
 }

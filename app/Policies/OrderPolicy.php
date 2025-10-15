@@ -61,6 +61,19 @@ class OrderPolicy
     }
 
     /**
+     * Determine whether the user can update the status of the order.
+     */
+    public function updateStatus(User $user, Order $order): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $user->permissions ?? [];
+        return (bool)($permissions['orders']['update_status'] ?? false);
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Order $order)

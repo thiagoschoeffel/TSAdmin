@@ -1,43 +1,40 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Console\Commands;
 
 use App\Models\User;
-use Illuminate\Database\Seeder;
+use Illuminate\Console\Command;
 
-class UserSeeder extends Seeder
+class UpdateUserPermissions extends Command
 {
     /**
-     * Run the database seeds.
+     * The name and signature of the console command.
+     *
+     * @var string
      */
-    public function run(): void
-    {
-        // Only create admin if doesn't exist
-        if (!User::where('email', 'admin@example.com')->exists()) {
-            User::factory()->create([
-                'name' => 'Administrador',
-                'email' => 'admin@example.com',
-                'password' => 'password',
-                'status' => 'active',
-                'role' => 'admin',
-            ]);
-        }
-
-        // Update existing users to include new permissions
-        $this->updateExistingUserPermissions();
-    }
+    protected $signature = 'app:update-user-permissions';
 
     /**
-     * Update existing users to include any new permissions from config.
+     * The console command description.
+     *
+     * @var string
      */
-    private function updateExistingUserPermissions(): void
+    protected $description = 'Update existing users to include new permissions from config';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
     {
         $resources = config('permissions.resources', []);
         $users = User::where('role', 'user')->get();
 
+        $this->info("Updating permissions for {$users->count()} users...");
+
         foreach ($users as $user) {
             $permissions = $user->permissions ?? [];
 
+            $updated = false;
             foreach ($resources as $resourceKey => $resource) {
                 $abilities = array_keys($resource['abilities'] ?? []);
 
@@ -49,11 +46,17 @@ class UserSeeder extends Seeder
                     if (!isset($permissions[$resourceKey][$ability])) {
                         // Add missing permissions with default value (false for regular users)
                         $permissions[$resourceKey][$ability] = false;
+                        $updated = true;
                     }
                 }
             }
 
-            $user->update(['permissions' => $permissions]);
+            if ($updated) {
+                $user->update(['permissions' => $permissions]);
+                $this->line("Updated user: {$user->email}");
+            }
         }
+
+        $this->info('User permissions update completed!');
     }
 }

@@ -23,7 +23,7 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => 'nullable|exists:clients,id',
+            'client_id' => 'required|exists:clients,id',
             'status' => 'required|in:pending,confirmed,shipped,delivered,cancelled',
             'payment_method' => 'nullable|string',
             'delivery_type' => 'nullable|in:pickup,delivery',

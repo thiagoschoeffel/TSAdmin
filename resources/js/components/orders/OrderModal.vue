@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed, nextTick, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Modal from '@/components/Modal.vue';
 import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
@@ -19,6 +21,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'update:selectedClient', 'update:paymentMethod', 'update:deliveryType', 'update:selectedAddress', 'update:orderStatus', 'confirm']);
+
+const page = usePage();
 
 const modalOpen = computed({
   get: () => props.modelValue,
@@ -52,7 +56,17 @@ const selectedAddress = computed({
 
 const orderStatus = computed({
   get: () => props.orderStatus,
-  set: (value) => emit('update:orderStatus', value),
+  set: (value) => {
+    // Only allow status changes if user has permission
+    if (canUpdateStatus.value) {
+      emit('update:orderStatus', value);
+    }
+  },
+});
+
+const canUpdateStatus = computed(() => {
+  const user = page.props.auth?.user;
+  return user?.permissions?.orders?.update_status || user?.role === 'admin';
 });
 
 const clientSuggestions = computed(() => {
@@ -167,7 +181,11 @@ const confirm = () => {
           { value: 'shipped', label: 'Enviado' },
           { value: 'delivered', label: 'Entregue' },
           { value: 'cancelled', label: 'Cancelado' }
-        ]" />
+        ]" :disabled="!canUpdateStatus" />
+        <span v-if="!canUpdateStatus" class="text-sm text-blue-500 mt-1 flex items-center gap-1">
+          <HeroIcon name="information-circle" class="h-4 w-4" />
+          Você não tem permissão para alterar o status do pedido
+        </span>
       </label>
 
       <label class="form-label">

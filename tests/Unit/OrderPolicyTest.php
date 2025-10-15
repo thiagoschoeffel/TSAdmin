@@ -62,6 +62,11 @@ class OrderPolicyTest extends TestCase
         $this->assertTrue($this->policy->update($this->adminUser, $this->order));
     }
 
+    public function test_admin_can_update_status()
+    {
+        $this->assertTrue($this->policy->updateStatus($this->adminUser, $this->order));
+    }
+
     public function test_admin_can_delete_order()
     {
         $order = Order::factory()->create(['status' => 'pending']);
@@ -179,6 +184,26 @@ class OrderPolicyTest extends TestCase
         ]);
 
         $this->assertFalse($this->policy->update($user, $this->order));
+    }
+
+    public function test_user_with_update_status_permission_can_update_status()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => ['orders' => ['update_status' => true]]
+        ]);
+
+        $this->assertTrue($this->policy->updateStatus($user, $this->order));
+    }
+
+    public function test_user_without_update_status_permission_cannot_update_status()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+            'permissions' => ['orders' => ['update_status' => false]]
+        ]);
+
+        $this->assertFalse($this->policy->updateStatus($user, $this->order));
     }
 
     public function test_user_with_delete_permission_can_delete_order()

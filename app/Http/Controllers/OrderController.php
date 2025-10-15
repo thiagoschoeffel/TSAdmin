@@ -27,6 +27,8 @@ class OrderController extends Controller
      */
     public function index(Request $request): Response
     {
+        $user = Auth::user();
+
         $this->authorize('viewAny', Order::class);
 
         $query = Order::with(['client', 'user', 'address']);
@@ -239,6 +241,16 @@ class OrderController extends Controller
                 ];
             });
 
+        $clients = Client::where('status', 'active')->select('id', 'name')->get();
+
+        // Include the order's client if not already in the active list
+        if ($order->client && !$clients->contains('id', $order->client_id)) {
+            $clients->push([
+                'id' => $order->client->id,
+                'name' => $order->client->name . ' (inativo)',
+            ]);
+        }
+
         return Inertia::render('Admin/Orders/Edit', [
             'order' => [
                 'id' => $order->id,
@@ -270,7 +282,7 @@ class OrderController extends Controller
                 })->all(),
             ],
             'products' => Product::where('status', 'active')->select('id', 'name', 'code', 'price')->get(),
-            'clients' => Client::where('status', 'active')->select('id', 'name')->get(),
+            'clients' => $clients,
             'addresses' => Address::select('id', 'client_id', 'description', 'address', 'address_number', 'city', 'state')->get(),
             'recentOrders' => $recentOrders,
         ]);
@@ -283,6 +295,23 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         $this->authorize('update', $order);
+
+        // Check if status is being changed and authorize if so
+        if ($request->status !== $order->status) {
+            try {
+                $this->authorize('updateStatus', $order);
+            } catch (AuthorizationException $e) {
+                Log::warning('Tentativa de alteração de status de pedido não autorizada', [
+                    'order_id' => $id,
+                    'user_id' => Auth::id(),
+                    'current_status' => $order->status,
+                    'attempted_status' => $request->status,
+                    'error' => $e->getMessage()
+                ]);
+
+                return redirect()->back()->with('error', __('auth.forbidden_orders_status_update'));
+            }
+        }
 
         // Atualizar dados básicos do pedido
         $order->update([

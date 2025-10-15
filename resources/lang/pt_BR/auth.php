@@ -7,5 +7,5 @@ return [
 
     // Mensagens específicas da aplicação
     'deactivated' => 'Esta conta está desativada. Entre em contato com um administrador.',
+    'forbidden_orders_status_update' => 'Você não tem permissão para alterar o status do pedido.',
 ];
-
