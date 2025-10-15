@@ -27,6 +27,7 @@ const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.ord
 const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.update);
 const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.delete);
 const canView = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.view);
+const canExportPdf = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.export_pdf);
 
 // Ziggy `route` helper from app globalProperties
 const instance = getCurrentInstance();
@@ -157,7 +158,7 @@ const columns = [
 
 const actions = computed(() => {
   const acts = [];
-  if (canView.value) {
+  if (canExportPdf.value) {
     acts.push({
       key: 'print',
       label: 'Imprimir',

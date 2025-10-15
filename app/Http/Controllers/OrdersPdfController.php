@@ -15,7 +15,7 @@ class OrdersPdfController extends Controller
     {
         $order->load(['client', 'address', 'items.product']);
 
-        $this->authorize('view', $order);
+        $this->authorize('exportPdf', $order);
 
         if ($order->items()->count() === 0) {
             return response()->json(['message' => __('order.pdf.empty_items')], 422);
