@@ -3,6 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Client;
+use App\Models\Product;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class StoreOrderRequest extends FormRequest
 {
@@ -22,9 +27,35 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => 'nullable|exists:clients,id',
+            'client_id' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if ($value) {
+                        $isActive = Client::where('id', $value)->where('status', 'active')->exists();
+                        if (!$isActive) {
+                            Log::warning('Tentativa de criar pedido com cliente inativo', [
+                                'user_id' => Auth::id(),
+                                'client_id' => $value,
+                            ]);
+                            $fail(__('order.client_inactive_on_create'));
+                        }
+                    }
+                },
+            ],
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.product_id' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $isActive = Product::where('id', $value)->where('status', 'active')->exists();
+                    if (!$isActive) {
+                        Log::warning('Tentativa de criar pedido com produto inativo', [
+                            'user_id' => Auth::id(),
+                            'product_id' => $value,
+                        ]);
+                        $fail(__('order.product_inactive_on_create'));
+                    }
+                },
+            ],
             'items.*.quantity' => 'required|integer|min:1',
             'payment_method' => 'nullable|string',
             'delivery_type' => 'nullable|in:pickup,delivery',

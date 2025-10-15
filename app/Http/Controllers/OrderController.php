@@ -243,14 +243,6 @@ class OrderController extends Controller
 
         $clients = Client::where('status', 'active')->select('id', 'name')->get();
 
-        // Include the order's client if not already in the active list
-        if ($order->client && !$clients->contains('id', $order->client_id)) {
-            $clients->push([
-                'id' => $order->client->id,
-                'name' => $order->client->name . ' (inativo)',
-            ]);
-        }
-
         return Inertia::render('Admin/Orders/Edit', [
             'order' => [
                 'id' => $order->id,
@@ -281,6 +273,7 @@ class OrderController extends Controller
                     ];
                 })->all(),
             ],
+            'currentClient' => $order->client ? ['id' => $order->client->id, 'name' => $order->client->name] : null,
             'products' => Product::where('status', 'active')->select('id', 'name', 'code', 'price')->get(),
             'clients' => $clients,
             'addresses' => Address::select('id', 'client_id', 'description', 'address', 'address_number', 'city', 'state')->get(),
@@ -378,18 +371,28 @@ class OrderController extends Controller
         // Ensure quantity is properly rounded to 2 decimal places
         $quantity = round($quantity, 2);
 
-        Log::info('Updating order item quantity', [
+        $updateData = [
+            'quantity' => $quantity,
+        ];
+
+        if ($request->has('product_id') && $request->product_id != $item->product_id) {
+            $newProduct = Product::findOrFail($request->product_id);
+            $updateData['product_id'] = $request->product_id;
+            $updateData['unit_price'] = $newProduct->price;
+        }
+
+        Log::info('Updating order item', [
             'order_id' => $orderId,
             'item_id' => $itemId,
             'old_quantity' => $item->quantity,
             'new_quantity' => $quantity,
-            'unit_price' => $item->unit_price,
+            'old_product_id' => $item->product_id,
+            'new_product_id' => $updateData['product_id'] ?? $item->product_id,
+            'unit_price' => $updateData['unit_price'] ?? $item->unit_price,
         ]);
 
-        $item->update([
-            'quantity' => $quantity,
-            'total' => $quantity * $item->unit_price,
-        ]);
+        $item->update($updateData);
+        $item->update(['total' => $item->quantity * $item->unit_price]);
 
         // Recalculate order total
         $order->update([
@@ -401,6 +404,9 @@ class OrderController extends Controller
             'success' => true,
             'item' => [
                 'id' => $item->id,
+                'product_id' => $item->product_id,
+                'name' => $item->product->name,
+                'unit_price' => (float) $item->unit_price,
                 'quantity' => (float) $item->quantity,
                 'total' => (float) $item->total,
             ],

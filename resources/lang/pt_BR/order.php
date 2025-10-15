@@ -2,4 +2,8 @@
 
 return [
     'delete_blocked_not_pending' => 'Pedido não pode ser excluído porque não está com status pendente.',
+    'client_inactive_on_create' => 'Não é possível criar pedido para cliente inativo.',
+    'product_inactive_on_create' => 'Não é possível incluir produto inativo no pedido.',
+    'client_inactive_on_change' => 'Não é possível trocar o cliente para um inativo.',
+    'product_inactive_on_change' => 'Não é possível trocar o produto do item para um inativo.',
 ];

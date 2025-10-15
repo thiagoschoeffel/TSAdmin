@@ -114,6 +114,10 @@ const finalizeOrder = () => {
 
       modalOpen.value = false;
     },
+    onError: (errors) => {
+      const messages = Object.values(errors).flat();
+      toastError(messages.join(', '));
+    },
   });
 };
 

@@ -75,4 +75,9 @@ class Product extends Model
     {
         return 'R$ ' . number_format($this->price, 2, ',', '.');
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }

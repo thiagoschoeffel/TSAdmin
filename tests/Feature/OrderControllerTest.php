@@ -454,13 +454,13 @@ class OrderControllerTest extends TestCase
     {
         $order = Order::factory()->create(['user_id' => $this->user->id, 'total' => 25.00]);
         $item1 = $order->items()->create([
-            'product_id' => Product::factory()->create()->id,
+            'product_id' => Product::factory()->create(['status' => 'active'])->id,
             'quantity' => 1,
             'unit_price' => 10.00,
             'total' => 10.00,
         ]);
         $item2 = $order->items()->create([
-            'product_id' => Product::factory()->create()->id,
+            'product_id' => Product::factory()->create(['status' => 'active'])->id,
             'quantity' => 1,
             'unit_price' => 15.00,
             'total' => 15.00,
@@ -481,7 +481,7 @@ class OrderControllerTest extends TestCase
     public function test_add_item_creates_new_item()
     {
         $order = Order::factory()->create(['user_id' => $this->user->id, 'total' => 0.00]);
-        $product = Product::factory()->create(['price' => 20.00]);
+        $product = Product::factory()->create(['price' => 20.00, 'status' => 'active']);
 
         $response = $this->post(route('orders.items.store', $order), [
             'product_id' => $product->id,
@@ -514,7 +514,7 @@ class OrderControllerTest extends TestCase
     public function test_add_item_increases_existing_item_quantity()
     {
         $order = Order::factory()->create(['user_id' => $this->user->id, 'total' => 10.00]);
-        $product = Product::factory()->create(['price' => 10.00]);
+        $product = Product::factory()->create(['price' => 10.00, 'status' => 'active']);
         $existingItem = $order->items()->create([
             'product_id' => $product->id,
             'quantity' => 1,
@@ -748,5 +748,171 @@ class OrderControllerTest extends TestCase
 
         $order->refresh();
         $this->assertEquals('pending', $order->status);
+    }
+
+    public function test_store_denies_creating_order_for_inactive_client()
+    {
+        $inactiveClient = Client::factory()->create(['status' => 'inactive']);
+        $product = Product::factory()->create(['status' => 'active']);
+
+        $orderData = [
+            'client_id' => $inactiveClient->id,
+            'items' => [
+                [
+                    'product_id' => $product->id,
+                    'quantity' => 1,
+                ]
+            ]
+        ];
+
+        $this->from(route('orders.create'));
+        $response = $this->post(route('orders.store'), $orderData);
+
+        $response->assertRedirect(route('orders.create'));
+        $response->assertSessionHasErrors('client_id');
+        $this->assertDatabaseMissing('orders', ['client_id' => $inactiveClient->id]);
+    }
+
+    public function test_store_denies_creating_order_with_inactive_product_item()
+    {
+        $client = Client::factory()->create(['status' => 'active']);
+        $inactiveProduct = Product::factory()->create(['status' => 'inactive']);
+
+        $orderData = [
+            'client_id' => $client->id,
+            'items' => [
+                [
+                    'product_id' => $inactiveProduct->id,
+                    'quantity' => 1,
+                ]
+            ]
+        ];
+
+        $this->from(route('orders.create'));
+        $response = $this->post(route('orders.store'), $orderData);
+
+        $response->assertRedirect(route('orders.create'));
+        $response->assertSessionHasErrors('items.0.product_id');
+        $this->assertDatabaseMissing('orders', ['client_id' => $client->id]);
+    }
+
+    public function test_update_allows_editing_order_when_client_is_now_inactive_without_change()
+    {
+        $inactiveClient = Client::factory()->create(['status' => 'inactive']);
+        $order = Order::factory()->create([
+            'client_id' => $inactiveClient->id,
+            'user_id' => $this->user->id,
+            'status' => 'pending',
+        ]);
+
+        $updateData = [
+            'client_id' => $inactiveClient->id, // same client
+            'status' => 'confirmed',
+        ];
+
+        $response = $this->patch(route('orders.update', $order), $updateData);
+
+        $response->assertRedirect(route('orders.index'));
+        $response->assertSessionHas('status', 'Pedido atualizado com sucesso.');
+
+        $order->refresh();
+        $this->assertEquals('confirmed', $order->status);
+    }
+
+    public function test_update_denies_changing_order_client_to_inactive()
+    {
+        $activeClient = Client::factory()->create(['status' => 'active']);
+        $inactiveClient = Client::factory()->create(['status' => 'inactive']);
+        $order = Order::factory()->create([
+            'client_id' => $activeClient->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $updateData = [
+            'client_id' => $inactiveClient->id,
+            'status' => 'confirmed',
+        ];
+
+        $this->from(route('orders.edit', $order));
+        $response = $this->patch(route('orders.update', $order), $updateData);
+
+        $response->assertRedirect(route('orders.edit', $order));
+        $response->assertSessionHasErrors('client_id');
+
+        $order->refresh();
+        $this->assertEquals($activeClient->id, $order->client_id);
+    }
+
+    public function test_update_allows_editing_existing_item_with_inactive_product_without_changing_product()
+    {
+        $client = Client::factory()->create(['status' => 'active']);
+        $inactiveProduct = Product::factory()->create(['status' => 'inactive']);
+        $order = Order::factory()->create(['client_id' => $client->id, 'user_id' => $this->user->id]);
+        $item = $order->items()->create([
+            'product_id' => $inactiveProduct->id,
+            'quantity' => 1,
+            'unit_price' => $inactiveProduct->price,
+            'total' => $inactiveProduct->price,
+        ]);
+
+        $response = $this->withHeader('Accept', 'application/json')->patch(route('orders.items.update', [$order, $item]), [
+            'quantity' => 2,
+        ]);
+
+        $response->assertJson([
+            'success' => true,
+            'item' => [
+                'product_id' => $inactiveProduct->id,
+                'quantity' => 2.0,
+            ],
+        ]);
+
+        $item->refresh();
+        $this->assertEquals(2, $item->quantity);
+    }
+
+    public function test_add_item_denies_adding_inactive_product()
+    {
+        $client = Client::factory()->create(['status' => 'active']);
+        $inactiveProduct = Product::factory()->create(['status' => 'inactive']);
+        $order = Order::factory()->create(['client_id' => $client->id, 'user_id' => $this->user->id]);
+
+        $itemData = [
+            'product_id' => $inactiveProduct->id,
+            'quantity' => 1,
+        ];
+
+        $response = $this->withHeader('Accept', 'application/json')->post(route('orders.items.store', $order), $itemData);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('product_id');
+        $this->assertDatabaseMissing('order_items', ['order_id' => $order->id, 'product_id' => $inactiveProduct->id]);
+    }
+
+    public function test_update_item_denies_switching_product_to_inactive()
+    {
+        $client = Client::factory()->create(['status' => 'active']);
+        $activeProduct = Product::factory()->create(['status' => 'active']);
+        $inactiveProduct = Product::factory()->create(['status' => 'inactive']);
+        $order = Order::factory()->create(['client_id' => $client->id, 'user_id' => $this->user->id]);
+        $item = $order->items()->create([
+            'product_id' => $activeProduct->id,
+            'quantity' => 1,
+            'unit_price' => $activeProduct->price,
+            'total' => $activeProduct->price,
+        ]);
+
+        $updateData = [
+            'product_id' => $inactiveProduct->id,
+            'quantity' => 1,
+        ];
+
+        $response = $this->withHeader('Accept', 'application/json')->patch(route('orders.items.update', [$order, $item]), $updateData);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('product_id');
+
+        $item->refresh();
+        $this->assertEquals($activeProduct->id, $item->product_id);
     }
 }

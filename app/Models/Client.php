@@ -120,6 +120,11 @@ class Client extends Model
         });
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

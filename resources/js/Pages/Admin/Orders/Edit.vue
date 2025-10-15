@@ -16,6 +16,7 @@ const props = defineProps({
   clients: { type: Array, required: true },
   addresses: { type: Array, default: () => [] },
   recentOrders: { type: Array, default: () => [] },
+  currentClient: { type: Object, default: null },
 });
 
 const items = ref(props.order.items || []);
@@ -55,7 +56,8 @@ const commitItemQuantity = async (index, value, originalValue) => {
       toastSuccess(`Quantidade de ${item.name} atualizada para ${formatQuantity(item.quantity)}`);
     } catch (error) {
       console.error('Erro ao atualizar quantidade:', error);
-      toastError('Erro ao atualizar quantidade do item');
+      const messages = error.response?.data?.errors ? Object.values(error.response.data.errors).flat() : ['Erro ao atualizar quantidade do item'];
+      toastError(messages.join(', '));
       item.quantity = originalValue; // Reverter para valor original
     }
   }
@@ -96,7 +98,8 @@ const addItem = async ({ product, quantity }) => {
     }
   } catch (error) {
     console.error('Erro ao adicionar item:', error);
-    toastError('Erro ao adicionar item ao pedido');
+    const messages = error.response?.data?.errors ? Object.values(error.response.data.errors).flat() : ['Erro ao adicionar item ao pedido'];
+    toastError(messages.join(', '));
   }
 };
 
@@ -108,7 +111,8 @@ const removeItem = async (index) => {
     toastSuccess(`${item.name} removido do pedido`);
   } catch (error) {
     console.error('Erro ao remover item:', error);
-    toastError('Erro ao remover item do pedido');
+    const messages = error.response?.data?.errors ? Object.values(error.response.data.errors).flat() : ['Erro ao remover item do pedido'];
+    toastError(messages.join(', '));
   }
 };
 
@@ -122,8 +126,7 @@ const orderStatus = ref('pending');
 
 const openModal = () => {
   // Initialize modal values with current order data
-  const client = props.clients.find(c => c.id === props.order.client_id);
-  selectedClient.value = client ? { id: client.id, name: client.name } : null;
+  selectedClient.value = props.currentClient ? { id: props.currentClient.id, name: props.currentClient.name } : null;
 
   orderStatus.value = props.order.status || 'pending';
   paymentMethod.value = props.order.payment_method || '';
@@ -160,6 +163,10 @@ const saveOrder = () => {
   router.patch(`/admin/orders/${props.order.id}`, data, {
     onSuccess: () => {
       modalOpen.value = false;
+    },
+    onError: (errors) => {
+      const messages = Object.values(errors).flat();
+      toastError(messages.join(', '));
     },
   });
 };
