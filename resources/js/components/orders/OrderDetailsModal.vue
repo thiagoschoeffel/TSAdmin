@@ -218,6 +218,10 @@ const itemColumns = [
             <dt class="text-sm font-semibold text-slate-500">Tipo de entrega</dt>
             <dd class="text-sm text-slate-800">{{ getDeliveryTypeLabel(payload.delivery_type) }}</dd>
           </div>
+          <div class="space-y-1">
+            <dt class="text-sm font-semibold text-slate-500">Pedido realizado em</dt>
+            <dd class="text-sm text-slate-800">{{ formatDate(payload.ordered_at) }}</dd>
+          </div>
         </dl>
       </section>
 
@@ -269,10 +273,6 @@ const itemColumns = [
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Atualizado em</dt>
             <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
-          </div>
-          <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Pedido realizado em</dt>
-            <dd class="text-sm text-slate-800">{{ formatDate(payload.ordered_at) }}</dd>
           </div>
         </dl>
       </section>
