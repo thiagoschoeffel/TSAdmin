@@ -23,6 +23,18 @@ class UserSeeder extends Seeder
             ]);
         }
 
+        // Only create user with all permissions if doesn't exist
+        if (!User::where('email', 'user@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Usuário Comum',
+                'email' => 'user@example.com',
+                'password' => 'password',
+                'status' => 'active',
+                'role' => 'user',
+                'permissions' => $this->getAllPermissions(),
+            ]);
+        }
+
         // Update existing users to include new permissions
         $this->updateExistingUserPermissions();
     }
@@ -55,5 +67,21 @@ class UserSeeder extends Seeder
 
             $user->update(['permissions' => $permissions]);
         }
+    }
+
+    /**
+     * Get all permissions set to true for a user with full access.
+     */
+    private function getAllPermissions(): array
+    {
+        $resources = config('permissions.resources', []);
+        $permissions = [];
+
+        foreach ($resources as $resourceKey => $resource) {
+            $abilities = array_keys($resource['abilities'] ?? []);
+            $permissions[$resourceKey] = array_fill_keys($abilities, true);
+        }
+
+        return $permissions;
     }
 }
