@@ -10,6 +10,7 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import OrderDetailsModal from '@/components/orders/OrderDetailsModal.vue';
+import PdfViewerModal from '@/components/orders/PdfViewerModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
@@ -89,6 +90,9 @@ const performDelete = async () => {
 const details = ref({ open: false, orderId: null });
 const openDetails = (order) => { details.value.orderId = order.id; details.value.open = true; };
 
+// Estado para modal de visualização de PDF
+const pdfViewer = ref({ open: false, url: '' });
+
 const getStatusVariant = (status) => {
   const variants = {
     pending: 'warning',
@@ -163,10 +167,9 @@ const actions = computed(() => {
       key: 'print',
       label: 'Imprimir',
       icon: 'printer',
-      component: 'a',
+      component: 'button',
       props: (order) => ({
-        href: route('orders.pdf.show', order.id),
-        target: '_blank',
+        type: 'button',
         class: 'menu-panel-link'
       })
     });
@@ -204,6 +207,8 @@ const actions = computed(() => {
 const handleTableAction = ({ action, item }) => {
   if (action.key === 'delete') {
     confirmDelete(item);
+  } else if (action.key === 'print') {
+    pdfViewer.value = { open: true, url: route('orders.pdf.show', item.id) };
   }
 };
 </script>
@@ -276,5 +281,7 @@ const handleTableAction = ({ action, item }) => {
                   @confirm="performDelete" />
 
     <OrderDetailsModal v-model="details.open" :order-id="details.orderId" />
+
+    <PdfViewerModal v-model="pdfViewer.open" :pdf-url="pdfViewer.url" />
   </AdminLayout>
 </template>

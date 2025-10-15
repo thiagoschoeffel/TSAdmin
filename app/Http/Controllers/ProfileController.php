@@ -41,7 +41,7 @@ class ProfileController extends Controller
 
         // Verificar se o usuário tem registros relacionados que impedem a exclusão
         if ($user->clients()->exists() || $user->products()->exists() || $user->orders()->exists()) {
-            return back()->withErrors([
+            return redirect()->route('profile.edit')->withErrors([
                 'profile' => __('user.delete_blocked_has_related_records'),
             ]);
         }

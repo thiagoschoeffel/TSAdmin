@@ -102,6 +102,30 @@ class ProductController extends Controller
         $this->authorize('update', $product);
 
         $data = $request->validated();
+        if (!empty($data['components'])) {
+            $componentIdsFromRequest = collect($data['components'])->pluck('id')->map(fn($id) => (int)$id)->toArray();
+            $currentComponentIds = $product->components()->pluck('products.id')->map(fn($id) => (int)$id)->toArray();
+
+            // Atualizar ou adicionar componentes
+            foreach ($data['components'] as $item) {
+                $pivotId = $item['pivot_id'] ?? null;
+                $quantity = (float) $item['quantity'];
+                if ($pivotId && in_array((int)$item['id'], $currentComponentIds)) {
+                    $product->components()->updateExistingPivot($item['id'], ['quantity' => $quantity]);
+                } else if (!$pivotId && !in_array((int)$item['id'], $currentComponentIds)) {
+                    $product->components()->attach($item['id'], ['quantity' => $quantity]);
+                }
+            }
+
+            // Remover componentes que não estão mais presentes
+            $toDetach = array_diff($currentComponentIds, $componentIdsFromRequest);
+            if (!empty($toDetach)) {
+                $product->components()->detach($toDetach);
+            }
+        } else {
+            $product->components()->detach();
+        }
+        // Atualize o produto por último para garantir que o nome não seja sobrescrito
         $product->update([
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
@@ -114,14 +138,7 @@ class ProductController extends Controller
             'status' => $data['status'] ?? 'active',
             'updated_by' => Auth::id(),
         ]);
-        if (!empty($data['components'])) {
-            $syncData = collect($data['components'])->mapWithKeys(function ($item) {
-                return [$item['id'] => ['quantity' => $item['quantity']]];
-            })->toArray();
-            $product->components()->sync($syncData);
-        } else {
-            $product->components()->detach();
-        }
+        $product->refresh();
         return redirect()->route('products.index')->with('status', 'Produto atualizado com sucesso!');
     }
 

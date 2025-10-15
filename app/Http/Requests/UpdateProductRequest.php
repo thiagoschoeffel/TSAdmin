@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Auth;
 
 class UpdateProductRequest extends FormRequest
 {
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        $response = redirect()->route('products.index')
+            ->withErrors($validator)
+            ->withInput();
+        throw new \Illuminate\Validation\ValidationException($validator, $response);
+    }
     public function authorize(): bool
     {
         $routeParam = $this->route('product');
@@ -59,7 +66,7 @@ class UpdateProductRequest extends FormRequest
                     // Item existente
                     $existing = ProductComponent::find($pivotId);
                     if ($existing) {
-                        if ((int)$existing->component_id === (int)$componentId) {
+                        if ((string)$existing->component_id === (string)$componentId) {
                             // Mantendo o mesmo componente, não precisa validar ativo
                             continue;
                         } else {
