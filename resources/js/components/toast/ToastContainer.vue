@@ -39,7 +39,12 @@ const barClass = (type) => {
           <p v-if="t.title" class="text-sm font-semibold">{{ t.title }}</p>
           <p class="text-sm" v-text="t.message" />
         </div>
-        <button type="button" class="rounded-md p-1 text-slate-500 hover:bg-slate-100" @click="removeToast(t.id)">✕</button>
+        <button type="button" class="rounded-md p-1 cursor-pointer" :class="{
+          'text-emerald-500 hover:text-emerald-700': t.type === 'success',
+          'text-rose-500 hover:text-rose-700': t.type === 'error',
+          'text-amber-500 hover:text-amber-700': t.type === 'warning',
+          'text-blue-500 hover:text-blue-700': t.type === 'info' || !t.type
+        }" @click="removeToast(t.id)">✕</button>
       </div>
       <div class="h-1 w-full" :style="{ animationDuration: (t.duration||4000) + 'ms' }" :class="['toast-progress', barClass(t.type)]"></div>
     </div>
