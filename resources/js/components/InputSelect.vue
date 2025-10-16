@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import HeroIcon from '@/components/icons/HeroIcon.vue'
 
+const emit = defineEmits(['update:modelValue', 'change', 'blur', 'focus'])
+
 const props = defineProps({
   modelValue: {
     type: [String, Number, Boolean],
