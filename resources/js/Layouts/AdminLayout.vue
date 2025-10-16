@@ -8,6 +8,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import { router } from '@inertiajs/vue3';
 import ToastContainer from '@/components/toast/ToastContainer.vue';
 import { useToasts } from '@/components/toast/useToasts';
+import DropdownDivider from '@/components/DropdownDivider.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
@@ -74,6 +75,7 @@ watch(() => page.props.flash, (f) => {
                   <HeroIcon name="users" class="h-5 w-5" />
                   <span>Usuários</span>
                 </Link>
+                <DropdownDivider v-if="isAdmin" />
                 <Link v-if="canViewClients" class="dropdown-link" :href="route('clients.index')">
                   <HeroIcon name="identification" class="h-5 w-5" />
                   <span>Clientes</span>
