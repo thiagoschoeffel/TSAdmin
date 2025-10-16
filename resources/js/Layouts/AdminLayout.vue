@@ -46,55 +46,82 @@ watch(() => page.props.flash, (f) => {
 <template>
   <div class="min-h-screen bg-slate-50 text-slate-900">
     <header class="sticky top-0 z-50 bg-slate-900 text-white">
-      <nav class="container-default flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <nav class="container-default flex flex-col gap-4 py-4 items-center sm:flex-row sm:justify-between">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
           <Link class="text-lg font-semibold tracking-tight text-white transition hover:text-blue-200" :href="route('dashboard')">
             {{ $page.props.app?.name ?? 'Example App' }}
           </Link>
 
-          <div class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-200 sm:gap-4">
+          <div class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-200 sm:gap-5">
             <Link class="group transition hover:text-white" :href="route('dashboard')">
               <span class="inline-flex items-center gap-2">
                 <HeroIcon name="chart-bar" class="h-4 w-4 transition-colors group-hover:text-white" />
                 <span>Dashboard</span>
               </span>
             </Link>
-            <Link v-if="isAdmin" class="group transition hover:text-white" :href="route('users.index')">
-              <span class="inline-flex items-center gap-2">
-                <HeroIcon name="users" class="h-4 w-4 transition-colors group-hover:text-white" />
-                <span>Usuários</span>
-              </span>
-            </Link>
-            <Link class="group transition hover:text-white" :href="route('leads.index')">
-              <span class="inline-flex items-center gap-2">
-                <HeroIcon name="chat-bubble-left-right" class="h-4 w-4 transition-colors group-hover:text-white" />
-                <span>Leads</span>
-              </span>
-            </Link>
-            <Link class="group transition hover:text-white" :href="route('opportunities.index')">
-              <span class="inline-flex items-center gap-2">
-                <HeroIcon name="document-currency-dollar" class="h-4 w-4 transition-colors group-hover:text-white" />
-                <span>Oportunidades</span>
-              </span>
-            </Link>
-            <Link v-if="canViewClients" class="group transition hover:text-white" :href="route('clients.index')">
-              <span class="inline-flex items-center gap-2">
-                <HeroIcon name="identification" class="h-4 w-4 transition-colors group-hover:text-white" />
-                <span>Clientes</span>
-              </span>
-            </Link>
-            <Link v-if="canViewProducts" class="group transition hover:text-white" :href="route('products.index')">
-              <span class="inline-flex items-center gap-2">
-                <HeroIcon name="cube" outline class="h-4 w-4 transition-colors group-hover:text-white" />
-                <span>Produtos</span>
-              </span>
-            </Link>
-            <Link v-if="canViewOrders" class="group transition hover:text-white" :href="route('orders.index')">
-              <span class="inline-flex items-center gap-2">
-                <HeroIcon name="shopping-bag" class="h-4 w-4 transition-colors group-hover:text-white" />
-                <span>Pedidos</span>
-              </span>
-            </Link>
+            <Dropdown panelClass="menu-panel" openClass="is-open">
+              <template #trigger="{ toggle }">
+                <button type="button" class="group transition hover:text-white" @click="toggle">
+                  <span class="inline-flex items-center gap-2">
+                    <HeroIcon name="clipboard-document-list" class="h-4 w-4 transition-colors group-hover:text-white" />
+                    <span>Cadastros</span>
+                    <HeroIcon name="chevron-down" class="h-4 w-4 transition-colors group-hover:text-white" />
+                  </span>
+                </button>
+              </template>
+              <template #default>
+                <Link v-if="isAdmin" class="dropdown-link" :href="route('users.index')">
+                  <HeroIcon name="users" class="h-5 w-5" />
+                  <span>Usuários</span>
+                </Link>
+                <Link v-if="canViewClients" class="dropdown-link" :href="route('clients.index')">
+                  <HeroIcon name="identification" class="h-5 w-5" />
+                  <span>Clientes</span>
+                </Link>
+                <Link v-if="canViewProducts" class="dropdown-link" :href="route('products.index')">
+                  <HeroIcon name="cube" class="h-5 w-5" />
+                  <span>Produtos</span>
+                </Link>
+              </template>
+            </Dropdown>
+            <Dropdown panelClass="menu-panel" openClass="is-open">
+              <template #trigger="{ toggle }">
+                <button type="button" class="group transition hover:text-white" @click="toggle">
+                  <span class="inline-flex items-center gap-2">
+                    <HeroIcon name="arrows-right-left" class="h-4 w-4 transition-colors group-hover:text-white" />
+                    <span>Movimentações</span>
+                    <HeroIcon name="chevron-down" class="h-4 w-4 transition-colors group-hover:text-white" />
+                  </span>
+                </button>
+              </template>
+              <template #default>
+                <Link v-if="canViewOrders" class="dropdown-link" :href="route('orders.index')">
+                  <HeroIcon name="shopping-bag" class="h-5 w-5" />
+                  <span>Pedidos</span>
+                </Link>
+              </template>
+            </Dropdown>
+            <Dropdown panelClass="menu-panel" openClass="is-open">
+              <template #trigger="{ toggle }">
+                <button type="button" class="group transition hover:text-white" @click="toggle">
+                  <span class="inline-flex items-center gap-2">
+                    <HeroIcon name="office-building" class="h-4 w-4 transition-colors group-hover:text-white" />
+                    <span>CRM</span>
+                    <HeroIcon name="chevron-down" class="h-4 w-4 transition-colors group-hover:text-white" />
+                  </span>
+                </button>
+              </template>
+              <template #default>
+                <Link class="dropdown-link" :href="route('leads.index')">
+                  <HeroIcon name="chat-bubble-left-right" class="h-5 w-5" />
+                  <span>Leads</span>
+                </Link>
+                <Link class="dropdown-link" :href="route('opportunities.index')">
+                  <HeroIcon name="document-currency-dollar" class="h-5 w-5" />
+                  <span>Oportunidades</span>
+                </Link>
+              </template>
+            </Dropdown>
           </div>
         </div>
 
