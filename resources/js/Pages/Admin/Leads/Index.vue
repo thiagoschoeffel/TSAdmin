@@ -84,6 +84,10 @@ const columns = [
     })
   },
   {
+    header: 'Interações',
+    key: 'interactions_count'
+  },
+  {
     header: 'Email',
     key: 'email'
   },

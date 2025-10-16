@@ -19,7 +19,7 @@ class LeadController extends Controller
         $perPageCandidate = (int) request()->integer('per_page');
         $perPage = in_array($perPageCandidate, $allowedPerPage, true) ? $perPageCandidate : 10;
 
-        $leads = Lead::with('owner')->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+        $leads = Lead::with('owner')->withCount('interactions')->orderByDesc('created_at')->paginate($perPage)->withQueryString();
 
         $requestedPage = max(1, (int) request()->query('page', 1));
         if ($requestedPage > $leads->lastPage() && $leads->lastPage() > 0) {
