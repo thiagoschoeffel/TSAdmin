@@ -6,61 +6,55 @@
     aria-roledescription="timeline"
     :aria-label="ariaLabel"
   >
-    <!-- Botão esquerda -->
-    <button
+    <!-- Seta esquerda -->
+    <TimelineArrow
       v-if="showLeftArrow"
-      type="button"
-      class="timeline-arrow left-0"
+      direction="left"
+      :enabled="showLeftArrow"
       :aria-label="ariaPrevLabel"
-      role="button"
-      tabindex="0"
-      :aria-disabled="!showLeftArrow"
-      @click="scrollBy(-scrollStep)"
-      @keydown.enter.space="scrollBy(-scrollStep)"
-      :disabled="!showLeftArrow"
-    >
-      <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-    </button>
+      @click="handleArrowClick('left')"
+    />
+
     <!-- Viewport -->
     <div
       ref="viewport"
       class="timeline-viewport overflow-hidden w-full max-w-full min-w-0"
-      @wheel="onWheel"
-      @touchstart.passive="onTouchStart"
-      @touchmove.passive="onTouchMove"
-      @touchend.passive="onTouchEnd"
-      @keydown="onKeydown"
+      :class="{ 'cursor-grab': touchHandlers.isCurrentlyDragging }"
+      @wheel="enableWheelScroll ? onWheel : undefined"
+      @touchstart.passive="enableTouchDrag ? touchHandlers.onTouchStart : undefined"
+      @touchmove.passive="enableTouchDrag ? touchHandlers.onTouchMove : undefined"
+      @touchend.passive="enableTouchDrag ? touchHandlers.onTouchEnd : undefined"
+      @keydown="enableKeyboardNav ? navigationHandlers.onKeydown : undefined"
       tabindex="0"
       style="outline:none;"
     >
       <div
         ref="track"
-        class="timeline-track flex gap-8 py-2 flex-nowrap min-w-0 w-max items-end"
-        :style="trackStyle"
+        class="timeline-track flex flex-nowrap min-w-0 w-max items-end"
+        :class="[gap, padding]"
+        :style="[trackStyle, timelineLineStyle]"
       >
         <slot />
       </div>
     </div>
-    <!-- Botão direita -->
-    <button
+
+    <!-- Seta direita -->
+    <TimelineArrow
       v-if="showRightArrow"
-      type="button"
-      class="timeline-arrow right-0"
+      direction="right"
+      :enabled="showRightArrow"
       :aria-label="ariaNextLabel"
-      role="button"
-      tabindex="0"
-      :aria-disabled="!showRightArrow"
-      @click="scrollBy(scrollStep)"
-      @keydown.enter.space="scrollBy(scrollStep)"
-      :disabled="!showRightArrow"
-    >
-      <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-    </button>
+      @click="handleArrowClick('right')"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
+import { watch, nextTick, computed } from 'vue';
+import TimelineArrow from './TimelineArrow.vue';
+import { useTimelineScroll } from '../../composables/useTimelineScroll.js';
+import { useTimelineNavigation } from '../../composables/useTimelineNavigation.js';
+import { useTimelineTouch } from '../../composables/useTimelineTouch.js';
 
 const props = defineProps({
   ariaLabel: { type: String, default: 'Linha do tempo de interações' },
@@ -68,47 +62,93 @@ const props = defineProps({
   ariaNextLabel: { type: String, default: 'Rolar para a direita' },
   scrollStep: { type: Number, default: 320 },
   dir: { type: String, default: 'ltr' },
+
+  // Configurações de comportamento
+  arrowMargin: { type: Number, default: 20 },
+  inertiaDecay: { type: Number, default: 0.92 },
+  minVelocity: { type: Number, default: 2 },
+  enableWheelScroll: { type: Boolean, default: true },
+  enableTouchDrag: { type: Boolean, default: true },
+  enableKeyboardNav: { type: Boolean, default: true },
+
+  // Configurações visuais
+  gap: { type: String, default: 'gap-8' },
+  padding: { type: String, default: 'py-2' },
+  lineColor: { type: String, default: '#e2e8f0' },
+  markerColor: { type: String, default: '#3b82f6' },
+  markerSize: { type: String, default: '8px' },
+  lineHeight: { type: String, default: '2px' },
+  verticalLineHeight: { type: String, default: '1rem' },
 });
 
-const viewport = ref(null);
-const track = ref(null);
-const isDragging = ref(false);
-const dragStartX = ref(0);
-const scrollStart = ref(0);
-const animationFrame = ref(null);
-const lastTouchX = ref(0);
-const velocity = ref(0);
-const inertiaId = ref(null);
+// Composable principal para scroll
+const {
+  viewport,
+  track,
+  showLeftArrow,
+  showRightArrow,
+  trackStyle,
+  updateArrows,
+  scrollBy,
+  scrollToEdge,
+} = useTimelineScroll({
+  arrowMargin: props.arrowMargin,
+});
 
-const showLeftArrow = ref(false);
-const showRightArrow = ref(false);
+// Composable para navegação
+const {
+  onKeydown: navigationKeydown,
+} = useTimelineNavigation({
+  scrollStep: props.scrollStep,
+  scrollBy,
+  scrollToEdge,
+});
 
-const trackStyle = computed(() => ({
-  'scroll-snap-type': 'x mandatory',
+// Composable para touch/drag
+const {
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
+  isDragging,
+} = useTimelineTouch({
+  viewport,
+  updateArrows,
+  inertiaDecay: props.inertiaDecay,
+  minVelocity: props.minVelocity,
+});
+
+// Computed para estilos dinâmicos
+const timelineLineStyle = computed(() => ({
+  '--timeline-line-color': props.lineColor,
+  '--timeline-marker-color': props.markerColor,
+  '--timeline-marker-size': props.markerSize,
+  '--timeline-line-height': props.lineHeight,
+  '--timeline-vertical-line-height': props.verticalLineHeight,
 }));
 
-function updateArrows() {
-  if (!viewport.value) return;
-  const { scrollLeft, scrollWidth, clientWidth } = viewport.value;
+// Expor handlers para o template
+const touchHandlers = {
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
+  isCurrentlyDragging: isDragging,
+};
 
-  // Margem para evitar flickering e garantir que as setas desapareçam no final
-  const margin = 20;
+const navigationHandlers = {
+  onKeydown: navigationKeydown,
+};
 
-  // Mostra seta esquerda se não está no início
-  showLeftArrow.value = scrollLeft > margin;
-
-  // Mostra seta direita se não está no final
-  showRightArrow.value = scrollLeft + clientWidth < scrollWidth - margin;
+/**
+ * Handler para cliques nas setas
+ */
+function handleArrowClick(direction) {
+  const delta = direction === 'left' ? -props.scrollStep : props.scrollStep;
+  scrollBy(delta);
 }
 
-function scrollBy(delta) {
-  if (!viewport.value) return;
-  viewport.value.scrollBy({ left: delta, behavior: 'smooth' });
-  // Atualiza as setas imediatamente e novamente após a animação
-  updateArrows();
-  setTimeout(updateArrows, 350);
-}
-
+/**
+ * Handler para scroll com roda do mouse
+ */
 function onWheel(e) {
   if (!viewport.value) return;
 
@@ -124,78 +164,7 @@ function onWheel(e) {
   updateArrows();
 }
 
-function onKeydown(e) {
-  if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
-    e.preventDefault();
-    if (e.key === "ArrowLeft") scrollBy(-props.scrollStep);
-    if (e.key === "ArrowRight") scrollBy(props.scrollStep);
-    if (e.key === "Home") scrollToEdge('start');
-    if (e.key === "End") scrollToEdge('end');
-  }
-}
-
-function scrollToEdge(edge) {
-  if (!viewport.value) return;
-  if (edge === 'start') viewport.value.scrollTo({ left: 0, behavior: 'smooth' });
-  if (edge === 'end') viewport.value.scrollTo({ left: viewport.value.scrollWidth, behavior: 'smooth' });
-  // Atualiza as setas imediatamente e novamente após a animação
-  updateArrows();
-  setTimeout(updateArrows, 350);
-}
-
-// Touch/drag
-function onTouchStart(e) {
-  if (!viewport.value) return;
-  isDragging.value = true;
-  dragStartX.value = e.touches[0].clientX;
-  scrollStart.value = viewport.value.scrollLeft;
-  lastTouchX.value = dragStartX.value;
-  velocity.value = 0;
-  if (inertiaId.value) cancelAnimationFrame(inertiaId.value);
-}
-function onTouchMove(e) {
-  if (!isDragging.value || !viewport.value) return;
-  const x = e.touches[0].clientX;
-  const dx = dragStartX.value - x;
-  viewport.value.scrollLeft = scrollStart.value + dx;
-  velocity.value = x - lastTouchX.value;
-  lastTouchX.value = x;
-  updateArrows();
-}
-function onTouchEnd() {
-  isDragging.value = false;
-  // Inércia simples
-  if (Math.abs(velocity.value) > 2) {
-    let v = -velocity.value * 2;
-    function inertia() {
-      if (!viewport.value) return;
-      viewport.value.scrollLeft += v;
-      v *= 0.92;
-      if (Math.abs(v) > 1) {
-        inertiaId.value = requestAnimationFrame(inertia);
-      } else {
-        updateArrows();
-      }
-    }
-    inertia();
-  } else {
-    updateArrows();
-  }
-}
-
-function onResize() {
-  updateArrows();
-}
-
-onMounted(() => {
-  nextTick(updateArrows);
-  window.addEventListener('resize', onResize, { passive: true });
-});
-onUnmounted(() => {
-  window.removeEventListener('resize', onResize);
-  if (inertiaId.value) cancelAnimationFrame(inertiaId.value);
-});
-
+// Watchers
 watch(() => [props.dir], () => nextTick(updateArrows));
 </script>
 
@@ -207,24 +176,6 @@ watch(() => [props.dir], () => nextTick(updateArrows));
 .timeline-viewport::-webkit-scrollbar {
   display: none;
 }
-.timeline-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 9999px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 0.25rem;
-  border: 1px solid #e2e8f0;
-  transition: opacity 0.15s ease-in-out;
-}
-.timeline-arrow:disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
-.timeline-arrow.left-0 { left: 0.25rem; }
-.timeline-arrow.right-0 { right: 0.25rem; }
 
 /* Linha conectora horizontal contínua */
 .timeline-track::after {
@@ -233,8 +184,8 @@ watch(() => [props.dir], () => nextTick(updateArrows));
   bottom: 5px; /* Centro da linha alinhado com centro dos marcadores */
   left: 0;
   right: 0;
-  height: 2px;
-  background-color: #e2e8f0;
+  height: var(--timeline-line-height, 2px);
+  background-color: var(--timeline-line-color, #e2e8f0);
   z-index: 1;
 }
 
@@ -250,9 +201,9 @@ watch(() => [props.dir], () => nextTick(updateArrows));
   bottom: 0px; /* Começa no topo da linha */
   left: 50%;
   transform: translateX(-50%);
-  width: 2px;
-  height: 1rem; /* Traço vertical mais longo */
-  background-color: #e2e8f0;
+  width: var(--timeline-line-height, 2px);
+  height: var(--timeline-vertical-line-height, 1rem);
+  background-color: var(--timeline-line-color, #e2e8f0);
   z-index: 2;
 }
 
@@ -262,9 +213,9 @@ watch(() => [props.dir], () => nextTick(updateArrows));
   bottom: -5px; /* Marcador mais abaixo, sobre a linha horizontal */
   left: 50%;
   transform: translateX(-50%);
-  width: 8px;
-  height: 8px;
-  background-color: #3b82f6;
+  width: var(--timeline-marker-size, 8px);
+  height: var(--timeline-marker-size, 8px);
+  background-color: var(--timeline-marker-color, #3b82f6);
   border: 2px solid white;
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
