@@ -3,6 +3,9 @@ import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
 import InputTextarea from '@/components/InputTextarea.vue';
+import InputCurrency from '@/components/InputCurrency.vue';
+import InputDatePicker from '@/components/InputDatePicker.vue';
+import InputNumber from '@/components/InputNumber.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 
 const props = defineProps({
@@ -15,6 +18,109 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['submit']);
+
+const leadInput = ref('');
+const clientInput = ref('');
+const selectedLead = ref(null);
+const selectedClient = ref(null);
+
+// Computed para sugestões de autocomplete
+const leadSuggestions = computed(() => {
+  if (!leadInput.value) return [];
+  const query = leadInput.value.toLowerCase();
+  return props.leads.filter(lead =>
+    lead.name.toLowerCase().includes(query)
+  ).slice(0, 10);
+});
+
+const clientSuggestions = computed(() => {
+  if (!clientInput.value) return [];
+  const query = clientInput.value.toLowerCase();
+  return props.clients.filter(client =>
+    client.name.toLowerCase().includes(query)
+  ).slice(0, 10);
+});
+
+// Funções para autocomplete
+const handleLeadInput = () => {
+  const exactMatch = props.leads.find(lead =>
+    lead.name.toLowerCase() === leadInput.value.toLowerCase()
+  );
+  selectedLead.value = exactMatch || null;
+  if (exactMatch) {
+    form.lead_id = exactMatch.id;
+  } else {
+    form.lead_id = '';
+  }
+};
+
+const handleClientInput = () => {
+  const exactMatch = props.clients.find(client =>
+    client.name.toLowerCase() === clientInput.value.toLowerCase()
+  );
+  selectedClient.value = exactMatch || null;
+  if (exactMatch) {
+    form.client_id = exactMatch.id;
+  } else {
+    form.client_id = '';
+  }
+};
+
+const handleLeadKeydown = (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (selectedLead.value) {
+      // Lead já selecionado, foco no próximo campo
+    } else if (leadSuggestions.value.length > 0) {
+      selectLead(leadSuggestions.value[0]);
+    } else {
+      e.target.blur();
+    }
+  }
+};
+
+const handleClientKeydown = (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (selectedClient.value) {
+      // Client já selecionado, foco no próximo campo
+    } else if (clientSuggestions.value.length > 0) {
+      selectClient(clientSuggestions.value[0]);
+    } else {
+      e.target.blur();
+    }
+  }
+};
+
+const selectLead = (lead) => {
+  selectedLead.value = lead;
+  leadInput.value = lead.name;
+  form.lead_id = lead.id;
+};
+
+const selectClient = (client) => {
+  selectedClient.value = client;
+  clientInput.value = client.name;
+  form.client_id = client.id;
+};
+
+// Watcher para inicializar inputs quando o form for carregado
+watch(() => props.form, (newForm) => {
+  if (newForm.lead_id) {
+    const lead = props.leads.find(l => l.id == newForm.lead_id);
+    if (lead) {
+      selectedLead.value = lead;
+      leadInput.value = lead.name;
+    }
+  }
+  if (newForm.client_id) {
+    const client = props.clients.find(c => c.id == newForm.client_id);
+    if (client) {
+      selectedClient.value = client;
+      clientInput.value = client.name;
+    }
+  }
+}, { immediate: true });
 
 const onSubmit = () => emit('submit');
 
@@ -42,18 +148,42 @@ const updateSubtotal = (index) => {
     <div class="grid gap-6 sm:grid-cols-2">
       <label class="form-label">
         Lead *
-        <InputSelect v-model="form.lead_id" :options="[
-          { value: '', label: 'Selecione o Lead' },
-          ...leads.map(lead => ({ value: lead.id, label: lead.name }))
-        ]" :error="!!form.errors.lead_id" />
+        <InputText
+          v-model="leadInput"
+          @input="handleLeadInput"
+          @change="handleLeadInput"
+          @keydown="handleLeadKeydown"
+          type="text"
+          list="leads"
+          placeholder="Digite o nome do lead..."
+          required
+          :error="!!form.errors.lead_id"
+        />
+        <datalist id="leads">
+          <option v-for="lead in leadSuggestions" :key="lead.id" :value="lead.name">
+            {{ lead.name }}
+          </option>
+        </datalist>
         <span v-if="form.errors.lead_id" class="text-sm font-medium text-rose-600">{{ form.errors.lead_id }}</span>
       </label>
       <label class="form-label">
         Cliente *
-        <InputSelect v-model="form.client_id" :options="[
-          { value: '', label: 'Selecione o Cliente' },
-          ...clients.map(client => ({ value: client.id, label: client.name }))
-        ]" :error="!!form.errors.client_id" />
+        <InputText
+          v-model="clientInput"
+          @input="handleClientInput"
+          @change="handleClientInput"
+          @keydown="handleClientKeydown"
+          type="text"
+          list="clients"
+          placeholder="Digite o nome do cliente..."
+          required
+          :error="!!form.errors.client_id"
+        />
+        <datalist id="clients">
+          <option v-for="client in clientSuggestions" :key="client.id" :value="client.name">
+            {{ client.name }}
+          </option>
+        </datalist>
         <span v-if="form.errors.client_id" class="text-sm font-medium text-rose-600">{{ form.errors.client_id }}</span>
       </label>
       <label class="form-label">
@@ -75,17 +205,17 @@ const updateSubtotal = (index) => {
       </label>
       <label class="form-label">
         Probabilidade (%)
-        <InputText v-model="form.probability" type="number" min="0" max="100" placeholder="0" :error="!!form.errors.probability" />
+        <InputNumber v-model="form.probability" :min="0" :max="100" placeholder="0" :error="!!form.errors.probability" />
         <span v-if="form.errors.probability" class="text-sm font-medium text-rose-600">{{ form.errors.probability }}</span>
       </label>
       <label class="form-label">
         Valor Estimado
-        <InputText v-model="form.expected_value" type="number" min="0" step="0.01" placeholder="0.00" :error="!!form.errors.expected_value" />
+        <InputCurrency v-model="form.expected_value" placeholder="R$ 0,00" :error="!!form.errors.expected_value" />
         <span v-if="form.errors.expected_value" class="text-sm font-medium text-rose-600">{{ form.errors.expected_value }}</span>
       </label>
       <label class="form-label">
         Data Prevista de Fechamento
-        <InputText v-model="form.expected_close_date" type="date" :error="!!form.errors.expected_close_date" />
+        <InputDatePicker v-model="form.expected_close_date" placeholder="Selecionar data" :error="!!form.errors.expected_close_date" />
         <span v-if="form.errors.expected_close_date" class="text-sm font-medium text-rose-600">{{ form.errors.expected_close_date }}</span>
       </label>
       <label class="form-label">
