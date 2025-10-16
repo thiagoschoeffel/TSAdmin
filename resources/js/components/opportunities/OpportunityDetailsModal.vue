@@ -6,7 +6,7 @@ import Button from '@/components/Button.vue';
 import DataTable from '@/components/DataTable.vue';
 import ProgressBar from '@/components/ui/ProgressBar.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
-import { formatCurrency } from '@/utils/formatters.js';
+import { formatCurrency, formatQuantity } from '@/utils/formatters.js';
 
 const props = defineProps({
     modelValue: Boolean,
@@ -105,7 +105,8 @@ const itemColumns = [
   },
   {
     header: 'Quantidade',
-    key: 'quantity'
+    key: 'quantity',
+    formatter: (value) => formatQuantity(value)
   },
   {
     header: 'Preço Unitário',
