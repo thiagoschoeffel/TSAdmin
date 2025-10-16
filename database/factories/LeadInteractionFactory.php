@@ -16,11 +16,12 @@ class LeadInteractionFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : fake();
         return [
-            'type' => fake()->randomElement(['phone_call', 'email', 'meeting', 'message', 'visit', 'other']),
-            'interacted_at' => fake()->dateTimeBetween('-30 days', 'now'),
-            'description' => fake('pt_BR')->sentence(),
-            'created_by_id' => \App\Models\User::inRandomOrder()->first()?->id ?? 1,
+            'type' => $faker->randomElement(['phone_call', 'email', 'meeting', 'message', 'visit', 'other']),
+            'interacted_at' => $faker->dateTimeBetween('-30 days', 'now'),
+            'description' => $faker->sentence(),
+            'created_by_id' => \App\Models\User::factory(),
         ];
     }
 }

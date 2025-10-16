@@ -6,7 +6,7 @@ namespace Database\Factories;
 
 use App\Models\ProductComponent;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 
 class ProductComponentFactory extends Factory
 {
@@ -14,7 +14,7 @@ class ProductComponentFactory extends Factory
 
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
+        $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : fake();
 
         return [
             'product_id' => null, // Defina ao usar

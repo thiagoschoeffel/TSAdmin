@@ -19,16 +19,14 @@ class LeadInteractionSeeder extends Seeder
             return;
         }
 
+        $range = config('seeding.volumes.lead_interactions_per_lead', [0, 5]);
         foreach ($leads as $lead) {
-            // Cada lead terá entre 0 e 5 interações
-            $interactionCount = fake()->numberBetween(0, 5);
-
-            for ($i = 0; $i < $interactionCount; $i++) {
-                \App\Models\LeadInteraction::factory()->create([
+            $interactionCount = fake()->numberBetween((int) $range[0], (int) $range[1]);
+            \App\Models\LeadInteraction::factory()
+                ->count($interactionCount)
+                ->create([
                     'lead_id' => $lead->id,
-                    'created_by_id' => fake()->randomElement($userIds),
                 ]);
-            }
         }
     }
 }

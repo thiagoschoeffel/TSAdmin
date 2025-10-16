@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Enums\OpportunityStage;
 use App\Enums\OpportunityStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 
 /**
  * @extends Factory<Opportunity>
@@ -20,7 +20,7 @@ class OpportunityFactory extends Factory
 
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
+        $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : fake();
 
         // Títulos de oportunidades relacionados a negócios brasileiros
         $titles = [
@@ -89,18 +89,23 @@ class OpportunityFactory extends Factory
             'Monitoramento e otimização do consumo energético empresarial.',
         ];
 
-        // Probabilidades baseadas em estágios
-        $stageProbabilities = [
-            'new' => $faker->numberBetween(0, 20),
-            'contact' => $faker->numberBetween(20, 40),
-            'proposal' => $faker->numberBetween(40, 60),
-            'negotiation' => $faker->numberBetween(60, 80),
+        $stageValue = $this->pickWeighted(config('seeding.weights.opportunity_stage', [
+            'new' => 25,
+            'contact' => 25,
+            'proposal' => 20,
+            'negotiation' => 15,
+            'won' => 10,
+            'lost' => 5,
+        ]));
+        $stage = collect(OpportunityStage::cases())->firstWhere('value', $stageValue) ?? OpportunityStage::NOVO;
+        $probability = match ($stage->value) {
             'won' => 100,
             'lost' => 0,
-        ];
-
-        $stage = $faker->randomElement(OpportunityStage::cases());
-        $probability = $stageProbabilities[$stage->value] ?? $faker->numberBetween(0, 100);
+            'negotiation' => $faker->numberBetween(60, 80),
+            'proposal' => $faker->numberBetween(40, 60),
+            'contact' => $faker->numberBetween(20, 40),
+            default => $faker->numberBetween(0, 20),
+        };
 
         // Valores estimados baseados no mercado brasileiro
         $expectedValues = [
@@ -137,7 +142,7 @@ class OpportunityFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Opportunity $opportunity) {
-            $faker = Faker::create('pt_BR');
+            $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : fake();
 
             // Criar alguns itens para a oportunidade
             $numItems = $faker->numberBetween(1, 5);
@@ -155,5 +160,22 @@ class OpportunityFactory extends Factory
                 ]);
             }
         });
+    }
+
+    private function pickWeighted(array $weights): string
+    {
+        $total = array_sum($weights);
+        if ($total <= 0) {
+            return array_key_first($weights);
+        }
+        $rand = mt_rand(1, (int) $total);
+        $running = 0;
+        foreach ($weights as $key => $weight) {
+            $running += (int) $weight;
+            if ($rand <= $running) {
+                return (string) $key;
+            }
+        }
+        return (string) array_key_first($weights);
     }
 }

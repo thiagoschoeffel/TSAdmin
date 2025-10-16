@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Enums\LeadSource;
 use App\Enums\LeadStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 
 /**
  * @extends Factory<Lead>
@@ -18,18 +18,54 @@ class LeadFactory extends Factory
 
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
+        $this->faker->unique(true);
+        $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : $this->faker;
+
+        $sourceWeights = config('seeding.weights.lead_source', [
+            'site' => 35,
+            'indicacao' => 35,
+            'evento' => 15,
+            'manual' => 15,
+        ]);
+        $statusWeights = config('seeding.weights.lead_status', [
+            'new' => 40,
+            'in_contact' => 30,
+            'qualified' => 20,
+            'discarded' => 10,
+        ]);
+
+        $sourceValue = $this->pickWeighted($sourceWeights);
+        $statusValue = $this->pickWeighted($statusWeights);
+        $source = collect(LeadSource::cases())->firstWhere('value', $sourceValue) ?? LeadSource::MANUAL;
+        $status = collect(LeadStatus::cases())->firstWhere('value', $statusValue) ?? LeadStatus::NOVO;
 
         return [
             'name' => $faker->name(),
             'email' => $faker->unique()->safeEmail(),
             'phone' => $faker->phoneNumber(),
             'company' => $faker->optional()->company(),
-            'source' => $faker->randomElement(LeadSource::cases()),
-            'status' => $faker->randomElement(LeadStatus::cases()),
+            'source' => $source,
+            'status' => $status,
             'owner_id' => User::factory(),
             'created_by_id' => User::factory(),
             'updated_by_id' => User::factory(),
         ];
+    }
+
+    private function pickWeighted(array $weights): string
+    {
+        $total = array_sum($weights);
+        if ($total <= 0) {
+            return array_key_first($weights);
+        }
+        $rand = mt_rand(1, (int) $total);
+        $running = 0;
+        foreach ($weights as $key => $weight) {
+            $running += (int) $weight;
+            if ($rand <= $running) {
+                return (string) $key;
+            }
+        }
+        return (string) array_key_first($weights);
     }
 }

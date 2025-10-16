@@ -1,25 +1,28 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, usePage, router } from '@inertiajs/vue3';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Badge from '@/components/Badge.vue';
 import LineChart from '@/components/LineChart.vue';
 import FunnelChart from '@/components/FunnelChart.vue';
+import InputDatePicker from '@/components/InputDatePicker.vue';
+import { ref, computed, getCurrentInstance } from 'vue';
 
 const props = defineProps({
   stats: Object,
   salesChart: Object,
   funnelData: Object,
+  filters: { type: Object, default: () => ({}) },
 });
 
 const page = usePage();
 const name = page.props.auth?.user?.name ?? 'usuário';
 
-// Prepare chart data
-const chartSeries = [{
+// Prepare chart data reactively
+const chartSeries = computed(() => ([{
   name: 'Vendas',
   data: props.salesChart?.data || []
-}];
+}]));
 
 // Prepare funnel data
 const funnelSeries = [{
@@ -27,6 +30,42 @@ const funnelSeries = [{
   data: props.funnelData?.data || [0, 0, 0, 0]
 }];
 const funnelLabels = props.funnelData?.labels || ['Leads', 'Leads Qualificados', 'Oportunidades', 'Oportunidades Vencidas'];
+
+// Sales period state (default from props -> server clamps to 15 days)
+const salesPeriod = ref({
+  start: props.filters?.sales_from || null,
+  end: props.filters?.sales_to || null,
+});
+
+// Ziggy `route` helper from app globalProperties
+const instance = getCurrentInstance();
+const route = instance.appContext.config.globalProperties.route;
+
+// On change, enforce 15-day max and request new data
+function onSalesPeriodChange(val) {
+  if (!val || !val.start || !val.end) return;
+  const start = new Date(val.start.replace(' ', 'T'));
+  const end = new Date(val.end.replace(' ', 'T'));
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
+  let a = start, b = end;
+  if (a > b) { const tmp = a; a = b; b = tmp; }
+  const maxEnd = new Date(a.getTime());
+  maxEnd.setDate(maxEnd.getDate() + 15);
+  if (b > maxEnd) b = maxEnd;
+
+  // Format back to 'YYYY-MM-DD HH:mm'
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const toStr = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  const sales_from = toStr(a);
+  const sales_to = toStr(b);
+
+  // Reflect clamped value in the UI if it changed
+  if (salesPeriod.value.start !== sales_from || salesPeriod.value.end !== sales_to) {
+    salesPeriod.value = { start: sales_from, end: sales_to };
+  }
+
+  router.get(route('dashboard'), { sales_from, sales_to }, { preserveState: true, replace: true });
+}
 </script>
 
 <template>
@@ -137,11 +176,24 @@ const funnelLabels = props.funnelData?.labels || ['Leads', 'Leads Qualificados',
       <!-- Charts Row -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <LineChart
-          title="Vendas dos últimos 30 dias"
+          title="Vendas"
           :series="chartSeries"
           :categories="salesChart?.categories || []"
           height="400"
-        />
+        >
+          <template #header-actions>
+            <div class="w-[320px]">
+              <InputDatePicker
+                v-model="salesPeriod"
+                :range="true"
+                :withTime="true"
+                :maxRangeDays="15"
+                placeholder="Selecione o período (máx. 15 dias)"
+                @change="onSalesPeriodChange"
+              />
+            </div>
+          </template>
+        </LineChart>
         <FunnelChart
           title="Funil de vendas"
           :series="funnelSeries"

@@ -12,28 +12,28 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Only create admin if doesn't exist
-        if (!User::where('email', 'admin@example.com')->exists()) {
-            User::factory()->create([
+        // Admin
+        User::query()->updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
                 'name' => 'Administrador',
-                'email' => 'admin@example.com',
-                'password' => 'password',
+                'password' => 'password', // cast: hashed
                 'status' => 'active',
                 'role' => 'admin',
-            ]);
-        }
+            ]
+        );
 
-        // Only create user with all permissions if doesn't exist
-        if (!User::where('email', 'user@example.com')->exists()) {
-            User::factory()->create([
+        // Default user (full permissions)
+        User::query()->updateOrCreate(
+            ['email' => 'user@example.com'],
+            [
                 'name' => 'Usuário Comum',
-                'email' => 'user@example.com',
-                'password' => 'password',
+                'password' => 'password', // cast: hashed
                 'status' => 'active',
                 'role' => 'user',
                 'permissions' => $this->getAllPermissions(),
-            ]);
-        }
+            ]
+        );
 
         // Update existing users to include new permissions
         $this->updateExistingUserPermissions();

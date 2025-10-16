@@ -24,14 +24,19 @@ class UserFactory extends Factory
     public function definition(): array
     {
         static $sequence = 0;
+        // Reset unique scope for deterministic sequences when seeding repeatedly
+        $this->faker->unique(true);
+
+        $statusWeights = config('seeding.weights.status', ['active' => 70, 'inactive' => 30]);
+        $status = $this->pickWeighted($statusWeights);
 
         return [
-            'name' => fake()->name(),
+            'name' => $this->faker->name(),
             'email' => 'user' . (++$sequence) . '@example.com',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'status' => fake()->randomElement(['active', 'inactive']),
+            'status' => $status,
             'role' => 'user',
             'permissions' => $this->generateRandomPermissions(),
         ];
@@ -59,10 +64,27 @@ class UserFactory extends Factory
             $abilities = array_keys($resource['abilities'] ?? []);
             $permissions[$resourceKey] = [];
             foreach ($abilities as $ability) {
-                $permissions[$resourceKey][$ability] = fake()->boolean(70); // 70% chance de ter a permissão
+                $permissions[$resourceKey][$ability] = $this->faker->boolean(70); // 70% chance de ter a permissão
             }
         }
 
         return $permissions;
+    }
+
+    private function pickWeighted(array $weights): string
+    {
+        $total = array_sum($weights);
+        if ($total <= 0) {
+            return array_key_first($weights);
+        }
+        $rand = mt_rand(1, (int) $total);
+        $running = 0;
+        foreach ($weights as $key => $weight) {
+            $running += (int) $weight;
+            if ($rand <= $running) {
+                return (string) $key;
+            }
+        }
+        return (string) array_key_first($weights);
     }
 }

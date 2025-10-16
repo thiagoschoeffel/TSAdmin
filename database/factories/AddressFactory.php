@@ -8,7 +8,7 @@ use App\Models\Address;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 
 class AddressFactory extends Factory
 {
@@ -16,7 +16,10 @@ class AddressFactory extends Factory
 
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
+        $locale = config('seeding.faker_locale', config('app.faker_locale'));
+        $faker = $locale === 'pt_BR' ? fake('pt_BR') : fake();
+        $statusWeights = config('seeding.weights.address_status', ['active' => 85, 'inactive' => 15]);
+        $status = $this->pickWeighted($statusWeights);
 
         return [
             'client_id' => null, // Definir ao usar
@@ -82,9 +85,26 @@ class AddressFactory extends Factory
                 'Academia',
                 'Restaurante',
             ]),
-            'status' => $faker->randomElement(['active', 'inactive']),
+            'status' => $status,
             'created_by_id' => User::factory(),
             'updated_by_id' => null,
         ];
+    }
+
+    private function pickWeighted(array $weights): string
+    {
+        $total = array_sum($weights);
+        if ($total <= 0) {
+            return array_key_first($weights);
+        }
+        $rand = mt_rand(1, (int) $total);
+        $running = 0;
+        foreach ($weights as $key => $weight) {
+            $running += (int) $weight;
+            if ($rand <= $running) {
+                return (string) $key;
+            }
+        }
+        return (string) array_key_first($weights);
     }
 }

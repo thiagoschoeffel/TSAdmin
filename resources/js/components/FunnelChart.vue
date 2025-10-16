@@ -37,10 +37,10 @@ const funnelSeries = computed(() => [{
 
 // Ensure each stage color matches its label regardless of order
 const STAGE_COLOR_MAP = {
-  'Leads': '#FF4560',                 // Vermelho
-  'Leads Qualificados': '#00E396',    // Verde
-  'Oportunidades': '#FEB019',         // Amarelo
-  'Oportunidades Vencidas': '#775DD0' // Roxo
+  'Leads': '#FF4560',                 // Vermelho (como está)
+  'Leads Qualificados': '#775DD0',    // Roxo (igual ao oportunidades vencidas anterior)
+  'Oportunidades': '#FEB019',         // Amarelo (como está)
+  'Oportunidades Vencidas': '#10B981' // Verde (mais escuro)
 }
 
 const resolvedColors = computed(() => {
