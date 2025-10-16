@@ -26,7 +26,7 @@ const funnelSeries = [{
   name: 'Quantidade',
   data: props.funnelData?.data || [0, 0, 0, 0]
 }];
-const funnelLabels = props.funnelData?.labels || ['Leads Criados', 'Oportunidades Abertas', 'Oportunidades Fechadas', 'Vendas Realizadas'];
+const funnelLabels = props.funnelData?.labels || ['Leads', 'Leads Qualificados', 'Oportunidades', 'Oportunidades Vencidas'];
 </script>
 
 <template>
@@ -108,7 +108,7 @@ const funnelLabels = props.funnelData?.labels || ['Leads Criados', 'Oportunidade
           <div class="flex items-center justify-between">
             <div class="flex items-center">
               <div class="p-3 bg-yellow-100 rounded-lg">
-                <HeroIcon name="user-group" class="h-6 w-6 text-yellow-600" />
+                <HeroIcon name="chat-bubble-left-right" class="h-6 w-6 text-yellow-600" />
               </div>
             </div>
             <div class="text-right">
@@ -123,7 +123,7 @@ const funnelLabels = props.funnelData?.labels || ['Leads Criados', 'Oportunidade
           <div class="flex items-center justify-between">
             <div class="flex items-center">
               <div class="p-3 bg-indigo-100 rounded-lg">
-                <HeroIcon name="briefcase" class="h-6 w-6 text-indigo-600" />
+                <HeroIcon name="document-currency-dollar" class="h-6 w-6 text-indigo-600" />
               </div>
             </div>
             <div class="text-right">
@@ -134,22 +134,21 @@ const funnelLabels = props.funnelData?.labels || ['Leads Criados', 'Oportunidade
         </div>
       </div>
 
-      <!-- Sales Chart -->
-      <LineChart
-        title="Vendas dos últimos 30 dias"
-        :series="chartSeries"
-        :categories="salesChart?.categories || []"
-        height="350"
-      />
-
-      <!-- Funnel Chart -->
-      <FunnelChart
-        title="Funil de Vendas: Leads para Vendas"
-        :series="funnelSeries"
-        :labels="funnelLabels"
-        height="400"
-      />
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LineChart
+          title="Vendas dos últimos 30 dias"
+          :series="chartSeries"
+          :categories="salesChart?.categories || []"
+          height="400"
+        />
+        <FunnelChart
+          title="Funil de vendas"
+          :series="funnelSeries"
+          :labels="funnelLabels"
+          height="400"
+        />
+      </div>
     </section>
   </AdminLayout>
 </template>
-

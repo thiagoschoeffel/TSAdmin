@@ -72,21 +72,21 @@ class DashboardController extends Controller
 
     private function getFunnelData(): array
     {
-        // Leads criados (total)
-        $leadsCreated = Lead::count();
+        // Leads (total)
+        $leadsTotal = Lead::count();
 
-        // Oportunidades abertas (ativas)
-        $opportunitiesOpen = Opportunity::where('status', 'active')->count();
+        // Leads Qualificados
+        $leadsQualified = Lead::where('status', 'qualified')->count();
 
-        // Oportunidades fechadas (won ou lost)
-        $opportunitiesClosed = Opportunity::whereIn('status', ['won', 'lost'])->count();
+        // Oportunidades (abertas - ainda no pipeline)
+        $opportunitiesOpen = Opportunity::whereNotIn('stage', ['won', 'lost'])->count();
 
-        // Vendas realizadas (orders)
-        $salesRealized = Order::count();
+        // Oportunidades Vencidas (ganhas)
+        $opportunitiesWon = Opportunity::where('stage', 'won')->count();
 
         return [
-            'labels' => ['Leads Criados', 'Oportunidades Abertas', 'Oportunidades Fechadas', 'Vendas Realizadas'],
-            'data' => [$leadsCreated, $opportunitiesOpen, $opportunitiesClosed, $salesRealized],
+            'labels' => ['Leads', 'Leads Qualificados', 'Oportunidades', 'Oportunidades Vencidas'],
+            'data' => [$leadsTotal, $leadsQualified, $opportunitiesOpen, $opportunitiesWon],
         ];
     }
 }

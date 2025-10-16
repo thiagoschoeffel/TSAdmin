@@ -18,6 +18,10 @@ const props = defineProps({
     type: [Number, String],
     default: 300
   },
+  width: {
+    type: [Number, String],
+    default: '100%'
+  },
   colors: {
     type: Array,
     default: () => ['#2563eb']
@@ -96,11 +100,14 @@ const chartOptions = {
 <template>
   <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
     <h3 v-if="title" class="text-lg font-semibold text-slate-900 mb-4">{{ title }}</h3>
-    <apexchart
-      type="line"
-      :options="chartOptions"
-      :series="series"
-      :height="height"
-    />
+    <div class="w-full overflow-hidden">
+      <apexchart
+        type="line"
+        :options="chartOptions"
+        :series="series"
+        :width="width"
+        :height="height"
+      />
+    </div>
   </div>
 </template>

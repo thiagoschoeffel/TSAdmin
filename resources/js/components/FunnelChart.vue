@@ -19,6 +19,10 @@ const props = defineProps({
     type: [Number, String],
     default: 300
   },
+  width: {
+    type: [Number, String],
+    default: '100%'
+  },
   colors: {
     type: Array,
     default: () => ['#FF4560', '#00E396', '#FEB019', '#775DD0']
@@ -33,10 +37,10 @@ const funnelSeries = computed(() => [{
 
 // Ensure each stage color matches its label regardless of order
 const STAGE_COLOR_MAP = {
-  'Leads Criados': '#FF4560',        // Vermelho
-  'Oportunidades Abertas': '#00E396', // Verde
-  'Oportunidades Fechadas': '#FEB019',// Amarelo
-  'Vendas Realizadas': '#775DD0',     // Roxo
+  'Leads': '#FF4560',                 // Vermelho
+  'Leads Qualificados': '#00E396',    // Verde
+  'Oportunidades': '#FEB019',         // Amarelo
+  'Oportunidades Vencidas': '#775DD0' // Roxo
 }
 
 const resolvedColors = computed(() => {
@@ -89,11 +93,14 @@ const chartOptions = computed(() => ({
 <template>
   <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
     <h3 v-if="title" class="text-lg font-semibold text-slate-900 mb-4">{{ title }}</h3>
-    <apexchart
-      type="bar"
-      :options="chartOptions"
-      :series="funnelSeries"
-      :height="height"
-    />
+    <div class="w-full overflow-hidden">
+      <apexchart
+        type="bar"
+        :options="chartOptions"
+        :series="funnelSeries"
+        :width="width"
+        :height="height"
+      />
+    </div>
   </div>
 </template>
