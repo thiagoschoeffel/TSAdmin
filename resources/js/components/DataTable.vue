@@ -203,7 +203,7 @@ onBeforeUnmount(() => {
 /* Sticky actions (right) */
 .dt-sticky-actions {
   position: sticky;
-  right: 0;
+  right: -1px;
   background: #fff;
   z-index: 40;
 }
