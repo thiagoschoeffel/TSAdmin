@@ -52,7 +52,7 @@ watch(() => page.props.flash, (f) => {
             {{ $page.props.app?.name ?? 'Example App' }}
           </Link>
 
-          <div class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-200 sm:gap-4">
+          <div class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-200 sm:gap-5">
             <Link class="group transition hover:text-white" :href="route('dashboard')">
               <span class="inline-flex items-center gap-2">
                 <HeroIcon name="chart-bar" class="h-4 w-4 transition-colors group-hover:text-white" />
