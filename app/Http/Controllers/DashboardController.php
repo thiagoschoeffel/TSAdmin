@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Lead;
+use App\Models\Opportunity;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -13,6 +15,9 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    /**
+     * @return \Inertia\Response
+     */
     public function __invoke(): Response
     {
         // Get sales data for the last 30 days
@@ -24,8 +29,11 @@ class DashboardController extends Controller
                 'clients' => Client::count(),
                 'products' => Product::count(),
                 'orders' => Order::count(),
+                'leads' => Lead::count(),
+                'opportunities' => Opportunity::count(),
             ],
             'salesChart' => $salesData,
+            'funnelData' => $this->getFunnelData(),
         ]);
     }
 
@@ -59,6 +67,26 @@ class DashboardController extends Controller
         return [
             'categories' => $categories,
             'data' => $data,
+        ];
+    }
+
+    private function getFunnelData(): array
+    {
+        // Leads criados (total)
+        $leadsCreated = Lead::count();
+
+        // Oportunidades abertas (ativas)
+        $opportunitiesOpen = Opportunity::where('status', 'active')->count();
+
+        // Oportunidades fechadas (won ou lost)
+        $opportunitiesClosed = Opportunity::whereIn('status', ['won', 'lost'])->count();
+
+        // Vendas realizadas (orders)
+        $salesRealized = Order::count();
+
+        return [
+            'labels' => ['Leads Criados', 'Oportunidades Abertas', 'Oportunidades Fechadas', 'Vendas Realizadas'],
+            'data' => [$leadsCreated, $opportunitiesOpen, $opportunitiesClosed, $salesRealized],
         ];
     }
 }

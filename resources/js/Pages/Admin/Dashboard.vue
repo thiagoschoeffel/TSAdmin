@@ -4,10 +4,12 @@ import { Head, usePage } from '@inertiajs/vue3';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Badge from '@/components/Badge.vue';
 import LineChart from '@/components/LineChart.vue';
+import FunnelChart from '@/components/FunnelChart.vue';
 
 const props = defineProps({
   stats: Object,
   salesChart: Object,
+  funnelData: Object,
 });
 
 const page = usePage();
@@ -18,6 +20,13 @@ const chartSeries = [{
   name: 'Vendas',
   data: props.salesChart?.data || []
 }];
+
+// Prepare funnel data
+const funnelSeries = [{
+  name: 'Quantidade',
+  data: props.funnelData?.data || [0, 0, 0, 0]
+}];
+const funnelLabels = props.funnelData?.labels || ['Leads Criados', 'Oportunidades Abertas', 'Oportunidades Fechadas', 'Vendas Realizadas'];
 </script>
 
 <template>
@@ -93,6 +102,36 @@ const chartSeries = [{
             </div>
           </div>
         </div>
+
+        <!-- Leads Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="p-3 bg-yellow-100 rounded-lg">
+                <HeroIcon name="user-group" class="h-6 w-6 text-yellow-600" />
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-3xl font-bold text-slate-900">{{ stats?.leads || 0 }}</div>
+              <div class="text-sm text-slate-500">Leads</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opportunities Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="p-3 bg-indigo-100 rounded-lg">
+                <HeroIcon name="briefcase" class="h-6 w-6 text-indigo-600" />
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-3xl font-bold text-slate-900">{{ stats?.opportunities || 0 }}</div>
+              <div class="text-sm text-slate-500">Oportunidades</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Sales Chart -->
@@ -101,6 +140,14 @@ const chartSeries = [{
         :series="chartSeries"
         :categories="salesChart?.categories || []"
         height="350"
+      />
+
+      <!-- Funnel Chart -->
+      <FunnelChart
+        title="Funil de Vendas: Leads para Vendas"
+        :series="funnelSeries"
+        :labels="funnelLabels"
+        height="400"
       />
     </section>
   </AdminLayout>
