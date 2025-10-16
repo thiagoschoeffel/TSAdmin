@@ -50,6 +50,6 @@ class Lead extends Model
 
     public function interactions()
     {
-        return $this->hasMany(LeadInteraction::class)->orderBy('created_at', 'desc');
+        return $this->hasMany(LeadInteraction::class)->orderBy('interacted_at', 'desc');
     }
 }
