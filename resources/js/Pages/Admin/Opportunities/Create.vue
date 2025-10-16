@@ -2,7 +2,6 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import OpportunityForm from '@/components/opportunities/OpportunityForm.vue';
-import Button from '@/components/Button.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 
 const props = defineProps({
@@ -38,14 +37,13 @@ const submit = () => {
         <div>
           <h1 class="text-2xl font-semibold text-slate-900 flex items-center gap-2">
             <HeroIcon name="document-currency-dollar" class="h-7 w-7 text-slate-700" />
-            Cadastrar Oportunidade
+            Cadastrar oportunidade
           </h1>
           <p class="mt-2 text-sm text-slate-500">Adicione uma nova oportunidade de venda.</p>
         </div>
-        <Button variant="ghost" :href="route('opportunities.index')">Voltar</Button>
       </div>
 
-      <OpportunityForm :form="form" :leads="props.leads" :clients="props.clients" :products="props.products" :submit-label="'Salvar Oportunidade'" :cancel-href="route('opportunities.index')" @submit="submit" />
+      <OpportunityForm :form="form" :leads="props.leads" :clients="props.clients" :products="props.products" :submit-label="'Salvar oportunidade'" :cancel-href="route('opportunities.index')" @submit="submit" />
     </section>
   </AdminLayout>
 </template>

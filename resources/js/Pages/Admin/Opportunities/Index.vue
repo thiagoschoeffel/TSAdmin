@@ -9,9 +9,11 @@ import { ref, computed, getCurrentInstance } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import OpportunityDetailsModal from '@/components/opportunities/OpportunityDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
+import { formatCurrency } from '@/utils/formatters.js';
 
 const props = defineProps({
   opportunities: { type: Object, required: true },
@@ -62,6 +64,9 @@ const performDelete = async () => {
   }
 };
 
+const details = ref({ open: false, opportunityId: null });
+const openDetails = (opportunity) => { details.value.opportunityId = opportunity.id; details.value.open = true; };
+
 const columns = [
   {
     header: 'Título',
@@ -70,16 +75,18 @@ const columns = [
     props: (opportunity) => ({
       type: 'button',
       class: 'font-bold text-blue-600 cursor-pointer',
-      onClick: () => router.visit(route('opportunities.edit', opportunity.id))
+      onClick: () => openDetails(opportunity)
     })
   },
   {
     header: 'Lead',
-    key: 'lead.name'
+    key: 'lead',
+    formatter: (value) => value?.name || '—'
   },
   {
     header: 'Cliente',
-    key: 'client.name'
+    key: 'client',
+    formatter: (value) => value?.name || '—'
   },
   {
     header: 'Etapa',
@@ -104,7 +111,7 @@ const columns = [
   {
     header: 'Valor Estimado',
     key: 'expected_value',
-    formatter: (value) => `R$ ${value}`
+    formatter: (value) => formatCurrency(value)
   },
   {
     header: 'Status',
@@ -117,22 +124,13 @@ const columns = [
   },
   {
     header: 'Dono',
-    key: 'owner.name'
+    key: 'owner',
+    formatter: (value) => value?.name || '—'
   }
 ];
 
 const actions = computed(() => {
   const acts = [];
-  acts.push({
-    key: 'show',
-    label: 'Ver',
-    icon: 'eye',
-    component: Link,
-    props: (opportunity) => ({
-      href: route('opportunities.edit', opportunity.id),
-      class: 'menu-panel-link'
-    })
-  });
   acts.push({
     key: 'edit',
     label: 'Editar',
@@ -171,7 +169,7 @@ const handleTableAction = ({ action, item }) => {
           </h1>
           <p class="mt-2 text-sm text-slate-500">Gerencie as oportunidades de vendas.</p>
         </div>
-        <Button variant="primary" :href="route('opportunities.create')">Nova Oportunidade</Button>
+        <Button variant="primary" :href="route('opportunities.create')">Nova oportunidade</Button>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">
@@ -229,5 +227,7 @@ const handleTableAction = ({ action, item }) => {
                   confirm-text="Excluir"
                   variant="danger"
                   @confirm="performDelete" />
+
+    <OpportunityDetailsModal v-model="details.open" :opportunity-id="details.opportunityId" />
   </AdminLayout>
 </template>

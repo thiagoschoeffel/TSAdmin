@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { formatQuantityInput, formatFromDigitString, initializePriceDisplay } from '@/utils/formatters'
 
 const props = defineProps({
   modelValue: {
@@ -135,7 +134,14 @@ const finalClasses = computed(() => {
 // Inicializa o valor quando o componente é montado
 onMounted(() => {
   if (props.formatted) {
-    displayValue.value = props.modelValue ? formatFromDigitString(String(Math.round(Number(props.modelValue) * 100)), 8) : ''
+    const numericValue = Number(props.modelValue)
+    if (isNaN(numericValue)) {
+      displayValue.value = ''
+    } else if (props.precision === 0) {
+      displayValue.value = numericValue.toString()
+    } else {
+      displayValue.value = numericValue.toLocaleString('pt-BR', { minimumFractionDigits: props.precision, maximumFractionDigits: props.precision })
+    }
   } else {
     displayValue.value = props.modelValue
   }
@@ -146,7 +152,14 @@ watch(() => props.modelValue, (newValue) => {
   // Always reflect external modelValue changes in the display,
   // even when focused (needed for arrow key adjustments triggered by parent)
   if (props.formatted) {
-    displayValue.value = newValue ? formatFromDigitString(String(Math.round(Number(newValue) * 100)), 8) : ''
+    const numericValue = Number(newValue)
+    if (isNaN(numericValue)) {
+      displayValue.value = ''
+    } else if (props.precision === 0) {
+      displayValue.value = numericValue.toString()
+    } else {
+      displayValue.value = numericValue.toLocaleString('pt-BR', { minimumFractionDigits: props.precision, maximumFractionDigits: props.precision })
+    }
   } else {
     displayValue.value = newValue
   }
@@ -154,13 +167,28 @@ watch(() => props.modelValue, (newValue) => {
 
 const handleInput = (event) => {
   if (props.formatted) {
-    // Usa formatação brasileira
-    const result = formatQuantityInput(event, rawDigits.value)
-    displayValue.value = result.formatted
-    rawDigits.value = result.rawDigits
+    let value = event.target.value.replace(/\D/g, "")
 
-    // Converte para número e emite
-    const numericValue = result.formatted ? parseFloat(result.formatted.replace(/\./g, '').replace(',', '.')) : 0
+    if (value === '') {
+      displayValue.value = ''
+      rawDigits.value = ''
+      emit('update:modelValue', '')
+      emit('input', event)
+      return
+    }
+
+    value = value.slice(0, 8) // limit digits
+
+    const numericValue = parseFloat(value) / Math.pow(10, props.precision)
+
+    if (props.precision === 0) {
+      displayValue.value = numericValue.toString()
+    } else {
+      displayValue.value = numericValue.toLocaleString('pt-BR', { minimumFractionDigits: props.precision, maximumFractionDigits: props.precision })
+    }
+
+    rawDigits.value = value
+
     emit('update:modelValue', Number(numericValue.toFixed(props.precision)))
   } else {
     // Comportamento normal do input number
@@ -191,7 +219,11 @@ const handleBlur = (event) => {
     // Garante formatação correta ao perder foco
     if (displayValue.value && !isNaN(parseFloat(displayValue.value.replace(/\./g, '').replace(',', '.')))) {
       const numericValue = parseFloat(displayValue.value.replace(/\./g, '').replace(',', '.'))
-      displayValue.value = formatFromDigitString(String(Math.round(numericValue * 100)), 8)
+      if (props.precision === 0) {
+        displayValue.value = numericValue.toString()
+      } else {
+        displayValue.value = numericValue.toLocaleString('pt-BR', { minimumFractionDigits: props.precision, maximumFractionDigits: props.precision })
+      }
       // Emit commit with the numeric value rounded to precision
       emit('commit', Number(numericValue.toFixed(props.precision)))
     }

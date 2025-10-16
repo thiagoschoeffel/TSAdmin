@@ -38,7 +38,7 @@ function updatePosition() {
   const intrinsicWidth = Math.ceil(el.offsetWidth || el.scrollWidth || 0);
   const maxAllowed = Math.max(160, vw - 16); // viewport minus margins
   // Width is clamped to viewport and at least trigger/minWidth
-  const width = Math.min(maxAllowed, Math.max(props.minWidth, rect.width, intrinsicWidth));
+  const width = Math.min(maxAllowed, Math.max(props.minWidth, intrinsicWidth));
   el.style.width = `${width}px`;
   const panelHeight = el.offsetHeight;
 

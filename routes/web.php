@@ -77,6 +77,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::get('/', [App\Http\Controllers\OpportunityController::class, 'index'])->name('index');
         Route::get('create', [App\Http\Controllers\OpportunityController::class, 'create'])->name('create');
         Route::post('/', [App\Http\Controllers\OpportunityController::class, 'store'])->name('store');
+        Route::get('{opportunity}/modal', [App\Http\Controllers\OpportunityController::class, 'modal'])->name('modal');
         Route::get('{opportunity}/edit', [App\Http\Controllers\OpportunityController::class, 'edit'])->name('edit');
         Route::patch('{opportunity}', [App\Http\Controllers\OpportunityController::class, 'update'])->name('update');
         Route::delete('{opportunity}', [App\Http\Controllers\OpportunityController::class, 'destroy'])->name('destroy');

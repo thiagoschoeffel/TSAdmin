@@ -40,5 +40,14 @@ return [
                 'delete' => 'Excluir leads',
             ],
         ],
+        'opportunities' => [
+            'label' => 'Gestão de oportunidades',
+            'abilities' => [
+                'view' => 'Visualizar oportunidades',
+                'create' => 'Criar oportunidades',
+                'update' => 'Editar oportunidades',
+                'delete' => 'Excluir oportunidades',
+            ],
+        ],
     ],
 ];

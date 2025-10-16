@@ -7,11 +7,15 @@ use App\Models\Client;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Lead;
+use App\Models\Opportunity;
 use App\Policies\AddressPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\UserPolicy;
+use App\Policies\LeadPolicy;
+use App\Policies\OpportunityPolicy;
 use App\Providers\AuthServiceProvider;
 use Illuminate\Foundation\Application;
 use Tests\TestCase;
@@ -35,7 +39,8 @@ class AuthServiceProviderTest extends TestCase
             Product::class => ProductPolicy::class,
             Order::class => OrderPolicy::class,
             Address::class => AddressPolicy::class,
-            \App\Models\Lead::class => \App\Policies\LeadPolicy::class,
+            Lead::class => LeadPolicy::class,
+            Opportunity::class => OpportunityPolicy::class,
         ];
 
         $reflection = new \ReflectionClass($this->provider);
@@ -63,7 +68,8 @@ class AuthServiceProviderTest extends TestCase
             Product::class => ProductPolicy::class,
             Order::class => OrderPolicy::class,
             Address::class => AddressPolicy::class,
-            \App\Models\Lead::class => \App\Policies\LeadPolicy::class,
+            Lead::class => LeadPolicy::class,
+            Opportunity::class => OpportunityPolicy::class,
         ];
 
         $this->assertEquals($expectedPolicies, $policies, 'Provider should have all expected policy mappings');
@@ -121,6 +127,26 @@ class AuthServiceProviderTest extends TestCase
         $policy = $gate->getPolicyFor(Address::class);
 
         $this->assertInstanceOf(AddressPolicy::class, $policy);
+    }
+
+    public function test_lead_policy_is_correctly_mapped()
+    {
+        $this->provider->boot();
+
+        $gate = app(\Illuminate\Contracts\Auth\Access\Gate::class);
+        $policy = $gate->getPolicyFor(Lead::class);
+
+        $this->assertInstanceOf(LeadPolicy::class, $policy);
+    }
+
+    public function test_opportunity_policy_is_correctly_mapped()
+    {
+        $this->provider->boot();
+
+        $gate = app(\Illuminate\Contracts\Auth\Access\Gate::class);
+        $policy = $gate->getPolicyFor(Opportunity::class);
+
+        $this->assertInstanceOf(OpportunityPolicy::class, $policy);
     }
 
     public function test_provider_extends_laravel_auth_service_provider()

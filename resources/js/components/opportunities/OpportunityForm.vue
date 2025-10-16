@@ -1,4 +1,5 @@
 <script setup>
+import { ref, computed, watch, nextTick } from 'vue';
 import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
@@ -7,6 +8,8 @@ import InputCurrency from '@/components/InputCurrency.vue';
 import InputDatePicker from '@/components/InputDatePicker.vue';
 import InputNumber from '@/components/InputNumber.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
+import DataTable from '@/components/DataTable.vue';
+import { formatCurrency } from '@/utils/formatters.js';
 
 const props = defineProps({
   form: { type: Object, required: true },
@@ -24,6 +27,25 @@ const clientInput = ref('');
 const selectedLead = ref(null);
 const selectedClient = ref(null);
 
+// Estado para edição inline de itens
+const editingItemIndex = ref(-1);
+const showAddForm = ref(false);
+const newItem = ref({
+  product_id: '',
+  quantity: 1,
+  unit_price: '',
+});
+const itemErrors = ref({});
+
+// Estado para autocomplete do produto
+const productInput = ref('');
+const selectedProduct = ref(null);
+
+// Refs para inputs
+const productInputRef = ref(null);
+const quantityInputRef = ref(null);
+const unitPriceInputRef = ref(null);
+
 // Computed para sugestões de autocomplete
 const leadSuggestions = computed(() => {
   if (!leadInput.value) return [];
@@ -38,6 +60,15 @@ const clientSuggestions = computed(() => {
   const query = clientInput.value.toLowerCase();
   return props.clients.filter(client =>
     client.name.toLowerCase().includes(query)
+  ).slice(0, 10);
+});
+
+// Computed para sugestões de produtos no autocomplete
+const productSuggestions = computed(() => {
+  if (!productInput.value) return [];
+  const query = productInput.value.toLowerCase();
+  return props.products.filter(product =>
+    product.name.toLowerCase().includes(query)
   ).slice(0, 10);
 });
 
@@ -104,6 +135,42 @@ const selectClient = (client) => {
   form.client_id = client.id;
 };
 
+// Funções para autocomplete do produto
+const handleProductInput = () => {
+  const exactMatch = props.products.find(product =>
+    product.name.toLowerCase() === productInput.value.toLowerCase()
+  );
+  selectedProduct.value = exactMatch || null;
+  if (exactMatch) {
+    newItem.value.product_id = exactMatch.id;
+  } else {
+    newItem.value.product_id = '';
+  }
+};
+
+const handleProductKeydown = (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (selectedProduct.value) {
+      // Produto já selecionado, foco no campo quantidade
+      quantityInputRef.value?.focus();
+    } else if (productSuggestions.value.length > 0) {
+      selectProduct(productSuggestions.value[0]);
+    } else {
+      e.target.blur();
+    }
+  }
+};
+
+const selectProduct = (product) => {
+  selectedProduct.value = product;
+  productInput.value = product.name;
+  newItem.value.product_id = product.id;
+  nextTick(() => {
+    quantityInputRef.value?.focus();
+  });
+};
+
 // Watcher para inicializar inputs quando o form for carregado
 watch(() => props.form, (newForm) => {
   if (newForm.lead_id) {
@@ -122,24 +189,147 @@ watch(() => props.form, (newForm) => {
   }
 }, { immediate: true });
 
+// Watcher para focar no campo produto quando o formulário abrir
+watch(showAddForm, (isOpen) => {
+  if (isOpen) {
+    nextTick(() => {
+      productInputRef.value?.focus();
+    });
+  }
+});
+
 const onSubmit = () => emit('submit');
 
+// Métodos para gerenciar itens
 const addItem = () => {
-  props.form.items.push({
-    product_id: '',
-    quantity: 1,
-    unit_price: '',
-    subtotal: '',
-  });
+  // Validação dos campos obrigatórios
+  const errors = {};
+
+  if (!selectedProduct.value || !newItem.value.product_id) {
+    errors.product_id = 'Produto é obrigatório';
+  }
+
+  if (!newItem.value.quantity || parseFloat(newItem.value.quantity) <= 0) {
+    errors.quantity = 'Quantidade é obrigatória e deve ser maior que zero';
+  }
+
+  if (!newItem.value.unit_price || parseFloat(newItem.value.unit_price) < 0) {
+    errors.unit_price = 'Preço unitário é obrigatório e deve ser maior ou igual a zero';
+  }
+
+  // Se há erros, mostrar e não adiciona o item
+  if (Object.keys(errors).length > 0) {
+    itemErrors.value = errors;
+    return;
+  }
+
+  // Limpa erros anteriores
+  itemErrors.value = {};
+
+  if (editingItemIndex.value >= 0) {
+    // Salvar edição
+    props.form.items[editingItemIndex.value] = { ...newItem.value };
+    updateSubtotal(editingItemIndex.value);
+    editingItemIndex.value = -1;
+  } else {
+    // Adicionar novo
+    props.form.items.unshift({ ...newItem.value });
+    updateSubtotal(0);
+  }
+  resetNewItem();
+  showAddForm.value = false;
+};
+
+const editItem = (index) => {
+  editingItemIndex.value = index;
+  newItem.value = { ...props.form.items[index] };
+  // Setar o texto do produto para o autocomplete
+  const product = props.products.find(p => p.id == props.form.items[index].product_id);
+  if (product) {
+    productInput.value = product.name;
+    selectedProduct.value = product;
+  }
+  itemErrors.value = {}; // Limpa erros ao editar
+  showAddForm.value = true;
+};
+
+const cancelEdit = () => {
+  editingItemIndex.value = -1;
+  showAddForm.value = false;
+  resetNewItem();
 };
 
 const removeItem = (index) => {
   props.form.items.splice(index, 1);
+  if (editingItemIndex.value === index) {
+    cancelEdit();
+  }
+};
+
+const resetNewItem = () => {
+  newItem.value = {
+    product_id: '',
+    quantity: 1,
+    unit_price: '',
+  };
+  productInput.value = '';
+  selectedProduct.value = null;
+  itemErrors.value = {}; // Limpa erros ao resetar
 };
 
 const updateSubtotal = (index) => {
   const item = props.form.items[index];
   item.subtotal = (parseFloat(item.quantity) || 0) * (parseFloat(item.unit_price) || 0);
+};
+
+// DataTable configuration for items
+const itemColumns = [
+  {
+    header: 'Produto',
+    key: 'product_id',
+    formatter: (value) => {
+      const product = props.products.find(p => p.id == value);
+      return product?.name || 'Produto não encontrado';
+    }
+  },
+  {
+    header: 'Quantidade',
+    key: 'quantity',
+    formatter: (value) => value
+  },
+  {
+    header: 'Preço Unitário',
+    key: 'unit_price',
+    formatter: (value) => formatCurrency(value)
+  },
+  {
+    header: 'Subtotal',
+    key: 'subtotal',
+    formatter: (value) => formatCurrency(value)
+  }
+];
+
+const itemActions = [
+  {
+    key: 'edit',
+    label: 'Editar',
+    icon: 'pencil'
+  },
+  {
+    key: 'delete',
+    label: 'Excluir',
+    icon: 'trash',
+    class: 'text-rose-600 hover:text-rose-700'
+  }
+];
+
+const handleItemAction = ({ action, item }) => {
+  const index = props.form.items.indexOf(item);
+  if (action.key === 'edit') {
+    editItem(index);
+  } else if (action.key === 'delete') {
+    removeItem(index);
+  }
 };
 </script>
 
@@ -188,7 +378,7 @@ const updateSubtotal = (index) => {
       </label>
       <label class="form-label">
         Título *
-        <InputText v-model="form.title" placeholder="Título da oportunidade" required :error="!!form.errors.title" />
+        <InputText v-model="form.title" required :error="!!form.errors.title" />
         <span v-if="form.errors.title" class="text-sm font-medium text-rose-600">{{ form.errors.title }}</span>
       </label>
       <label class="form-label">
@@ -205,7 +395,7 @@ const updateSubtotal = (index) => {
       </label>
       <label class="form-label">
         Probabilidade (%)
-        <InputNumber v-model="form.probability" :min="0" :max="100" placeholder="0" :error="!!form.errors.probability" />
+        <InputNumber v-model="form.probability" :formatted="true" :precision="0" :min="0" :max="100" :step="1" placeholder="0" :error="!!form.errors.probability" />
         <span v-if="form.errors.probability" class="text-sm font-medium text-rose-600">{{ form.errors.probability }}</span>
       </label>
       <label class="form-label">
@@ -235,50 +425,72 @@ const updateSubtotal = (index) => {
     </label>
 
     <!-- Itens da oportunidade -->
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Itens</h3>
-        <Button type="button" variant="outline" @click="addItem">
-          <HeroIcon name="plus" class="h-4 w-4" />
-          Adicionar Item
+    <fieldset class="space-y-3">
+      <legend class="text-sm font-semibold text-slate-700">Itens da oportunidade</legend>
+
+      <!-- Formulário inline para adicionar/editar item -->
+      <div v-if="showAddForm" class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+        <div class="grid gap-4 sm:grid-cols-3">
+          <label class="form-label">
+            Produto *
+            <InputText
+              ref="productInputRef"
+              v-model="productInput"
+              @input="handleProductInput"
+              @change="handleProductInput"
+              @keydown="handleProductKeydown"
+              type="text"
+              list="opportunity-products"
+              placeholder="Digite o nome do produto..."
+              required
+              :error="!!itemErrors.product_id"
+            />
+            <datalist id="opportunity-products">
+              <option v-for="product in productSuggestions" :key="product.id" :value="product.name">
+                {{ product.name }}
+              </option>
+            </datalist>
+            <span v-if="itemErrors.product_id" class="text-sm font-medium text-rose-600">{{ itemErrors.product_id }}</span>
+          </label>
+          <label class="form-label">
+            Quantidade *
+            <InputNumber ref="quantityInputRef" v-model="newItem.quantity" :formatted="true" :precision="2" :min="0.01" :step="0.01" required :error="!!itemErrors.quantity" />
+            <span v-if="itemErrors.quantity" class="text-sm font-medium text-rose-600">{{ itemErrors.quantity }}</span>
+          </label>
+          <label class="form-label">
+            Preço Unitário *
+            <InputCurrency ref="unitPriceInputRef" v-model="newItem.unit_price" required :error="!!itemErrors.unit_price" />
+            <span v-if="itemErrors.unit_price" class="text-sm font-medium text-rose-600">{{ itemErrors.unit_price }}</span>
+          </label>
+          <div class="flex items-end gap-2 sm:col-span-3">
+            <Button type="button" @click="addItem" variant="primary" size="sm">
+              {{ editingItemIndex >= 0 ? 'Salvar' : 'Adicionar' }}
+            </Button>
+            <Button type="button" @click="cancelEdit" variant="ghost" size="sm">
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela de itens -->
+      <DataTable
+        :columns="itemColumns"
+        :data="form.items || []"
+        :actions="itemActions"
+        empty-message="Nenhum item adicionado."
+        @action="handleItemAction"
+      />
+
+      <!-- Botão para adicionar novo item -->
+      <div v-if="!showAddForm" class="flex justify-center pt-4">
+        <Button type="button" @click="showAddForm = true" variant="ghost" size="sm">
+          Adicionar item
         </Button>
       </div>
 
-      <div v-for="(item, idx) in form.items" :key="idx" class="border border-slate-200 rounded-lg p-4 space-y-4">
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <label class="form-label">
-            Produto
-            <InputSelect v-model="item.product_id" :options="[
-              { value: '', label: 'Selecione' },
-              ...products.map(product => ({ value: product.id, label: product.name }))
-            ]" :error="!!(form.errors && form.errors[`items.${idx}.product_id`])" />
-            <span v-if="form.errors && form.errors[`items.${idx}.product_id`]" class="text-sm font-medium text-rose-600">{{ form.errors[`items.${idx}.product_id`] }}</span>
-          </label>
-          <label class="form-label">
-            Quantidade
-            <InputText v-model="item.quantity" type="number" min="0.01" step="0.01" @input="updateSubtotal(idx)" :error="!!(form.errors && form.errors[`items.${idx}.quantity`])" />
-            <span v-if="form.errors && form.errors[`items.${idx}.quantity`]" class="text-sm font-medium text-rose-600">{{ form.errors[`items.${idx}.quantity`] }}</span>
-          </label>
-          <label class="form-label">
-            Preço Unitário
-            <InputText v-model="item.unit_price" type="number" min="0" step="0.01" @input="updateSubtotal(idx)" :error="!!(form.errors && form.errors[`items.${idx}.unit_price`])" />
-            <span v-if="form.errors && form.errors[`items.${idx}.unit_price`]" class="text-sm font-medium text-rose-600">{{ form.errors[`items.${idx}.unit_price`] }}</span>
-          </label>
-          <label class="form-label">
-            Subtotal
-            <InputText v-model="item.subtotal" readonly class="bg-slate-50" />
-          </label>
-        </div>
-        <div class="flex justify-end">
-          <Button type="button" variant="danger" size="sm" @click="removeItem(idx)">
-            <HeroIcon name="trash" class="h-4 w-4" />
-            Remover
-          </Button>
-        </div>
-      </div>
-
-      <p v-if="form.items.length === 0" class="text-sm text-slate-500">Nenhum item adicionado ainda.</p>
-    </div>
+      <span v-if="form.errors && Object.keys(form.errors).some(key => key.startsWith('items.'))" class="text-sm font-medium text-rose-600">Verifique os erros nos itens.</span>
+    </fieldset>
 
     <div class="flex flex-wrap gap-3">
       <Button type="submit" variant="primary" :loading="form.processing">

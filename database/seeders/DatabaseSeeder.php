@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             LeadSeeder::class,
             LeadInteractionSeeder::class,
             OrderSeeder::class,
+            OpportunitySeeder::class,
         ]);
     }
 }
