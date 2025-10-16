@@ -20,11 +20,12 @@
       ref="viewport"
       class="timeline-viewport overflow-hidden w-full max-w-full min-w-0"
       :class="{ 'cursor-grab': touchHandlers.isCurrentlyDragging }"
-      @wheel="enableWheelScroll ? onWheel : undefined"
-      @touchstart.passive="enableTouchDrag ? touchHandlers.onTouchStart : undefined"
-      @touchmove.passive="enableTouchDrag ? touchHandlers.onTouchMove : undefined"
-      @touchend.passive="enableTouchDrag ? touchHandlers.onTouchEnd : undefined"
-      @keydown="enableKeyboardNav ? navigationHandlers.onKeydown : undefined"
+      @wheel="onWheel"
+      @mousedown="handleMouseDown"
+      @touchstart.passive="handleTouchStart"
+      @touchmove.passive="handleTouchMove"
+      @touchend.passive="handleTouchEnd"
+      @keydown="handleKeydown"
       tabindex="0"
       style="outline:none;"
     >
@@ -55,6 +56,7 @@ import TimelineArrow from './TimelineArrow.vue';
 import { useTimelineScroll } from '../../composables/useTimelineScroll.js';
 import { useTimelineNavigation } from '../../composables/useTimelineNavigation.js';
 import { useTimelineTouch } from '../../composables/useTimelineTouch.js';
+import { useTimelineMouse } from '../../composables/useTimelineMouse.js';
 
 const props = defineProps({
   ariaLabel: { type: String, default: 'Linha do tempo de interações' },
@@ -69,6 +71,7 @@ const props = defineProps({
   minVelocity: { type: Number, default: 2 },
   enableWheelScroll: { type: Boolean, default: true },
   enableTouchDrag: { type: Boolean, default: true },
+  enableMouseDrag: { type: Boolean, default: true },
   enableKeyboardNav: { type: Boolean, default: true },
 
   // Configurações visuais
@@ -117,6 +120,17 @@ const {
   minVelocity: props.minVelocity,
 });
 
+// Composable para mouse/drag
+const {
+  onMouseDown,
+  isCurrentlyDragging: isMouseDragging,
+} = useTimelineMouse({
+  viewport,
+  updateArrows,
+  inertiaDecay: props.inertiaDecay,
+  minVelocity: props.minVelocity,
+});
+
 // Computed para estilos dinâmicos
 const timelineLineStyle = computed(() => ({
   '--timeline-line-color': props.lineColor,
@@ -131,7 +145,7 @@ const touchHandlers = {
   onTouchStart,
   onTouchMove,
   onTouchEnd,
-  isCurrentlyDragging: isDragging,
+  isCurrentlyDragging: () => isDragging.value || isMouseDragging.value,
 };
 
 const navigationHandlers = {
@@ -150,7 +164,7 @@ function handleArrowClick(direction) {
  * Handler para scroll com roda do mouse
  */
 function onWheel(e) {
-  if (!viewport.value) return;
+  if (!props.enableWheelScroll || !viewport.value) return;
 
   // Previne o scroll da página quando o mouse está na timeline
   e.preventDefault();
@@ -162,6 +176,46 @@ function onWheel(e) {
     viewport.value.scrollLeft += e.deltaY * 1.2;
   }
   updateArrows();
+}
+
+/**
+ * Handler para touch start
+ */
+function handleTouchStart(e) {
+  if (!props.enableTouchDrag) return;
+  touchHandlers.onTouchStart(e);
+}
+
+/**
+ * Handler para touch move
+ */
+function handleTouchMove(e) {
+  if (!props.enableTouchDrag) return;
+  touchHandlers.onTouchMove(e);
+}
+
+/**
+ * Handler para touch end
+ */
+function handleTouchEnd(e) {
+  if (!props.enableTouchDrag) return;
+  touchHandlers.onTouchEnd(e);
+}
+
+/**
+ * Handler para mouse down
+ */
+function handleMouseDown(e) {
+  if (!props.enableMouseDrag) return;
+  onMouseDown(e);
+}
+
+/**
+ * Handler para navegação por teclado
+ */
+function handleKeydown(e) {
+  if (!props.enableKeyboardNav) return;
+  navigationHandlers.onKeydown(e);
 }
 
 // Watchers

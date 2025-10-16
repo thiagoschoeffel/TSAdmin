@@ -1,6 +1,7 @@
 <script setup>
 import { defineAsyncComponent } from 'vue';
 const TimelineScroll = defineAsyncComponent(() => import('@/components/timeline/TimelineScroll.vue'));
+import TimelineCard from '@/components/timeline/TimelineCard.vue';
 import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
@@ -312,36 +313,6 @@ const getTypeIconClass = (type) => {
   return classes[type] || 'text-slate-500';
 };
 
-const formatInteractionDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return dateString;
-
-  const now = new Date();
-  const diffInHours = (now - date) / (1000 * 60 * 60);
-
-  if (diffInHours < 24) {
-    // Menos de 24 horas - mostrar "há X horas" ou "há X minutos"
-    if (diffInHours < 1) {
-      const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-      return diffInMinutes <= 1 ? 'agora mesmo' : `há ${diffInMinutes}min`;
-    }
-    const hours = Math.floor(diffInHours);
-    return hours === 1 ? 'há 1h' : `há ${hours}h`;
-  } else if (diffInHours < 24 * 7) {
-    // Menos de 7 dias - mostrar dia da semana
-    const days = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
-    return days[date.getDay()];
-  } else {
-    // Mais antigo - mostrar data
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-    });
-  }
-};
-
 // Inicializar data/hora atual
 newInteraction.value.interacted_at = getCurrentDateTime();
 
@@ -444,45 +415,12 @@ const formatPhoneField = () => {
             :key="interaction.id || index"
             class="relative flex flex-col items-center flex-shrink-0 min-w-72 max-w-80"
           >
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 w-full transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group">
-              <div class="flex justify-between items-center mb-3">
-                <div class="flex items-center gap-2">
-                  <HeroIcon :name="getTypeIcon(interaction.type)" class="w-5 h-5" :class="getTypeIconClass(interaction.type)" />
-                  <span class="font-semibold text-sm text-slate-700">{{ interaction.type_label || getTypeLabel(interaction.type) }}</span>
-                </div>
-                <div class="flex gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                  <button
-                    type="button"
-                    @click="editInteraction(props.form.interactions.indexOf(interaction))"
-                    class="p-1.5 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                    title="Editar interação"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    @click="deleteInteraction(props.form.interactions.indexOf(interaction))"
-                    class="p-1.5 rounded-md hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
-                    title="Excluir interação"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div class="mb-3">
-                <p class="text-sm leading-relaxed text-slate-600 m-0">{{ interaction.description }}</p>
-              </div>
-              <div class="border-t border-slate-100 pt-3">
-                <div class="flex justify-between items-center text-xs text-slate-500">
-                  <span class="font-medium">{{ formatInteractionDate(interaction.interacted_at) }}</span>
-                  <span class="italic">{{ interaction.created_by || 'Você' }}</span>
-                </div>
-              </div>
-            </div>
+            <TimelineCard
+              :interaction="interaction"
+              :show-actions="true"
+              @edit="editInteraction(props.form.interactions.indexOf(interaction))"
+              @delete="deleteInteraction(props.form.interactions.indexOf(interaction))"
+            />
           </div>
         </TimelineScroll>
       </div>

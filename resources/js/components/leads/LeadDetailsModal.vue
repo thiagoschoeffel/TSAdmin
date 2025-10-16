@@ -4,15 +4,20 @@ import Modal from '@/components/Modal.vue';
 import Badge from '@/components/Badge.vue';
 import Button from '@/components/Button.vue';
 import DataTable from '@/components/DataTable.vue';
+import { defineAsyncComponent } from 'vue';
+const TimelineScroll = defineAsyncComponent(() => import('@/components/timeline/TimelineScroll.vue'));
+import TimelineCard from '@/components/timeline/TimelineCard.vue';
+import HeroIcon from '@/components/icons/HeroIcon.vue';
 
 const props = defineProps({
-  modelValue: { type: Boolean, default: false },
-  leadId: { type: [Number, String, null], default: null },
+    modelValue: Boolean,
+    leadId: Number,
 });
 
 const emit = defineEmits(['update:modelValue']);
 
-const open = ref(props.modelValue);
+const open = ref(false);
+const lead = ref(null);
 const loading = ref(false);
 const error = ref(false);
 const payload = ref(null); // structured lead data (required)
@@ -80,43 +85,6 @@ const updatedBy = computed(() => {
   if (payload.value?.updated_at === payload.value?.created_at) return 'Nunca atualizado';
   return payload.value?.updated_by ?? 'Conta removida';
 });
-
-const interactionColumns = [
-  {
-    header: 'Tipo',
-    key: 'type_label',
-  },
-  {
-    header: 'Descrição',
-    key: 'description',
-  },
-  {
-    header: 'Data/Hora',
-    key: 'interacted_at',
-    formatter: (value, item) => {
-      if (!value) return '—';
-      const d = new Date(value);
-      if (Number.isNaN(d.getTime())) return String(value);
-      try {
-        return new Intl.DateTimeFormat('pt-BR', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit', hour12: false,
-        }).format(d);
-      } catch (_) {
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const year = d.getFullYear();
-        const hours = String(d.getHours()).padStart(2, '0');
-        const minutes = String(d.getMinutes()).padStart(2, '0');
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
-      }
-    },
-  },
-  {
-    header: 'Registrado por',
-    key: 'created_by',
-  },
-];
 </script>
 
 <template>
@@ -194,11 +162,28 @@ const interactionColumns = [
 
       <section class="space-y-3">
         <h2 class="text-lg font-semibold text-slate-900">Histórico de Interações</h2>
-        <DataTable
-          :columns="interactionColumns"
-          :data="payload.interactions || []"
-          empty-message="Nenhuma interação registrada para este lead."
-        />
+        <div v-if="!payload.interactions || payload.interactions.length === 0" class="mt-4">
+          <div class="timeline-container">
+            <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+              <HeroIcon name="chat-bubble-left-right" class="w-12 h-12 text-slate-300" />
+              <p class="mt-4 text-sm text-slate-500">Nenhuma interação registrada para este lead.</p>
+            </div>
+          </div>
+        </div>
+        <div v-else class="mt-4 min-w-0">
+          <TimelineScroll aria-label="Linha do tempo de interações">
+            <div
+              v-for="(interaction, index) in payload.interactions"
+              :key="interaction.id || index"
+              class="relative flex flex-col items-center flex-shrink-0 min-w-72 max-w-80"
+            >
+              <TimelineCard
+                :interaction="interaction"
+                :show-actions="false"
+              />
+            </div>
+          </TimelineScroll>
+        </div>
       </section>
 
       <section class="space-y-3">
