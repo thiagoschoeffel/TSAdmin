@@ -48,10 +48,12 @@ const props = defineProps({
   class: {
     type: String,
     default: ''
+  },
+  id: {
+    type: String,
+    default: ''
   }
 })
-
-const emit = defineEmits(['update:modelValue', 'change', 'blur', 'focus'])
 
 const selectRef = ref(null)
 
@@ -166,6 +168,7 @@ defineExpose({
   <div class="relative w-full">
     <select
       ref="selectRef"
+      :id="id"
       :value="modelValue"
       :required="required"
       :disabled="disabled"

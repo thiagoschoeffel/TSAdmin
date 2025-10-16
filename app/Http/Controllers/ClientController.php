@@ -17,7 +17,7 @@ use DomainException;
 
 class ClientController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request): \Inertia\Response|\Illuminate\Http\RedirectResponse
     {
         $this->authorize('viewAny', Client::class);
 
@@ -43,10 +43,15 @@ class ClientController extends Controller
             $query->where('status', $status);
         }
 
+        // Resolve per_page
+        $allowedPerPage = [10, 25, 50, 100];
+        $perPageCandidate = (int) $request->integer('per_page');
+        $perPage = in_array($perPageCandidate, $allowedPerPage, true) ? $perPageCandidate : 10;
+
         $clients = $query
             ->with(['createdBy', 'updatedBy'])
             ->orderBy('name', 'asc')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function (Client $client) {
                 return [
@@ -59,6 +64,14 @@ class ClientController extends Controller
                     'created_at' => optional($client->created_at)->format('d/m/Y H:i'),
                 ];
             });
+
+        // If requested page exceeds last page, redirect to last valid
+        $requestedPage = max(1, (int) $request->query('page', 1));
+        if ($requestedPage > $clients->lastPage() && $clients->lastPage() > 0) {
+            $queryParams = $request->query();
+            $queryParams['page'] = $clients->lastPage();
+            return redirect()->to($request->url() . '?' . http_build_query($queryParams));
+        }
 
         return Inertia::render('Admin/Clients/Index', [
             'filters' => [

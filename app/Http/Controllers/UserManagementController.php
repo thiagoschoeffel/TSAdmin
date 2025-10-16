@@ -18,7 +18,7 @@ use DomainException;
 
 class UserManagementController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request): \Inertia\Response|\Illuminate\Http\RedirectResponse
     {
         $this->authorize('viewAny', User::class);
 
@@ -35,9 +35,14 @@ class UserManagementController extends Controller
             $query->where('status', $status);
         }
 
+        // Resolve per_page
+        $allowedPerPage = [10, 25, 50, 100];
+        $perPageCandidate = (int) $request->integer('per_page');
+        $perPage = in_array($perPageCandidate, $allowedPerPage, true) ? $perPageCandidate : 10;
+
         $users = $query
             ->orderBy('name', 'asc')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function (User $user) {
                 return [
@@ -49,6 +54,14 @@ class UserManagementController extends Controller
                     'email_verified_at' => $user->email_verified_at,
                 ];
             });
+
+        // If requested page exceeds last page, redirect to last valid
+        $requestedPage = max(1, (int) $request->query('page', 1));
+        if ($requestedPage > $users->lastPage() && $users->lastPage() > 0) {
+            $queryParams = $request->query();
+            $queryParams['page'] = $users->lastPage();
+            return redirect()->to($request->url() . '?' . http_build_query($queryParams));
+        }
 
         return Inertia::render('Admin/Users/Index', [
             'filters' => [

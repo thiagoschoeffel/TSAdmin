@@ -11,6 +11,7 @@ import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import OpportunityDetailsModal from '@/components/opportunities/OpportunityDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
+import PerPageSelector from '@/components/PerPageSelector.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
 import ProgressBar from '@/components/ui/ProgressBar.vue';
@@ -222,6 +223,10 @@ const handleTableAction = ({ action, item }) => {
           <Button type="button" variant="ghost" @click="resetFilters">Limpar filtros</Button>
         </div>
       </form>
+
+      <div class="flex items-center justify-end">
+        <PerPageSelector :current="opportunities.per_page ?? opportunities.perPage ?? 10" />
+      </div>
 
       <DataTable
         :columns="columns"

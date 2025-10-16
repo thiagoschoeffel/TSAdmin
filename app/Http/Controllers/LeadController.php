@@ -12,10 +12,22 @@ use Inertia\Response as InertiaResponse;
 
 class LeadController extends Controller
 {
-    public function index(): InertiaResponse
+    public function index(): InertiaResponse|\Illuminate\Http\Response
     {
         $this->authorize('viewAny', Lead::class);
-        $leads = Lead::with('owner')->orderByDesc('created_at')->paginate(15);
+        $allowedPerPage = [10, 25, 50, 100];
+        $perPageCandidate = (int) request()->integer('per_page');
+        $perPage = in_array($perPageCandidate, $allowedPerPage, true) ? $perPageCandidate : 10;
+
+        $leads = Lead::with('owner')->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+
+        $requestedPage = max(1, (int) request()->query('page', 1));
+        if ($requestedPage > $leads->lastPage() && $leads->lastPage() > 0) {
+            $queryParams = request()->query();
+            $queryParams['page'] = $leads->lastPage();
+            return Inertia::location(request()->url() . '?' . http_build_query($queryParams));
+        }
+
         return Inertia::render('Admin/Leads/Index', [
             'leads' => $leads,
         ]);

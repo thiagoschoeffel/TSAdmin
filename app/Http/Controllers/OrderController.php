@@ -25,7 +25,7 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): Response
+    public function index(Request $request): \Inertia\Response|\Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
 
@@ -77,9 +77,14 @@ class OrderController extends Controller
             $query->where('ordered_at', '<=', $to);
         }
 
+        // Resolve per_page
+        $allowedPerPage = [10, 25, 50, 100];
+        $perPageCandidate = (int) $request->integer('per_page');
+        $perPage = in_array($perPageCandidate, $allowedPerPage, true) ? $perPageCandidate : 10;
+
         $orders = $query
             ->orderBy('ordered_at', 'desc')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function (Order $order) {
                 return [
@@ -108,6 +113,14 @@ class OrderController extends Controller
                     'created_at' => $order->created_at->format('d/m/Y H:i'),
                 ];
             });
+
+        // If requested page exceeds last page, redirect to last valid
+        $requestedPage = max(1, (int) $request->query('page', 1));
+        if ($requestedPage > $orders->lastPage() && $orders->lastPage() > 0) {
+            $queryParams = $request->query();
+            $queryParams['page'] = $orders->lastPage();
+            return redirect()->to($request->url() . '?' . http_build_query($queryParams));
+        }
 
         return Inertia::render('Admin/Orders/Index', [
             'filters' => [

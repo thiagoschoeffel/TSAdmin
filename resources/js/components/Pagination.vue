@@ -15,6 +15,7 @@ const meta = computed(() => ({
   total: props.paginator.total ?? 0,
 }));
 
+
 // Build a map of page -> url when backend provides links (Laravel paginator)
 const linkMap = computed(() => {
   const map = new Map();
@@ -200,5 +201,3 @@ const filteredLinks = computed(() => {
     </div>
   </nav>
 </template>
-
-

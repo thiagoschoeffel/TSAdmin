@@ -10,6 +10,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ClientDetailsModal from '@/components/clients/ClientDetailsModal.vue';
 import Pagination from '@/components/Pagination.vue';
+import PerPageSelector from '@/components/PerPageSelector.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
 
@@ -168,6 +169,10 @@ const handleTableAction = ({ action, item }) => {
         </div>
       </form>
 
+      <div class="flex items-center justify-end">
+        <PerPageSelector :current="clients.per_page ?? clients.perPage ?? 10" />
+      </div>
+
       <DataTable
         :columns="columns"
         :data="clients.data"
@@ -193,4 +198,3 @@ const handleTableAction = ({ action, item }) => {
 <style scoped>
 /* Usa estilos globais definidos em resources/css/app.css para menu-trigger e menu-panel-link */
 </style>
-

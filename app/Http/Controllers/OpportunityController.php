@@ -15,11 +15,23 @@ use Inertia\Response as InertiaResponse;
 
 class OpportunityController extends Controller
 {
-    public function index(): InertiaResponse
+    public function index(): InertiaResponse|\Illuminate\Http\Response
     {
         $this->authorize('viewAny', Opportunity::class);
+        $allowedPerPage = [10, 25, 50, 100];
+        $perPageCandidate = (int) request()->integer('per_page');
+        $perPage = in_array($perPageCandidate, $allowedPerPage, true) ? $perPageCandidate : 10;
+
         $opportunities = Opportunity::with(['lead', 'client', 'owner', 'items.product'])
-            ->orderByDesc('created_at')->paginate(15);
+            ->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+
+        $requestedPage = max(1, (int) request()->query('page', 1));
+        if ($requestedPage > $opportunities->lastPage() && $opportunities->lastPage() > 0) {
+            $queryParams = request()->query();
+            $queryParams['page'] = $opportunities->lastPage();
+            return Inertia::location(request()->url() . '?' . http_build_query($queryParams));
+        }
+
         return Inertia::render('Admin/Opportunities/Index', [
             'opportunities' => $opportunities,
         ]);

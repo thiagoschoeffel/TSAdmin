@@ -12,6 +12,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import OrderDetailsModal from '@/components/orders/OrderDetailsModal.vue';
 import PdfViewerModal from '@/components/orders/PdfViewerModal.vue';
 import Pagination from '@/components/Pagination.vue';
+import PerPageSelector from '@/components/PerPageSelector.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
 import { formatCurrency } from '@/utils/formatters';
@@ -260,6 +261,10 @@ const handleTableAction = ({ action, item }) => {
           <Button type="button" variant="ghost" @click="resetFilters">Limpar filtros</Button>
         </div>
       </form>
+
+      <div class="flex items-center justify-end">
+        <PerPageSelector :current="orders.per_page ?? orders.perPage ?? 10" />
+      </div>
 
       <DataTable
         :columns="columns"

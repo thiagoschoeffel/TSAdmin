@@ -16,7 +16,7 @@ use DomainException;
 
 class ProductController extends Controller
 {
-    public function index(): InertiaResponse
+    public function index(): InertiaResponse|\Illuminate\Http\Response
     {
         $this->authorize('viewAny', Product::class);
 
@@ -30,7 +30,19 @@ class ProductController extends Controller
             $query->where('status', $status);
         }
 
-        $products = $query->orderBy('name', 'asc')->paginate(15)->withQueryString();
+        $allowedPerPage = [10, 25, 50, 100];
+        $perPageCandidate = (int) request()->integer('per_page');
+        $perPage = in_array($perPageCandidate, $allowedPerPage, true) ? $perPageCandidate : 10;
+
+        $products = $query->orderBy('name', 'asc')->paginate($perPage)->withQueryString();
+
+        // Adjust out-of-range page
+        $requestedPage = max(1, (int) request()->query('page', 1));
+        if ($requestedPage > $products->lastPage() && $products->lastPage() > 0) {
+            $queryParams = request()->query();
+            $queryParams['page'] = $products->lastPage();
+            return Inertia::location(request()->url() . '?' . http_build_query($queryParams));
+        }
 
         return Inertia::render('Admin/Products/Index', [
             'products' => $products,
