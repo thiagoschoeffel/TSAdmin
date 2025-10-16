@@ -70,7 +70,7 @@ class ClientFactory extends Factory
             'contact_phone_primary' => $faker->phoneNumber(),
             'contact_phone_secondary' => $faker->optional()->phoneNumber(),
             'contact_email' => $faker->safeEmail(),
-            'created_by_id' => User::factory(),
+            'created_by_id' => $this->existingUserId(),
             'updated_by_id' => null,
         ];
     }
@@ -168,5 +168,19 @@ class ClientFactory extends Factory
             }
         }
         return (string) array_key_first($weights);
+    }
+
+    private function existingUserId(): int
+    {
+        $ids = User::query()
+            ->whereIn('email', ['admin@example.com', 'user@example.com'])
+            ->pluck('id')
+            ->all();
+
+        if (!empty($ids)) {
+            return Arr::random($ids);
+        }
+
+        return (int) (User::query()->inRandomOrder()->value('id') ?? 1);
     }
 }

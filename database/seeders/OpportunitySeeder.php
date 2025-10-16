@@ -15,13 +15,13 @@ class OpportunitySeeder extends Seeder
    */
   public function run(): void
   {
-    $userIds = User::query()->pluck('id');
+    $userIds = User::query()->whereIn('email', ['admin@example.com', 'user@example.com'])->pluck('id');
     $leadIds = Lead::query()->pluck('id');
     $clientIds = Client::query()->pluck('id');
 
     if ($userIds->isEmpty()) {
       $this->call(UserSeeder::class);
-      $userIds = User::query()->pluck('id');
+      $userIds = User::query()->whereIn('email', ['admin@example.com', 'user@example.com'])->pluck('id');
     }
 
     if ($leadIds->isEmpty()) {

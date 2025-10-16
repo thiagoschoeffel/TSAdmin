@@ -13,11 +13,11 @@ class ClientSeeder extends Seeder
      */
     public function run(): void
     {
-        $userIds = User::query()->pluck('id');
+        $userIds = User::query()->whereIn('email', ['admin@example.com', 'user@example.com'])->pluck('id');
 
         if ($userIds->isEmpty()) {
             $this->call(UserSeeder::class);
-            $userIds = User::query()->pluck('id');
+            $userIds = User::query()->whereIn('email', ['admin@example.com', 'user@example.com'])->pluck('id');
         }
 
         // Use env/config for volume scaling to avoid unknown CLI option errors

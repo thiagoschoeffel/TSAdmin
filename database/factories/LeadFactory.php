@@ -46,9 +46,9 @@ class LeadFactory extends Factory
             'company' => $faker->optional()->company(),
             'source' => $source,
             'status' => $status,
-            'owner_id' => User::factory(),
-            'created_by_id' => User::factory(),
-            'updated_by_id' => User::factory(),
+            'owner_id' => $this->existingUserId(),
+            'created_by_id' => $this->existingUserId(),
+            'updated_by_id' => $this->existingUserId(),
         ];
     }
 
@@ -67,5 +67,19 @@ class LeadFactory extends Factory
             }
         }
         return (string) array_key_first($weights);
+    }
+
+    private function existingUserId(): int
+    {
+        $ids = User::query()
+            ->whereIn('email', ['admin@example.com', 'user@example.com'])
+            ->pluck('id')
+            ->all();
+
+        if (!empty($ids)) {
+            return Arr::random($ids);
+        }
+
+        return (int) (User::query()->inRandomOrder()->value('id') ?? 1);
     }
 }

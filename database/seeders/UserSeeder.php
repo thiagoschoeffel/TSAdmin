@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
                 'password' => 'password', // cast: hashed
                 'status' => 'active',
                 'role' => 'admin',
+                'email_verified_at' => now(),
             ]
         );
 
@@ -32,8 +33,14 @@ class UserSeeder extends Seeder
                 'status' => 'active',
                 'role' => 'user',
                 'permissions' => $this->getAllPermissions(),
+                'email_verified_at' => now(),
             ]
         );
+
+        // Ensure all other users are inactive so only the two are active
+        User::query()
+            ->whereNotIn('email', ['admin@example.com', 'user@example.com'])
+            ->update(['status' => 'inactive']);
 
         // Update existing users to include new permissions
         $this->updateExistingUserPermissions();

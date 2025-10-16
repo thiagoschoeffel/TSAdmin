@@ -134,7 +134,7 @@ class OpportunityFactory extends Factory
             'probability' => $probability,
             'expected_value' => $faker->randomElement($expectedValues),
             'expected_close_date' => $faker->dateTimeBetween('now', '+6 months'),
-            'owner_id' => User::factory(),
+            'owner_id' => $this->existingUserId(),
             'status' => $faker->randomElement(OpportunityStatus::cases()),
         ];
     }
@@ -148,7 +148,8 @@ class OpportunityFactory extends Factory
             $numItems = $faker->numberBetween(1, 5);
 
             for ($i = 0; $i < $numItems; $i++) {
-                $product = \App\Models\Product::factory()->create();
+                $product = \App\Models\Product::where('status', 'active')->inRandomOrder()->first()
+                    ?? \App\Models\Product::factory()->create(['status' => 'active']);
                 $quantity = $faker->numberBetween(1, 10);
                 $unitPrice = $faker->randomFloat(2, 10, 1000); // Preço entre 10 e 1000
 
@@ -177,5 +178,19 @@ class OpportunityFactory extends Factory
             }
         }
         return (string) array_key_first($weights);
+    }
+
+    private function existingUserId(): int
+    {
+        $ids = User::query()
+            ->whereIn('email', ['admin@example.com', 'user@example.com'])
+            ->pluck('id')
+            ->all();
+
+        if (!empty($ids)) {
+            return Arr::random($ids);
+        }
+
+        return (int) (User::query()->inRandomOrder()->value('id') ?? 1);
     }
 }

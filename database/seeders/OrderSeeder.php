@@ -13,12 +13,12 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        $userIds = User::query()->pluck('id');
+        $userIds = User::query()->whereIn('email', ['admin@example.com', 'user@example.com'])->pluck('id');
         $clientIds = \App\Models\Client::query()->pluck('id');
 
         if ($userIds->isEmpty()) {
             $this->call(UserSeeder::class);
-            $userIds = User::query()->pluck('id');
+            $userIds = User::query()->whereIn('email', ['admin@example.com', 'user@example.com'])->pluck('id');
         }
 
         if ($clientIds->isEmpty()) {

@@ -39,7 +39,7 @@ class OrderFactory extends Factory
 
         return [
             'client_id' => Client::factory(),
-            'user_id' => User::factory(),
+            'user_id' => $this->existingUserId(),
             'status' => $status,
             'payment_method' => $paymentMethod,
             'delivery_type' => $deliveryType,
@@ -47,7 +47,7 @@ class OrderFactory extends Factory
             'total' => 0, // será calculado depois
             'notes' => $faker->optional()->paragraph(),
             'ordered_at' => $faker->dateTimeBetween('-30 days', 'now'),
-            'created_by_id' => User::factory(),
+            'created_by_id' => $this->existingUserId(),
             'updated_by_id' => null,
         ];
     }
@@ -106,5 +106,19 @@ class OrderFactory extends Factory
             }
         }
         return (string) array_key_first($weights);
+    }
+
+    private function existingUserId(): int
+    {
+        $ids = User::query()
+            ->whereIn('email', ['admin@example.com', 'user@example.com'])
+            ->pluck('id')
+            ->all();
+
+        if (!empty($ids)) {
+            return Arr::random($ids);
+        }
+
+        return (int) (User::query()->inRandomOrder()->value('id') ?? 1);
     }
 }

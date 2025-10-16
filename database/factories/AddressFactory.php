@@ -86,7 +86,7 @@ class AddressFactory extends Factory
                 'Restaurante',
             ]),
             'status' => $status,
-            'created_by_id' => User::factory(),
+            'created_by_id' => $this->existingUserId(),
             'updated_by_id' => null,
         ];
     }
@@ -106,5 +106,19 @@ class AddressFactory extends Factory
             }
         }
         return (string) array_key_first($weights);
+    }
+
+    private function existingUserId(): int
+    {
+        $ids = User::query()
+            ->whereIn('email', ['admin@example.com', 'user@example.com'])
+            ->pluck('id')
+            ->all();
+
+        if (!empty($ids)) {
+            return Arr::random($ids);
+        }
+
+        return (int) (User::query()->inRandomOrder()->value('id') ?? 1);
     }
 }
