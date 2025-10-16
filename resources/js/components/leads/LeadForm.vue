@@ -7,8 +7,9 @@ import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
 import InputTextarea from '@/components/InputTextarea.vue';
 import InputDatePicker from '@/components/InputDatePicker.vue';
-import ConfirmModal from '@/components/ConfirmModal.vue';
+import Checkbox from '@/components/ui/Checkbox.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 import { formatPhone } from '@/utils/masks.js';
 import axios from 'axios';
 import { ref, computed, nextTick } from 'vue';
@@ -39,6 +40,88 @@ const interactionErrors = ref({});
 // Estado para confirmação de exclusão de interação
 const deleteInteractionState = ref({ open: false, processing: false, interactionIndex: null });
 
+// Estado para filtros
+const filters = ref({
+  dateRange: 'all', // all, today, week, month, custom
+  customRange: { start: '', end: '' }, // para período personalizado
+  types: [], // array de tipos selecionados
+  createdBy: ''
+});
+
+// Computed para interações filtradas
+const filteredInteractions = computed(() => {
+  let filtered = [...sortedInteractions.value];
+
+  // Filtro por data
+  if (filters.value.dateRange !== 'all') {
+    const now = new Date();
+    let startDate = new Date();
+    let endDate = new Date();
+
+    switch (filters.value.dateRange) {
+      case 'today':
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'week':
+        startDate.setDate(now.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'month':
+        startDate.setMonth(now.getMonth() - 1);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'custom':
+        if (filters.value.customRange.start) {
+          startDate = new Date(filters.value.customRange.start);
+          startDate.setHours(0, 0, 0, 0);
+        }
+        if (filters.value.customRange.end) {
+          endDate = new Date(filters.value.customRange.end);
+          endDate.setHours(23, 59, 59, 999);
+        }
+        break;
+    }
+
+    if (filters.value.dateRange === 'custom' && (!filters.value.customRange.start || !filters.value.customRange.end)) {
+      // Se custom mas não preenchido, não filtra
+    } else {
+      filtered = filtered.filter(interaction => {
+        const interactionDateStr = interaction.interacted_at || interaction.created_at;
+        if (!interactionDateStr) return false;
+        const interactionDate = new Date(interactionDateStr);
+        if (isNaN(interactionDate.getTime())) return false;
+        return interactionDate >= startDate && interactionDate <= endDate;
+      });
+    }
+  }
+
+  // Filtro por tipos
+  if (filters.value.types.length > 0) {
+    filtered = filtered.filter(interaction => filters.value.types.includes(interaction.type));
+  }
+
+  // Filtro por quem criou
+  if (filters.value.createdBy.trim()) {
+    const searchTerm = filters.value.createdBy.toLowerCase();
+    filtered = filtered.filter(interaction =>
+      (interaction.created_by || '').toLowerCase().includes(searchTerm)
+    );
+  }
+
+  return filtered;
+});
+
+// Função para limpar filtros
+const clearFilters = () => {
+  filters.value = {
+    dateRange: 'all',
+    customRange: { start: '', end: '' },
+    types: [],
+    createdBy: ''
+  };
+};
+
 // Inicializar interações se não existir
 if (!props.form.interactions) {
   props.form.interactions = [];
@@ -60,8 +143,8 @@ const getCurrentDateTime = () => {
 const sortedInteractions = computed(() => {
   if (!props.form.interactions) return [];
   return [...props.form.interactions].sort((a, b) => {
-    const dateA = new Date(a.interacted_at || a.created_at);
-    const dateB = new Date(b.interacted_at || b.created_at);
+    const dateA = new Date(a.interacted_at || a.created_at || new Date());
+    const dateB = new Date(b.interacted_at || b.created_at || new Date());
     return dateB.getTime() - dateA.getTime(); // Mais novo primeiro
   });
 });
@@ -100,7 +183,8 @@ const addInteraction = async () => {
         ...newInteraction.value,
         id: Date.now(), // ID temporário para frontend
         type_label: getTypeLabel(newInteraction.value.type),
-        created_by: 'Você' // Placeholder
+        created_by: 'Você', // Placeholder
+        created_at: new Date().toISOString() // Adicionar data de criação
       });
       toastSuccess('Interação adicionada com sucesso!');
     }
@@ -119,7 +203,7 @@ const editInteraction = (index) => {
   editingInteractionIndex.value = index;
   newInteraction.value = {
     type: interaction.type,
-    interacted_at: interaction.interacted_at ? new Date(interaction.interacted_at).toISOString().slice(0, 16).replace('T', ' ') : '',
+    interacted_at: interaction.interacted_at ? new Date(interaction.interacted_at).toISOString().slice(0, 16).replace('T', ' ') : getCurrentDateTime(),
     description: interaction.description
   };
   showAddForm.value = true;
@@ -194,20 +278,22 @@ const performDeleteInteraction = async () => {
       return;
     }
 
-    // Só deleta do backend se o id for real (não temporário)
+    // Só deleta do backend se o id for real (não temporário) E estiver no modo edição
     const isRealId = interaction.id && String(interaction.id).length < 10 && Number.isInteger(Number(interaction.id));
     if (props.isEditing && isRealId) {
       // Modo edição: deletar do banco
       await deleteInteractionFromDatabase(interaction.id);
-    }
-
-    // Remover da lista (tanto em edição quanto criação)
-    props.form.interactions.splice(index, 1);
-    if (editingInteractionIndex.value === index) {
-      cancelEdit();
-    }
-
-    if (!props.isEditing || !isRealId) {
+      // Após deletar com sucesso do banco, remover da lista local
+      props.form.interactions.splice(index, 1);
+      if (editingInteractionIndex.value === index) {
+        cancelEdit();
+      }
+    } else {
+      // Modo criação ou interação temporária: remover da lista em memória
+      props.form.interactions.splice(index, 1);
+      if (editingInteractionIndex.value === index) {
+        cancelEdit();
+      }
       toastSuccess('Interação removida com sucesso!');
     }
   } catch (error) {
@@ -238,16 +324,8 @@ const deleteInteractionFromDatabase = async (interactionId) => {
 };
 
 const deleteInteraction = async (index) => {
-  if (props.isEditing) {
-    // Modo edição: confirmar exclusão que será feita no banco
-    confirmDeleteInteraction(index);
-  } else {
-    // Modo criação: remover da lista em memória
-    props.form.interactions.splice(index, 1);
-    if (editingInteractionIndex.value === index) {
-      cancelEdit();
-    }
-  }
+  // Sempre mostrar confirmação antes de excluir
+  confirmDeleteInteraction(index);
 };
 
 const cancelEdit = () => {
@@ -407,11 +485,55 @@ const formatPhoneField = () => {
         </div>
       </div>
 
+      <!-- Filtros -->
+      <div v-if="(form.interactions || []).length > 0" class="border border-slate-200 rounded-lg p-4 bg-slate-50 space-y-4">
+        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <label class="form-label">
+            Período
+            <InputSelect v-model="filters.dateRange" :options="[
+              { value: 'all', label: 'Todos' },
+              { value: 'today', label: 'Hoje' },
+              { value: 'week', label: 'Última semana' },
+              { value: 'month', label: 'Último mês' },
+              { value: 'custom', label: 'Personalizado' }
+            ]" placeholder="" class="w-full" />
+          </label>
+          <label v-if="filters.dateRange === 'custom'" class="form-label">
+            Período personalizado
+            <InputDatePicker v-model="filters.customRange" :range="true" :withTime="true" placeholder="Selecionar período e horário" class="w-full" />
+          </label>
+          <label class="form-label">
+            Quem interagiu
+            <InputText v-model="filters.createdBy" placeholder="Nome do usuário" class="w-full" />
+          </label>
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-slate-700 mb-2">Tipos</div>
+          <div class="flex flex-wrap gap-6">
+            <Checkbox v-for="type in [
+              { value: 'phone_call', label: 'Ligação' },
+              { value: 'email', label: 'E-mail' },
+              { value: 'meeting', label: 'Reunião' },
+              { value: 'message', label: 'Mensagem' },
+              { value: 'visit', label: 'Visita' },
+              { value: 'other', label: 'Outro' }
+            ]" :key="type.value" v-model="filters.types" :value="type.value">
+              {{ type.label }}
+            </Checkbox>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <Button type="button" @click="clearFilters" variant="outline-danger" size="sm">
+            Limpar filtros
+          </Button>
+        </div>
+      </div>
+
       <!-- Linha do tempo horizontal de interações -->
-      <div v-if="(form.interactions || []).length > 0" class="mt-4 min-w-0">
+      <div v-if="filteredInteractions.length > 0" class="mt-4 min-w-0">
         <TimelineScroll aria-label="Linha do tempo de interações">
           <div
-            v-for="(interaction, index) in sortedInteractions"
+            v-for="(interaction, index) in filteredInteractions"
             :key="interaction.id || index"
             class="relative flex flex-col items-center flex-shrink-0 min-w-72 max-w-80"
           >
@@ -425,11 +547,21 @@ const formatPhoneField = () => {
         </TimelineScroll>
       </div>
 
+      <div v-else-if="(form.interactions || []).length > 0" class="mt-4">
+        <div class="timeline-container">
+          <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <HeroIcon name="funnel" class="w-12 h-12 text-slate-300" />
+            <p class="mt-4 text-sm text-slate-500">Nenhuma interação encontrada com os filtros aplicados.</p>
+          </div>
+        </div>
+      </div>
+
       <div v-else class="mt-4">
         <div class="timeline-container">
           <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <HeroIcon name="chat-bubble-left-right" class="w-12 h-12 text-slate-300" />
-            <p class="mt-4 text-sm text-slate-500">Nenhuma interação registrada para este lead.</p>
+            <HeroIcon name="chat-bubble-oval-left-ellipsis" class="w-12 h-12 text-slate-300" />
+            <p class="mt-4 text-sm text-slate-500">Nenhuma interação registrada ainda.</p>
+            <p class="text-xs text-slate-400 mt-1">Adicione a primeira interação para começar o histórico.</p>
           </div>
         </div>
       </div>      <!-- Botão para adicionar nova interação -->
