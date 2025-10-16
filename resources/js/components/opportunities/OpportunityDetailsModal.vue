@@ -4,6 +4,7 @@ import Modal from '@/components/Modal.vue';
 import Badge from '@/components/Badge.vue';
 import Button from '@/components/Button.vue';
 import DataTable from '@/components/DataTable.vue';
+import ProgressBar from '@/components/ui/ProgressBar.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import { formatCurrency } from '@/utils/formatters.js';
 
@@ -75,6 +76,12 @@ const updatedBy = computed(() => {
   if (payload.value?.updated_at === payload.value?.created_at) return 'Nunca atualizado';
   return 'Não informado';
 });
+
+const getProbabilityColor = (probability) => {
+  if (probability >= 80) return 'success';
+  if (probability >= 50) return 'warning';
+  return 'danger';
+};
 
 const stageLabels = {
   new: 'Novo',
@@ -163,7 +170,15 @@ const itemColumns = [
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Probabilidade</dt>
-            <dd class="text-sm text-slate-800">{{ payload.probability }}%</dd>
+            <dd>
+              <ProgressBar
+                :percentage="payload.probability"
+                size="lg"
+                :color="getProbabilityColor(payload.probability)"
+                :show-label="true"
+                :animated="true"
+              />
+            </dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Data Prevista de Fechamento</dt>

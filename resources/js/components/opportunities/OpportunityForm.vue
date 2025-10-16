@@ -9,6 +9,7 @@ import InputDatePicker from '@/components/InputDatePicker.vue';
 import InputNumber from '@/components/InputNumber.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import DataTable from '@/components/DataTable.vue';
+import Switch from '@/components/ui/Switch.vue';
 import { formatCurrency } from '@/utils/formatters.js';
 
 const props = defineProps({
@@ -408,14 +409,14 @@ const handleItemAction = ({ action, item }) => {
         <InputDatePicker v-model="form.expected_close_date" placeholder="Selecionar data" :error="!!form.errors.expected_close_date" />
         <span v-if="form.errors.expected_close_date" class="text-sm font-medium text-rose-600">{{ form.errors.expected_close_date }}</span>
       </label>
-      <label class="form-label">
-        Status *
-        <InputSelect v-model="form.status" :options="[
-          { value: 'active', label: 'Ativa' },
-          { value: 'inactive', label: 'Inativa' }
-        ]" :error="!!form.errors.status" />
-        <span v-if="form.errors.status" class="text-sm font-medium text-rose-600">{{ form.errors.status }}</span>
-      </label>
+      <div class="switch-field sm:col-span-2">
+        <span class="switch-label">Status da oportunidade</span>
+        <Switch v-model="form.status" true-value="active" false-value="inactive" />
+        <span class="switch-status" :class="{ 'inactive': form.status !== 'active' }">
+          {{ form.status === 'active' ? 'Ativa' : 'Inativa' }}
+        </span>
+      </div>
+      <span v-if="form.errors.status" class="text-sm font-medium text-rose-600 sm:col-span-2">{{ form.errors.status }}</span>
     </div>
 
     <label class="form-label">

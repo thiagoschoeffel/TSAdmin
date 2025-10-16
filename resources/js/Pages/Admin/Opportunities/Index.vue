@@ -13,6 +13,7 @@ import OpportunityDetailsModal from '@/components/opportunities/OpportunityDetai
 import Pagination from '@/components/Pagination.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
+import ProgressBar from '@/components/ui/ProgressBar.vue';
 import { formatCurrency } from '@/utils/formatters.js';
 
 const props = defineProps({
@@ -67,6 +68,12 @@ const performDelete = async () => {
 const details = ref({ open: false, opportunityId: null });
 const openDetails = (opportunity) => { details.value.opportunityId = opportunity.id; details.value.open = true; };
 
+const getProbabilityColor = (probability) => {
+  if (probability >= 80) return 'success';
+  if (probability >= 50) return 'warning';
+  return 'danger';
+};
+
 const columns = [
   {
     header: 'Título',
@@ -106,7 +113,14 @@ const columns = [
   {
     header: 'Probabilidade',
     key: 'probability',
-    formatter: (value) => `${value}%`
+    component: ProgressBar,
+    props: (opportunity) => ({
+      percentage: opportunity.probability,
+      size: 'md',
+      color: getProbabilityColor(opportunity.probability),
+      showLabel: true,
+      animated: true
+    })
   },
   {
     header: 'Valor Estimado',
