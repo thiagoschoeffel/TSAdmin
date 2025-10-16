@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -18,12 +19,60 @@ class OpportunityController extends Controller
     public function index(): InertiaResponse|\Illuminate\Http\Response
     {
         $this->authorize('viewAny', Opportunity::class);
+
+        $query = Opportunity::with(['lead', 'client', 'owner', 'items.product']);
+
+        if ($search = request()->string('search')->toString()) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        if ($status = request()->get('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($stage = request()->get('stage')) {
+            $query->where('stage', $stage);
+        }
+
+        // Filtro por período de criação
+        $createdFrom = request()->get('created_from');
+        $createdTo = request()->get('created_to');
+        $from = null;
+        $to = null;
+        try {
+            if ($createdFrom) {
+                $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $createdFrom);
+            }
+        } catch (\Throwable $e) {
+            try {
+                $from = \Carbon\Carbon::createFromFormat('Y-m-d', $createdFrom)->startOfDay();
+            } catch (\Throwable $e2) {
+            }
+        }
+        try {
+            if ($createdTo) {
+                $to = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $createdTo);
+            }
+        } catch (\Throwable $e) {
+            try {
+                $to = \Carbon\Carbon::createFromFormat('Y-m-d', $createdTo)->endOfDay();
+            } catch (\Throwable $e2) {
+            }
+        }
+
+        if ($from && $to) {
+            $query->whereBetween('created_at', [$from, $to]);
+        } elseif ($from) {
+            $query->where('created_at', '>=', $from);
+        } elseif ($to) {
+            $query->where('created_at', '<=', $to);
+        }
+
         $allowedPerPage = [10, 25, 50, 100];
         $perPageCandidate = (int) request()->integer('per_page');
         $perPage = in_array($perPageCandidate, $allowedPerPage, true) ? $perPageCandidate : 10;
 
-        $opportunities = Opportunity::with(['lead', 'client', 'owner', 'items.product'])
-            ->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+        $opportunities = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
 
         $requestedPage = max(1, (int) request()->query('page', 1));
         if ($requestedPage > $opportunities->lastPage() && $opportunities->lastPage() > 0) {

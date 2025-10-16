@@ -4,6 +4,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
+import InputDatePicker from '@/components/InputDatePicker.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed, getCurrentInstance } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
@@ -33,13 +34,18 @@ const route = instance.appContext.config.globalProperties.route;
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
 const stage = ref(props.filters.stage || '');
+// Filtro de período de criação
+const createdPeriod = ref({
+  start: props.filters.created_from || null,
+  end: props.filters.created_to || null,
+});
 
 const filtering = ref(false);
 const submitFilters = () => {
   filtering.value = true;
-  router.get('/admin/opportunities', { search: search.value, status: status.value, stage: stage.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
+  router.get('/admin/opportunities', { search: search.value, status: status.value, stage: stage.value, created_from: createdPeriod.value?.start || null, created_to: createdPeriod.value?.end || null }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
 };
-const resetFilters = () => { search.value = ''; status.value = ''; stage.value = ''; submitFilters(); };
+const resetFilters = () => { search.value = ''; status.value = ''; stage.value = ''; createdPeriod.value = { start: null, end: null }; submitFilters(); };
 
 // Estado para confirmação de exclusão
 const deleteState = ref({ open: false, processing: false, opportunity: null });
@@ -95,6 +101,15 @@ const columns = [
     header: 'Cliente',
     key: 'client',
     formatter: (value) => value?.name || '—'
+  },
+  {
+    header: 'Data',
+    key: 'created_at',
+    formatter: (value) => {
+      if (!value) return '—';
+      const date = new Date(value);
+      return date.toLocaleDateString('pt-BR');
+    }
   },
   {
     header: 'Etapa',
@@ -212,6 +227,12 @@ const handleTableAction = ({ action, item }) => {
               { value: 'won', label: 'Ganho' },
               { value: 'lost', label: 'Perdido' }
             ]" />
+          </label>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <label class="form-label">
+            Período de criação
+            <InputDatePicker v-model="createdPeriod" :range="true" placeholder="Selecione o período" />
           </label>
         </div>
         <div class="flex flex-wrap gap-3">
