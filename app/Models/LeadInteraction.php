@@ -37,7 +37,7 @@ class LeadInteraction extends Model
             'phone_call' => 'Ligação Telefônica',
             'email' => 'E-mail',
             'meeting' => 'Reunião',
-            'whatsapp' => 'WhatsApp',
+            'message' => 'Mensagem',
             'visit' => 'Visita',
             'other' => 'Outro',
             default => $this->type,

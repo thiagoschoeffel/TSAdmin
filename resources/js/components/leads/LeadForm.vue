@@ -1,4 +1,6 @@
 <script setup>
+import { defineAsyncComponent } from 'vue';
+const TimelineScroll = defineAsyncComponent(() => import('@/components/timeline/TimelineScroll.vue'));
 import Button from '@/components/Button.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
@@ -6,7 +8,6 @@ import InputTextarea from '@/components/InputTextarea.vue';
 import InputDatePicker from '@/components/InputDatePicker.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
-import DataTable from '@/components/DataTable.vue';
 import { formatPhone } from '@/utils/masks.js';
 import axios from 'axios';
 import { ref, computed, nextTick } from 'vue';
@@ -54,47 +55,15 @@ const getCurrentDateTime = () => {
   return now.toISOString().slice(0, 16).replace('T', ' '); // Formato YYYY-MM-DD HH:MM
 };
 
-const interactionColumns = [
-  {
-    header: 'Tipo',
-    key: 'type_label'
-  },
-  {
-    header: 'Data/Hora',
-    key: 'interacted_at',
-    formatter: (value) => {
-      if (!value) return '—';
-      const d = new Date(value);
-      if (Number.isNaN(d.getTime())) return String(value);
-      return d.toLocaleString('pt-BR', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit', hour12: false,
-      });
-    }
-  },
-  {
-    header: 'Descrição',
-    key: 'description'
-  },
-  {
-    header: 'Registrado por',
-    key: 'created_by'
-  }
-];
-
-const interactionActions = computed(() => [
-  {
-    key: 'edit',
-    label: 'Editar',
-    icon: 'pencil'
-  },
-  {
-    key: 'delete',
-    label: 'Excluir',
-    icon: 'trash',
-    class: 'text-rose-600 hover:text-rose-700'
-  }
-]);
+// Computed para interações ordenadas (mais novo primeiro)
+const sortedInteractions = computed(() => {
+  if (!props.form.interactions) return [];
+  return [...props.form.interactions].sort((a, b) => {
+    const dateA = new Date(a.interacted_at || a.created_at);
+    const dateB = new Date(b.interacted_at || b.created_at);
+    return dateB.getTime() - dateA.getTime(); // Mais novo primeiro
+  });
+});
 
 // Funções para gerenciar interações
 const addInteraction = async () => {
@@ -312,21 +281,64 @@ const getTypeLabel = (type) => {
     phone_call: 'Ligação Telefônica',
     email: 'E-mail',
     meeting: 'Reunião',
-    whatsapp: 'WhatsApp',
+    message: 'Mensagem',
     visit: 'Visita',
     other: 'Outro'
   };
   return types[type] || type;
 };
 
-const handleInteractionAction = ({ action, item }) => {
-  // Encontrar o índice do item no array
-  const index = props.form.interactions.indexOf(item);
+const getTypeIcon = (type) => {
+  const icons = {
+    phone_call: 'phone',
+    email: 'envelope',
+    meeting: 'user-group',
+    message: 'device-phone-mobile',
+    visit: 'home',
+    other: 'chat-bubble-oval-left-ellipsis'
+  };
+  return icons[type] || 'chat-bubble-oval-left-ellipsis';
+};
 
-  if (action.key === 'edit') {
-    editInteraction(index);
-  } else if (action.key === 'delete') {
-    deleteInteraction(index);
+const getTypeIconClass = (type) => {
+  const classes = {
+    phone_call: 'text-green-600',
+    email: 'text-red-600',
+    meeting: 'text-purple-600',
+    message: 'text-blue-600',
+    visit: 'text-orange-600',
+    other: 'text-slate-500'
+  };
+  return classes[type] || 'text-slate-500';
+};
+
+const formatInteractionDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+
+  const now = new Date();
+  const diffInHours = (now - date) / (1000 * 60 * 60);
+
+  if (diffInHours < 24) {
+    // Menos de 24 horas - mostrar "há X horas" ou "há X minutos"
+    if (diffInHours < 1) {
+      const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+      return diffInMinutes <= 1 ? 'agora mesmo' : `há ${diffInMinutes}min`;
+    }
+    const hours = Math.floor(diffInHours);
+    return hours === 1 ? 'há 1h' : `há ${hours}h`;
+  } else if (diffInHours < 24 * 7) {
+    // Menos de 7 dias - mostrar dia da semana
+    const days = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+    return days[date.getDay()];
+  } else {
+    // Mais antigo - mostrar data
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
   }
 };
 
@@ -341,7 +353,7 @@ const formatPhoneField = () => {
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" class="space-y-6">
+  <form @submit.prevent="onSubmit" class="space-y-6 w-full">
     <div class="grid gap-6 sm:grid-cols-2">
       <label class="form-label">
         Nome *
@@ -385,7 +397,7 @@ const formatPhoneField = () => {
       </label>
     </div>
 
-    <fieldset class="space-y-3">
+  <fieldset class="space-y-3 max-w-full w-full min-w-0 box-border">
       <legend class="text-sm font-semibold text-slate-700">Histórico de Interações</legend>
 
       <!-- Formulário inline para adicionar/editar interação -->
@@ -397,7 +409,7 @@ const formatPhoneField = () => {
               { value: 'phone_call', label: 'Ligação Telefônica' },
               { value: 'email', label: 'E-mail' },
               { value: 'meeting', label: 'Reunião' },
-              { value: 'whatsapp', label: 'WhatsApp' },
+              { value: 'message', label: 'Mensagem' },
               { value: 'visit', label: 'Visita' },
               { value: 'other', label: 'Outro' }
             ]" required :error="!!interactionErrors.type" />
@@ -424,16 +436,65 @@ const formatPhoneField = () => {
         </div>
       </div>
 
-      <!-- Tabela de interações -->
-      <DataTable
-        :columns="interactionColumns"
-        :data="form.interactions || []"
-        :actions="interactionActions"
-        empty-message="Nenhuma interação registrada para este lead."
-        @action="handleInteractionAction"
-      />
+      <!-- Linha do tempo horizontal de interações -->
+      <div v-if="(form.interactions || []).length > 0" class="mt-4 min-w-0">
+        <TimelineScroll aria-label="Linha do tempo de interações">
+          <div
+            v-for="(interaction, index) in sortedInteractions"
+            :key="interaction.id || index"
+            class="relative flex flex-col items-center flex-shrink-0 min-w-72 max-w-80"
+          >
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 w-full transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2">
+                  <HeroIcon :name="getTypeIcon(interaction.type)" class="w-5 h-5" :class="getTypeIconClass(interaction.type)" />
+                  <span class="font-semibold text-sm text-slate-700">{{ interaction.type_label || getTypeLabel(interaction.type) }}</span>
+                </div>
+                <div class="flex gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  <button
+                    type="button"
+                    @click="editInteraction(props.form.interactions.indexOf(interaction))"
+                    class="p-1.5 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                    title="Editar interação"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    @click="deleteInteraction(props.form.interactions.indexOf(interaction))"
+                    class="p-1.5 rounded-md hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
+                    title="Excluir interação"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <p class="text-sm leading-relaxed text-slate-600 m-0">{{ interaction.description }}</p>
+              </div>
+              <div class="border-t border-slate-100 pt-3">
+                <div class="flex justify-between items-center text-xs text-slate-500">
+                  <span class="font-medium">{{ formatInteractionDate(interaction.interacted_at) }}</span>
+                  <span class="italic">{{ interaction.created_by || 'Você' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TimelineScroll>
+      </div>
 
-      <!-- Botão para adicionar nova interação -->
+      <div v-else class="mt-4">
+        <div class="timeline-container">
+          <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <HeroIcon name="chat-bubble-left-right" class="w-12 h-12 text-slate-300" />
+            <p class="mt-4 text-sm text-slate-500">Nenhuma interação registrada para este lead.</p>
+          </div>
+        </div>
+      </div>      <!-- Botão para adicionar nova interação -->
       <div v-if="!showAddForm" class="flex justify-center pt-4">
         <Button type="button" @click="showAddForm = true; newInteraction.interacted_at = getCurrentDateTime(); focusFirstInteractionField()" variant="ghost" size="sm">
           Adicionar nova interação

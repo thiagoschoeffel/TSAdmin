@@ -19,7 +19,7 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.put(route('leads.update', props.lead.id));
+  form.patch(route('leads.update', props.lead.id));
 };
 </script>
 

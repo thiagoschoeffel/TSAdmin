@@ -31,7 +31,7 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.put(route('opportunities.update', props.opportunity.id));
+  form.patch(route('opportunities.update', props.opportunity.id));
 };
 </script>
 

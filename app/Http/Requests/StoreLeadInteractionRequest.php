@@ -22,7 +22,7 @@ class StoreLeadInteractionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => 'required|in:phone_call,email,meeting,whatsapp,visit,other',
+            'type' => 'required|in:phone_call,email,meeting,message,visit,other',
             'interacted_at' => 'required|date',
             'description' => 'required|string|max:1000',
         ];
