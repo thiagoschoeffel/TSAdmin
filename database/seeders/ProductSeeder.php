@@ -20,8 +20,12 @@ class ProductSeeder extends Seeder
             $userIds = User::query()->pluck('id');
         }
 
+        $base = (int) env('SEED_QTD', (int) config('seeding.volumes.products', 0));
+        $default = (int) config('seeding.volumes.products', 80);
+        $count = $base > 0 ? max(10, (int) round($base * 0.4)) : $default;
+
         Product::factory()
-            ->count(79)
+            ->count($count)
             ->state(fn() => [
                 'created_by' => $userIds->random(),
                 'updated_by' => fake()->boolean(40) ? $userIds->random() : null,

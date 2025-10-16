@@ -6,7 +6,7 @@ use App\Models\Client;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 
 /**
  * @extends Factory<Client>
@@ -17,13 +17,22 @@ class ClientFactory extends Factory
 
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
+        $this->faker->unique(true);
+        // Ensure pt_BR names/phone when configured; fall back to default faker
+        $localeFaker = function () {
+            $locale = config('seeding.faker_locale', config('app.faker_locale'));
+            return $locale === 'pt_BR' ? fake('pt_BR') : $this->faker;
+        };
+        $faker = $localeFaker();
 
         $personType = $faker->randomElement(['individual', 'company']);
 
         $document = $personType === 'company'
-            ? $faker->cnpj(false)
-            : $faker->cpf(false);
+            ? $faker->unique()->cnpj(false)
+            : $faker->unique()->cpf(false);
+
+        $statusWeights = config('seeding.weights.status', ['active' => 70, 'inactive' => 30]);
+        $status = $this->pickWeighted($statusWeights);
 
         return [
             'name' => $faker->name(),
@@ -56,7 +65,7 @@ class ClientFactory extends Factory
                 'Cliente com contrato de manutenção',
                 'Observar condições de pagamento',
             ]),
-            'status' => $faker->randomElement(['active', 'inactive']),
+            'status' => $status,
             'contact_name' => $personType === 'company' ? $faker->name() : null,
             'contact_phone_primary' => $faker->phoneNumber(),
             'contact_phone_secondary' => $faker->optional()->phoneNumber(),
@@ -69,7 +78,10 @@ class ClientFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Client $client) {
-            $faker = Faker::create('pt_BR');
+            $locale = config('seeding.faker_locale', config('app.faker_locale'));
+            $faker = $locale === 'pt_BR' ? fake('pt_BR') : fake();
+            $statusWeights = config('seeding.weights.address_status', ['active' => 85, 'inactive' => 15]);
+            $status = $this->pickWeighted($statusWeights);
 
             // Criar pelo menos um endereço para cada cliente
             $client->addresses()->create([
@@ -135,9 +147,26 @@ class ClientFactory extends Factory
                     'SE',
                     'TO',
                 ])),
-                'status' => $faker->randomElement(['active', 'inactive']),
+                'status' => $status,
                 'created_by_id' => $client->created_by_id,
             ]);
         });
+    }
+
+    private function pickWeighted(array $weights): string
+    {
+        $total = array_sum($weights);
+        if ($total <= 0) {
+            return array_key_first($weights);
+        }
+        $rand = mt_rand(1, (int) $total);
+        $running = 0;
+        foreach ($weights as $key => $weight) {
+            $running += (int) $weight;
+            if ($rand <= $running) {
+                return (string) $key;
+            }
+        }
+        return (string) array_key_first($weights);
     }
 }

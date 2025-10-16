@@ -22,6 +22,8 @@ const props = defineProps({
   minDate: { type: String, default: null }, // YYYY-MM-DD (ou YYYY-MM-DD HH:mm)
   maxDate: { type: String, default: null },
   class: { type: String, default: '' },
+  // Validação opcional de range máximo em dias (apenas quando range=true)
+  maxRangeDays: { type: Number, default: null },
 })
 
 const emit = defineEmits(['update:modelValue', 'change'])
@@ -249,6 +251,8 @@ function commitRange() {
   if (!rangeStart.value || !rangeEnd.value) return
   const s = new Date(rangeStart.value)
   const e = new Date(rangeEnd.value)
+  // Se houver maxRangeDays definido, impedir commit quando exceder
+  if (props.maxRangeDays && maxRangeExceeded.value) return
   if (props.withTime) {
     s.setHours(Number(startH.value)||0, Number(startM.value)||0, 0, 0)
     e.setHours(Number(endH.value)||0, Number(endM.value)||0, 0, 0)
@@ -309,6 +313,15 @@ function applySingle(close) {
   commitSingle()
   close && close()
 }
+
+// Validação: range máximo em dias
+const maxRangeExceeded = computed(() => {
+  if (!props.range || !props.maxRangeDays) return false
+  if (!rangeStart.value || !rangeEnd.value) return false
+  const ms = endOfDay(rangeEnd.value).getTime() - startOfDay(rangeStart.value).getTime()
+  const days = ms / (1000 * 60 * 60 * 24)
+  return days > props.maxRangeDays
+})
 </script>
 
 <template>
@@ -448,11 +461,16 @@ function applySingle(close) {
           </div>
         </div>
 
+        <!-- Validação de range -->
+        <div v-if="props.range && props.maxRangeDays && maxRangeExceeded" class="mt-3 text-xs text-rose-600">
+          Período máximo de {{ props.maxRangeDays }} dias excedido. Ajuste as datas.
+        </div>
+
         <!-- Ações -->
         <div v-if="props.withTime || props.range" class="mt-3 flex items-center justify-end gap-2">
           <Button v-if="clearable" variant="ghost" size="sm" @click.stop="clearValue">Limpar</Button>
-          <Button v-if="props.range && !props.withTime" variant="primary" size="sm" :disabled="!rangeStart || !rangeEnd" @click.stop="applyRange(close)">Aplicar</Button>
-          <Button v-else-if="props.range && props.withTime" variant="primary" size="sm" :disabled="!rangeStart || !rangeEnd" @click.stop="applyRange(close)">Aplicar</Button>
+          <Button v-if="props.range && !props.withTime" variant="primary" size="sm" :disabled="!rangeStart || !rangeEnd || maxRangeExceeded" @click.stop="applyRange(close)">Aplicar</Button>
+          <Button v-else-if="props.range && props.withTime" variant="primary" size="sm" :disabled="!rangeStart || !rangeEnd || maxRangeExceeded" @click.stop="applyRange(close)">Aplicar</Button>
           <Button v-else-if="!props.range && props.withTime" variant="primary" size="sm" :disabled="!singleDate" @click.stop="applySingle(close)">Aplicar</Button>
         </div>
       </div>

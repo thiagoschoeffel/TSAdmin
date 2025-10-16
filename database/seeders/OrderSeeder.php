@@ -26,8 +26,12 @@ class OrderSeeder extends Seeder
             $clientIds = \App\Models\Client::query()->pluck('id');
         }
 
+        $base = (int) env('SEED_QTD', (int) config('seeding.volumes.orders', 0));
+        $default = (int) config('seeding.volumes.orders', 250);
+        $count = $base > 0 ? max(10, (int) round($base * 1.2)) : $default;
+
         Order::factory()
-            ->count(234)
+            ->count($count)
             ->state(fn() => [
                 'client_id' => $clientIds->random(),
                 'user_id' => $userIds->random(),

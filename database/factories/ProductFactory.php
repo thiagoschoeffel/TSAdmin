@@ -7,7 +7,7 @@ namespace Database\Factories;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 
 class ProductFactory extends Factory
 {
@@ -15,7 +15,9 @@ class ProductFactory extends Factory
 
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
+        $this->faker->unique(true);
+        $locale = config('seeding.faker_locale', config('app.faker_locale'));
+        $faker = $locale === 'pt_BR' ? fake('pt_BR') : $this->faker;
 
         // Produtos de restaurante: marmitas, componentes, bebidas e sobremesas
         $products = [
@@ -86,6 +88,9 @@ class ProductFactory extends Factory
         // Adicionar dimensões e peso baseado no tipo de produto
         $dimensions = $this->getDimensionsForProduct($product['name'], $product['unit_of_measure']);
 
+        $statusWeights = config('seeding.weights.status', ['active' => 70, 'inactive' => 30]);
+        $status = $this->pickWeighted($statusWeights);
+
         return [
             'name' => $product['name'],
             'code' => $faker->unique()->regexify('[A-Z]{3}[0-9]{3}'),
@@ -96,7 +101,7 @@ class ProductFactory extends Factory
             'width' => $dimensions['width'],
             'height' => $dimensions['height'],
             'weight' => $dimensions['weight'],
-            'status' => $faker->randomElement(['active', 'inactive']),
+            'status' => $status,
             'created_by' => User::factory(),
             'updated_by' => null,
             'deleted_by' => null,
@@ -105,7 +110,7 @@ class ProductFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Product $product) {
-            $faker = Faker::create('pt_BR');
+            $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : fake();
 
             // Componentes disponíveis com preços
             $componentes = [
@@ -293,5 +298,22 @@ class ProductFactory extends Factory
         ];
 
         return $units[$componentName] ?? 'UND';
+    }
+
+    private function pickWeighted(array $weights): string
+    {
+        $total = array_sum($weights);
+        if ($total <= 0) {
+            return array_key_first($weights);
+        }
+        $rand = mt_rand(1, (int) $total);
+        $running = 0;
+        foreach ($weights as $key => $weight) {
+            $running += (int) $weight;
+            if ($rand <= $running) {
+                return (string) $key;
+            }
+        }
+        return (string) array_key_first($weights);
     }
 }

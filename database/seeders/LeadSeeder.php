@@ -15,25 +15,14 @@ class LeadSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ensure we have users first
         if (User::count() === 0) {
             $this->call(UserSeeder::class);
         }
 
-        $userIds = User::pluck('id')->toArray();
+        $base = (int) env('SEED_QTD', (int) config('seeding.volumes.leads', 0));
+        $default = (int) config('seeding.volumes.leads', 30);
+        $count = $base > 0 ? max(10, (int) round($base * 0.3)) : $default;
 
-        for ($i = 0; $i < 25; $i++) {
-            Lead::create([
-                'name' => fake('pt_BR')->name(),
-                'email' => fake('pt_BR')->unique()->safeEmail(),
-                'phone' => fake('pt_BR')->phoneNumber(),
-                'company' => fake('pt_BR')->optional()->company(),
-                'source' => fake()->randomElement(LeadSource::cases()),
-                'status' => fake()->randomElement(LeadStatus::cases()),
-                'owner_id' => fake()->randomElement($userIds),
-                'created_by_id' => fake()->randomElement($userIds),
-                'updated_by_id' => fake()->boolean(40) ? fake()->randomElement($userIds) : null,
-            ]);
-        }
+        Lead::factory()->count($count)->create();
     }
 }

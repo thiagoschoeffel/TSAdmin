@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\Address;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 
 class OrderFactory extends Factory
 {
@@ -18,15 +18,30 @@ class OrderFactory extends Factory
 
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
+        $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : fake();
 
-        $deliveryType = $faker->randomElement(['pickup', 'delivery']);
+        $deliveryType = $this->pickWeighted(config('seeding.weights.delivery_type', [
+            'pickup' => 40,
+            'delivery' => 60,
+        ]));
+        $status = $this->pickWeighted(config('seeding.weights.order_status', [
+            'pending' => 35,
+            'confirmed' => 25,
+            'shipped' => 10,
+            'delivered' => 20,
+            'cancelled' => 10,
+        ]));
+        $paymentMethod = $this->pickWeighted(config('seeding.weights.payment_method', [
+            'cash' => 30,
+            'card' => 45,
+            'pix' => 25,
+        ]));
 
         return [
             'client_id' => Client::factory(),
             'user_id' => User::factory(),
-            'status' => $faker->randomElement(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']),
-            'payment_method' => $faker->randomElement(['cash', 'card', 'pix']),
+            'status' => $status,
+            'payment_method' => $paymentMethod,
             'delivery_type' => $deliveryType,
             'address_id' => null, // será definido se for delivery
             'total' => 0, // será calculado depois
@@ -40,7 +55,7 @@ class OrderFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Order $order) {
-            $faker = Faker::create('pt_BR');
+            $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : fake();
 
             // Se for entrega, criar endereço para o cliente
             if ($order->delivery_type === 'delivery') {
@@ -74,5 +89,22 @@ class OrderFactory extends Factory
             // Atualizar total do pedido
             $order->update(['total' => $total]);
         });
+    }
+
+    private function pickWeighted(array $weights): string
+    {
+        $total = array_sum($weights);
+        if ($total <= 0) {
+            return array_key_first($weights);
+        }
+        $rand = mt_rand(1, (int) $total);
+        $running = 0;
+        foreach ($weights as $key => $weight) {
+            $running += (int) $weight;
+            if ($rand <= $running) {
+                return (string) $key;
+            }
+        }
+        return (string) array_key_first($weights);
     }
 }

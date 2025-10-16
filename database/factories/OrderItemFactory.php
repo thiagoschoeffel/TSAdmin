@@ -7,7 +7,7 @@ namespace Database\Factories;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 
 class OrderItemFactory extends Factory
 {
@@ -15,7 +15,7 @@ class OrderItemFactory extends Factory
 
     public function definition(): array
     {
-        $faker = Faker::create('pt_BR');
+        $faker = config('seeding.faker_locale', config('app.faker_locale')) === 'pt_BR' ? fake('pt_BR') : fake();
 
         $product = Product::where('status', 'active')->inRandomOrder()->first() ?? Product::factory()->create(['status' => 'active']);
         $quantity = $faker->randomFloat(2, 0.5, 10);
