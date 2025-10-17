@@ -127,7 +127,6 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::get('/', [\App\Http\Controllers\ReasonTypesController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\ReasonTypesController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\ReasonTypesController::class, 'store'])->name('store');
-        Route::get('{reasonType}', [\App\Http\Controllers\ReasonTypesController::class, 'show'])->name('show');
         Route::get('{reasonType}/modal', [\App\Http\Controllers\ReasonTypesController::class, 'modal'])->name('modal');
         Route::get('{reasonType}/edit', [\App\Http\Controllers\ReasonTypesController::class, 'edit'])->name('edit');
         Route::patch('{reasonType}', [\App\Http\Controllers\ReasonTypesController::class, 'update'])->name('update');
@@ -138,7 +137,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::get('/', [\App\Http\Controllers\ReasonController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\ReasonController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\ReasonController::class, 'store'])->name('store');
-        Route::get('{reason}', [\App\Http\Controllers\ReasonController::class, 'show'])->name('show');
+        Route::get('{reason}/modal', [\App\Http\Controllers\ReasonController::class, 'modal'])->name('modal');
         Route::get('{reason}/edit', [\App\Http\Controllers\ReasonController::class, 'edit'])->name('edit');
         Route::patch('{reason}', [\App\Http\Controllers\ReasonController::class, 'update'])->name('update');
         Route::delete('{reason}', [\App\Http\Controllers\ReasonController::class, 'destroy'])->name('destroy');

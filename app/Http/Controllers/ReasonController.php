@@ -128,7 +128,7 @@ class ReasonController extends Controller
         }
     }
 
-    public function show(Reason $reason): JsonResponse
+    public function modal(Reason $reason): JsonResponse
     {
         $this->authorize('view', $reason);
 

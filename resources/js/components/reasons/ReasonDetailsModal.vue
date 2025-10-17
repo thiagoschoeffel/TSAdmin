@@ -29,7 +29,7 @@ async function tryFetch() {
   error.value = false;
   payload.value = null;
   try {
-    const res = await fetch(route('reasons.show', props.reasonId), {
+    const res = await fetch(route('reasons.modal', props.reasonId), {
       headers: { Accept: 'application/json' },
       credentials: 'same-origin',
     });
@@ -46,7 +46,30 @@ async function tryFetch() {
 
 function retry() { tryFetch(); }
 
+function formatDate(value) {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  try {
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(d);
+  } catch (_) {
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  }
+}
+
 const createdBy = computed(() => payload.value?.created_by ?? 'Conta removida');
+const lastUpdatedAt = computed(() => {
+  if (payload.value?.updated_at === payload.value?.created_at) return null;
+  return payload.value?.updated_at;
+});
 const updatedBy = computed(() => {
   if (payload.value?.updated_at === payload.value?.created_at) return 'Nunca atualizado';
   return payload.value?.updated_by ?? 'Conta removida';
@@ -122,7 +145,7 @@ const updatedBy = computed(() => {
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Criado em</dt>
-            <dd class="text-sm text-slate-800">{{ payload.created_at }}</dd>
+            <dd class="text-sm text-slate-800">{{ formatDate(payload.created_at) }}</dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Atualizado por</dt>
@@ -130,7 +153,7 @@ const updatedBy = computed(() => {
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Atualizado em</dt>
-            <dd class="text-sm text-slate-800">{{ payload.updated_at }}</dd>
+            <dd class="text-sm text-slate-800">{{ formatDate(lastUpdatedAt) }}</dd>
           </div>
         </dl>
       </section>

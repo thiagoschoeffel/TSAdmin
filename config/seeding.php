@@ -67,5 +67,7 @@ return [
         'opportunities' => 50,
         'sectors' => 10,
         'machines' => 15,
+        'reason_types' => 5,
+        'reasons' => 23,
     ],
 ];
