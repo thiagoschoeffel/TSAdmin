@@ -66,5 +66,6 @@ return [
         'orders' => 250,
         'opportunities' => 50,
         'sectors' => 10,
+        'machines' => 15,
     ],
 ];

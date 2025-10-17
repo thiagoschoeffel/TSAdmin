@@ -25,6 +25,7 @@ class DevSeeder extends Seeder
                 'opportunities',
                 'leads',
                 'sectors',
+                'machines',
             ] as $table
         ) {
             if (Schema::hasTable($table)) {

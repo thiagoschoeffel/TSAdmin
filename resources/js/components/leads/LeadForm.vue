@@ -8,6 +8,7 @@ import InputSelect from '@/components/InputSelect.vue';
 import InputTextarea from '@/components/InputTextarea.vue';
 import InputDatePicker from '@/components/InputDatePicker.vue';
 import Checkbox from '@/components/ui/Checkbox.vue';
+import Switch from '@/components/ui/Switch.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { formatPhone } from '@/utils/masks.js';
@@ -31,7 +32,7 @@ const emit = defineEmits(['submit']);
 const editingInteractionIndex = ref(-1);
 const showAddForm = ref(false);
 const newInteraction = ref({
-  type: '',
+  type: 'phone_call',
   interacted_at: '',
   description: ''
 });
@@ -331,7 +332,7 @@ const deleteInteraction = async (index) => {
 const cancelEdit = () => {
   editingInteractionIndex.value = -1;
   newInteraction.value = {
-    type: '',
+    type: 'phone_call',
     interacted_at: getCurrentDateTime(),
     description: ''
   };
@@ -341,7 +342,7 @@ const cancelEdit = () => {
 
 const resetNewInteraction = () => {
   newInteraction.value = {
-    type: '',
+    type: 'phone_call',
     interacted_at: getCurrentDateTime(),
     description: ''
   };
@@ -391,8 +392,13 @@ const getTypeIconClass = (type) => {
   return classes[type] || 'text-slate-500';
 };
 
-// Inicializar data/hora atual
-newInteraction.value.interacted_at = getCurrentDateTime();
+// Computed para status como toggle (ativo/inativo)
+const isActiveStatus = computed({
+  get: () => props.form.status !== 'discarded',
+  set: (value) => {
+    props.form.status = value ? 'new' : 'discarded';
+  }
+});
 
 const onSubmit = () => emit('submit');
 
@@ -431,19 +437,18 @@ const formatPhoneField = () => {
           { value: 'indicacao', label: 'Indicação' },
           { value: 'evento', label: 'Evento' },
           { value: 'manual', label: 'Manual' }
-        ]" :error="!!form.errors.source" />
+        ]" :error="!!form.errors.source" :placeholder="null" />
         <span v-if="form.errors.source" class="text-sm font-medium text-rose-600">{{ form.errors.source }}</span>
       </label>
-      <label class="form-label">
-        Status *
-        <InputSelect v-model="form.status" :options="[
-          { value: 'new', label: 'Novo' },
-          { value: 'in_contact', label: 'Em contato' },
-          { value: 'qualified', label: 'Qualificado' },
-          { value: 'discarded', label: 'Descartado' }
-        ]" :error="!!form.errors.status" />
-        <span v-if="form.errors.status" class="text-sm font-medium text-rose-600">{{ form.errors.status }}</span>
-      </label>
+
+      <div class="switch-field sm:col-span-2">
+        <span class="switch-label">Status do lead</span>
+        <Switch v-model="isActiveStatus" :true-value="true" :false-value="false" />
+        <span class="switch-status" :class="{ 'inactive': !isActiveStatus }">
+          {{ isActiveStatus ? 'Ativo' : 'Descartado' }}
+        </span>
+      </div>
+      <span v-if="form.errors.status" class="text-sm font-medium text-rose-600 sm:col-span-2">{{ form.errors.status }}</span>
     </div>
 
   <fieldset class="space-y-3 max-w-full w-full min-w-0 box-border">
@@ -461,7 +466,7 @@ const formatPhoneField = () => {
               { value: 'message', label: 'Mensagem' },
               { value: 'visit', label: 'Visita' },
               { value: 'other', label: 'Outro' }
-            ]" required :error="!!interactionErrors.type" />
+            ]" required :error="!!interactionErrors.type" :placeholder="null" />
             <span v-if="interactionErrors.type" class="text-sm font-medium text-rose-600">{{ interactionErrors.type }}</span>
           </label>
           <label class="form-label">

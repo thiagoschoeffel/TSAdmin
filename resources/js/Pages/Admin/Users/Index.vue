@@ -180,6 +180,7 @@ const handleTableAction = ({ action, item }) => {
                 { value: 'active', label: 'Ativos' },
                 { value: 'inactive', label: 'Inativos' }
               ]"
+              placeholder=""
             />
           </label>
         </div>

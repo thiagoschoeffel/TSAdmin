@@ -58,5 +58,14 @@ return [
                 'delete' => 'Excluir setores',
             ],
         ],
+        'machines' => [
+            'label' => 'Gestão de máquinas',
+            'abilities' => [
+                'view' => 'Visualizar máquinas',
+                'create' => 'Criar máquinas',
+                'update' => 'Editar máquinas',
+                'delete' => 'Excluir máquinas',
+            ],
+        ],
     ],
 ];

@@ -56,9 +56,9 @@ const toggleModule = (key, on) => {
 </script>
 
 <template>
-  <div class="space-y-2">
-    <span class="text-sm font-semibold text-slate-700">Permissões</span>
-    <div class="space-y-4">
+  <fieldset class="space-y-3">
+    <legend class="text-sm font-semibold text-slate-700">Permissões</legend>
+    <div class="space-y-8">
       <fieldset v-for="(resource, key) in resources" :key="key" class="rounded-xl border border-slate-200 bg-slate-50 p-4">
         <legend class="flex items-center justify-between gap-4 px-1 text-sm font-semibold text-slate-800">
           <span>{{ resource.label }}</span>
@@ -84,5 +84,5 @@ const toggleModule = (key, on) => {
         </p>
       </fieldset>
     </div>
-  </div>
+  </fieldset>
 </template>

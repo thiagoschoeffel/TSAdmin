@@ -214,7 +214,7 @@ const handleTableAction = ({ action, item }) => {
               { value: '', label: 'Todos' },
               { value: 'active', label: 'Ativas' },
               { value: 'inactive', label: 'Inativas' }
-            ]" />
+            ]" placeholder="" />
           </label>
           <label class="form-label">
             Etapa
@@ -226,7 +226,7 @@ const handleTableAction = ({ action, item }) => {
               { value: 'negotiation', label: 'Negociação' },
               { value: 'won', label: 'Ganho' },
               { value: 'lost', label: 'Perdido' }
-            ]" />
+            ]" placeholder="" />
           </label>
         </div>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

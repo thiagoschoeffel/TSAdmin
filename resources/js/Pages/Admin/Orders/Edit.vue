@@ -129,7 +129,7 @@ const openModal = () => {
   selectedClient.value = props.currentClient ? { id: props.currentClient.id, name: props.currentClient.name } : null;
 
   orderStatus.value = props.order.status || 'pending';
-  paymentMethod.value = props.order.payment_method || '';
+  paymentMethod.value = props.order.payment_method || 'cash';
   deliveryType.value = props.order.delivery_type || 'pickup';
 
   // Set the address ID directly

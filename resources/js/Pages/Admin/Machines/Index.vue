@@ -6,27 +6,25 @@ import InputSelect from '@/components/InputSelect.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed, getCurrentInstance } from 'vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
-import Dropdown from '@/components/Dropdown.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import PerPageSelector from '@/components/PerPageSelector.vue';
-import ProductDetailsModal from '@/components/products/ProductDetailsModal.vue';
+import MachineDetailsModal from '@/components/machines/MachineDetailsModal.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
-import { formatCurrency, formatQuantity } from '@/utils/formatters';
 
 const props = defineProps({
-  products: { type: Object, required: true },
+  machines: { type: Object, required: true },
   filters: { type: Object, default: () => ({}) },
 });
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
 const isAdmin = computed(() => user.value?.role === 'admin');
-const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.products?.create);
-const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.products?.update);
-const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.products?.delete);
-const canView = computed(() => isAdmin.value || !!user.value?.permissions?.products?.view);
+const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.create);
+const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.update);
+const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.delete);
+const canView = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.view);
 
 // Ziggy `route` helper from app globalProperties
 const instance = getCurrentInstance();
@@ -34,29 +32,30 @@ const route = instance.appContext.config.globalProperties.route;
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
+const sectorId = ref(props.filters.sector_id || '');
 
 const filtering = ref(false);
 const submitFilters = () => {
   filtering.value = true;
-  router.get('/admin/products', { search: search.value, status: status.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
+  router.get('/admin/machines', { search: search.value, status: status.value, sector_id: sectorId.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
 };
-const resetFilters = () => { search.value = ''; status.value = ''; submitFilters(); };
+const resetFilters = () => { search.value = ''; status.value = ''; sectorId.value = ''; submitFilters(); };
 
 // Estado para confirmação de exclusão
-const deleteState = ref({ open: false, processing: false, product: null });
+const deleteState = ref({ open: false, processing: false, machine: null });
 
-const confirmDelete = (product) => {
-  deleteState.value = { open: true, processing: false, product };
+const confirmDelete = (machine) => {
+  deleteState.value = { open: true, processing: false, machine };
 };
 
 const performDelete = async () => {
-  if (!deleteState.value.product) return;
+  if (!deleteState.value.machine) return;
 
   deleteState.value.processing = true;
   try {
-    await router.delete(`/admin/products/${deleteState.value.product.id}`, {
+    await router.delete(`/admin/machines/${deleteState.value.machine.id}`, {
       onSuccess: () => {
-        deleteState.value = { open: false, processing: false, product: null };
+        deleteState.value = { open: false, processing: false, machine: null };
       },
       onError: () => {
         deleteState.value.processing = false;
@@ -64,13 +63,13 @@ const performDelete = async () => {
     });
   } catch (error) {
     deleteState.value.processing = false;
-    console.error('Erro ao excluir produto:', error);
+    console.error('Erro ao excluir máquina:', error);
   }
 };
 
 // Estado para modal de detalhes
-const details = ref({ open: false, productId: null });
-const openDetails = (product) => { details.value.productId = product.id; details.value.open = true; };
+const details = ref({ open: false, machineId: null });
+const openDetails = (machine) => { details.value.machineId = machine.id; details.value.open = true; };
 
 // DataTable configuration
 const columns = [
@@ -78,47 +77,23 @@ const columns = [
     header: 'Nome',
     key: 'name',
     component: 'button',
-    props: (product) => ({
+    props: (machine) => ({
       type: 'button',
       class: canView.value ? 'font-bold text-blue-600 cursor-pointer' : 'text-slate-900',
-      onClick: () => openDetails(product)
+      onClick: () => openDetails(machine)
     })
   },
   {
-    header: 'Preço',
-    key: 'price',
-    formatter: (value) => formatCurrency(value)
-  },
-  {
-    header: 'Unidade',
-    key: 'unit_of_measure'
-  },
-  {
-    header: 'Comprimento',
-    key: 'length',
-    formatter: (value) => value ? `${formatQuantity(value)} cm` : '-'
-  },
-  {
-    header: 'Largura',
-    key: 'width',
-    formatter: (value) => value ? `${formatQuantity(value)} cm` : '-'
-  },
-  {
-    header: 'Altura',
-    key: 'height',
-    formatter: (value) => value ? `${formatQuantity(value)} cm` : '-'
-  },
-  {
-    header: 'Peso',
-    key: 'weight',
-    formatter: (value) => value ? `${formatQuantity(value)} kg` : '-'
+    header: 'Setor',
+    key: 'sector',
+    formatter: (value) => value?.name || 'Setor não informado'
   },
   {
     header: 'Status',
     key: 'status',
     component: Badge,
-    props: (product) => ({
-      variant: product.status === 'active' ? 'success' : 'danger'
+    props: (machine) => ({
+      variant: machine.status === 'active' ? 'success' : 'danger'
     }),
     formatter: (value) => value === 'active' ? 'Ativo' : 'Inativo'
   }
@@ -132,8 +107,8 @@ const actions = computed(() => {
       label: 'Editar',
       icon: 'pencil',
       component: Link,
-      props: (product) => ({
-        href: route('products.edit', product.id),
+      props: (machine) => ({
+        href: route('machines.edit', machine.id),
         class: 'menu-panel-link'
       })
     });
@@ -165,17 +140,18 @@ const handleTableAction = ({ action, item }) => {
 
 <template>
   <AdminLayout>
-    <Head title="Produtos" />
+    <Head title="Máquinas" />
+
     <section class="card space-y-8">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 class="text-2xl font-semibold text-slate-900 flex items-center gap-2">
-            <HeroIcon name="cube" outline class="h-7 w-7 text-slate-700" />
-            Produtos
+            <HeroIcon name="cpu-chip" outline class="h-7 w-7 text-slate-700" />
+            Máquinas
           </h1>
-          <p class="mt-2 text-sm text-slate-500">Gerencie os produtos cadastrados e suas composições.</p>
+          <p class="mt-2 text-sm text-slate-500">Gerencie as máquinas cadastradas no sistema.</p>
         </div>
-        <Button v-if="canCreate" variant="primary" :href="route('products.create')">Novo produto</Button>
+        <Button v-if="canCreate" variant="primary" :href="route('machines.create')">Nova máquina</Button>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">
@@ -192,6 +168,12 @@ const handleTableAction = ({ action, item }) => {
               { value: 'inactive', label: 'Inativos' }
             ]" placeholder="" />
           </label>
+          <label class="form-label">
+            Setor
+            <InputSelect v-model="sectorId" :options="[
+              { value: '', label: 'Todos' }
+            ]" placeholder="" />
+          </label>
         </div>
         <div class="flex flex-wrap gap-3">
           <Button type="submit" variant="primary" :loading="filtering">
@@ -204,31 +186,31 @@ const handleTableAction = ({ action, item }) => {
       </form>
 
       <div class="flex items-center justify-end">
-        <PerPageSelector :current="products.per_page ?? products.perPage ?? 10" />
+        <PerPageSelector :current="machines.per_page ?? machines.perPage ?? 10" />
       </div>
 
       <DataTable
         :columns="columns"
-        :data="products.data"
+        :data="machines.data"
         :actions="actions"
-        empty-message="Nenhum produto encontrado."
+        empty-message="Nenhuma máquina encontrada."
         @action="handleTableAction"
       />
 
-      <Pagination v-if="products && products.total" :paginator="products" />
+      <Pagination v-if="machines && machines.total" :paginator="machines" />
     </section>
 
     <ConfirmModal v-model="deleteState.open"
                   :processing="deleteState.processing"
-                  title="Excluir produto"
-                  :message="deleteState.product ? `Deseja realmente remover ${deleteState.product.name}?` : ''"
+                  title="Excluir máquina"
+                  :message="deleteState.machine ? `Deseja realmente remover ${deleteState.machine.name}?` : ''"
                   confirm-text="Excluir"
                   variant="danger"
                   @confirm="performDelete" />
 
-    <ProductDetailsModal v-model="details.open" :product-id="details.productId" />
+    <MachineDetailsModal
+      v-model="details.open"
+      :machine-id="details.machineId"
+    />
   </AdminLayout>
 </template>
-
-<style scoped>
-</style>

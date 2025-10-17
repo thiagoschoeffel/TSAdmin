@@ -62,6 +62,7 @@ class DatabaseSeeder extends Seeder
             'opportunities' => \App\Models\Opportunity::count(),
             'opportunity_items' => DB::table('opportunity_items')->count(),
             'sectors' => \App\Models\Sector::count(),
+            'machines' => \App\Models\Machine::count(),
         ];
 
         $elapsed = microtime(true) - $this->startedAt;

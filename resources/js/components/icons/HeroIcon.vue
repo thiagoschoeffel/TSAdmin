@@ -26,6 +26,7 @@ import {
   DevicePhoneMobileIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   RectangleGroupIcon,
+  CpuChipIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -59,6 +60,7 @@ const map = {
   'device-phone-mobile': DevicePhoneMobileIcon,
   'chat-bubble-oval-left-ellipsis': ChatBubbleOvalLeftEllipsisIcon,
   'rectangle-group': RectangleGroupIcon,
+  'cpu-chip': CpuChipIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);

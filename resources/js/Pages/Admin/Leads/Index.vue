@@ -199,7 +199,7 @@ const handleTableAction = ({ action, item }) => {
               { value: 'in_contact', label: 'Em contato' },
               { value: 'qualified', label: 'Qualificado' },
               { value: 'discarded', label: 'Descartado' }
-            ]" />
+            ]" placeholder="" />
           </label>
           <label class="form-label">
             Origem
@@ -209,7 +209,7 @@ const handleTableAction = ({ action, item }) => {
               { value: 'indicacao', label: 'Indicação' },
               { value: 'evento', label: 'Evento' },
               { value: 'manual', label: 'Manual' }
-            ]" />
+            ]" placeholder="" />
           </label>
         </div>
         <div class="flex flex-wrap gap-3">

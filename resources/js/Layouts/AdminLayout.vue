@@ -17,6 +17,7 @@ const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions
 const canViewOrders = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.view);
 const canViewProducts = computed(() => isAdmin.value || !!user.value?.permissions?.products?.view);
 const canViewSectors = computed(() => isAdmin.value || !!user.value?.permissions?.sectors?.view);
+const canViewMachines = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.view);
 
 // Logout modal state and action
 const logoutOpen = ref(false);
@@ -89,6 +90,10 @@ watch(() => page.props.flash, (f) => {
                 <Link v-if="canViewSectors" class="dropdown-link" :href="route('sectors.index')">
                   <HeroIcon name="rectangle-group" class="h-5 w-5" />
                   <span>Setores</span>
+                </Link>
+                <Link v-if="canViewMachines" class="dropdown-link" :href="route('machines.index')">
+                  <HeroIcon name="cpu-chip" class="h-5 w-5" />
+                  <span>Máquinas</span>
                 </Link>
               </template>
             </Dropdown>

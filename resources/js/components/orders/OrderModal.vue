@@ -14,7 +14,7 @@ const props = defineProps({
   title: { type: String, default: 'Finalizar Pedido' },
   confirmText: { type: String, default: 'Finalizar Pedido' },
   selectedClient: { type: Object, default: null },
-  paymentMethod: { type: String, default: '' },
+  paymentMethod: { type: String, default: 'cash' },
   deliveryType: { type: String, default: 'pickup' },
   selectedAddress: { type: [Number, String], default: null },
   orderStatus: { type: String, default: 'pending' },
@@ -181,7 +181,7 @@ const confirm = () => {
           { value: 'shipped', label: 'Enviado' },
           { value: 'delivered', label: 'Entregue' },
           { value: 'cancelled', label: 'Cancelado' }
-        ]" :disabled="!canUpdateStatus" />
+        ]" :disabled="!canUpdateStatus" :placeholder="null" />
         <span v-if="!canUpdateStatus" class="text-sm text-blue-500 mt-1 flex items-center gap-1">
           <HeroIcon name="information-circle" class="h-4 w-4" />
           Você não tem permissão para alterar o status do pedido
@@ -194,7 +194,7 @@ const confirm = () => {
           { value: 'cash', label: 'Dinheiro' },
           { value: 'card', label: 'Cartão' },
           { value: 'pix', label: 'PIX' }
-        ]" />
+        ]" :placeholder="null" />
       </label>
 
       <div>

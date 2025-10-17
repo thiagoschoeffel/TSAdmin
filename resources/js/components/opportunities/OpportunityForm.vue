@@ -391,7 +391,7 @@ const handleItemAction = ({ action, item }) => {
           { value: 'negotiation', label: 'Negociação' },
           { value: 'won', label: 'Ganho' },
           { value: 'lost', label: 'Perdido' }
-        ]" :error="!!form.errors.stage" />
+        ]" :error="!!form.errors.stage" :placeholder="null" />
         <span v-if="form.errors.stage" class="text-sm font-medium text-rose-600">{{ form.errors.stage }}</span>
       </label>
       <label class="form-label">
