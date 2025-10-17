@@ -12,12 +12,21 @@ class DevSeeder extends Seeder
     {
         // For development/local environments, we can safely truncate and reseed
         Schema::disableForeignKeyConstraints();
-        foreach ([
-            'order_items', 'orders',
-            'product_components', 'products',
-            'addresses', 'clients',
-            'lead_interactions', 'opportunity_items', 'opportunities', 'leads',
-        ] as $table) {
+        foreach (
+            [
+                'order_items',
+                'orders',
+                'product_components',
+                'products',
+                'addresses',
+                'clients',
+                'lead_interactions',
+                'opportunity_items',
+                'opportunities',
+                'leads',
+                'sectors',
+            ] as $table
+        ) {
             if (Schema::hasTable($table)) {
                 DB::table($table)->truncate();
             }
@@ -27,6 +36,7 @@ class DevSeeder extends Seeder
         DB::transaction(function () {
             // Reseed in coherent order
             $this->call(UserSeeder::class);
+            $this->call(SectorSeeder::class);
             $this->call(ClientSeeder::class);
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);
@@ -36,4 +46,3 @@ class DevSeeder extends Seeder
         });
     }
 }
-

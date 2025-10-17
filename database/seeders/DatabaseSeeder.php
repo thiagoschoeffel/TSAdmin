@@ -27,8 +27,8 @@ class DatabaseSeeder extends Seeder
 
         if ($env === 'testing') {
             $this->call(TestSeeder::class);
-        $this->report();
-        return;
+            $this->report();
+            return;
         }
 
         if ($env === 'production') {
@@ -61,6 +61,7 @@ class DatabaseSeeder extends Seeder
             'order_items' => \App\Models\OrderItem::count(),
             'opportunities' => \App\Models\Opportunity::count(),
             'opportunity_items' => DB::table('opportunity_items')->count(),
+            'sectors' => \App\Models\Sector::count(),
         ];
 
         $elapsed = microtime(true) - $this->startedAt;
@@ -98,7 +99,9 @@ class DatabaseSeeder extends Seeder
         }
         $parts = [];
         foreach ($map as $k => $v) {
-            if ($k === null || $k === '') { $k = 'null'; }
+            if ($k === null || $k === '') {
+                $k = 'null';
+            }
             $parts[] = sprintf('%s=%d', $k, $v);
         }
         $this->command?->line('  - ' . $label . ': ' . implode(', ', $parts));

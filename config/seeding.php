@@ -65,6 +65,6 @@ return [
         'lead_interactions_per_lead' => [0, 5],
         'orders' => 250,
         'opportunities' => 50,
+        'sectors' => 10,
     ],
 ];
-

@@ -103,6 +103,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('sectors')->name('sectors.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\SectorController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\SectorController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\SectorController::class, 'store'])->name('store');
+        Route::get('{sector}/modal', [\App\Http\Controllers\SectorController::class, 'modal'])->name('modal');
+        Route::get('{sector}/edit', [\App\Http\Controllers\SectorController::class, 'edit'])->name('edit');
+        Route::patch('{sector}', [\App\Http\Controllers\SectorController::class, 'update'])->name('update');
+        Route::delete('{sector}', [\App\Http\Controllers\SectorController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('orders')->name('orders.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\OrderController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\OrderController::class, 'create'])->name('create');

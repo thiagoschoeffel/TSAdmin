@@ -49,5 +49,14 @@ return [
                 'delete' => 'Excluir oportunidades',
             ],
         ],
+        'sectors' => [
+            'label' => 'Gestão de setores',
+            'abilities' => [
+                'view' => 'Visualizar setores',
+                'create' => 'Criar setores',
+                'update' => 'Editar setores',
+                'delete' => 'Excluir setores',
+            ],
+        ],
     ],
 ];
