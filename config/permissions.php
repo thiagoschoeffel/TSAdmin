@@ -85,5 +85,14 @@ return [
                 'delete' => 'Excluir motivos',
             ],
         ],
+        'machine_downtimes' => [
+            'label' => 'Paradas de Máquina',
+            'abilities' => [
+                'view' => 'Visualizar paradas de máquina',
+                'create' => 'Criar paradas de máquina',
+                'update' => 'Editar paradas de máquina',
+                'delete' => 'Excluir paradas de máquina',
+            ],
+        ],
     ],
 ];

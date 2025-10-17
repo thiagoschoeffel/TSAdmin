@@ -69,5 +69,6 @@ return [
         'machines' => 15,
         'reason_types' => 5,
         'reasons' => 23,
+        'machine_downtimes' => 30,
     ],
 ];

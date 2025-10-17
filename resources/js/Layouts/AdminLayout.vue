@@ -20,6 +20,7 @@ const canViewSectors = computed(() => isAdmin.value || !!user.value?.permissions
 const canViewMachines = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.view);
 const canViewReasonTypes = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.view);
 const canViewReasons = computed(() => isAdmin.value || !!user.value?.permissions?.reasons?.view);
+const canViewMachineDowntimes = computed(() => isAdmin.value || !!user.value?.permissions?.machine_downtimes?.view);
 
 // Logout modal state and action
 const logoutOpen = ref(false);
@@ -104,6 +105,10 @@ watch(() => page.props.flash, (f) => {
                 <Link v-if="canViewReasons" class="dropdown-link" :href="route('reasons.index')">
                   <HeroIcon name="tag" class="h-5 w-5" />
                   <span>Motivos</span>
+                </Link>
+                <Link v-if="canViewMachineDowntimes" class="dropdown-link" :href="route('machine_downtimes.index')">
+                  <HeroIcon name="pause-circle" class="h-5 w-5" />
+                  <span>Paradas de Máquina</span>
                 </Link>
               </template>
             </Dropdown>

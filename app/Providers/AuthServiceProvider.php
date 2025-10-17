@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Lead;
 use App\Models\Opportunity;
 use App\Models\Sector;
+use App\Models\MachineDowntime;
 use App\Policies\AddressPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\OrderPolicy;
@@ -18,6 +19,7 @@ use App\Policies\UserPolicy;
 use App\Policies\LeadPolicy;
 use App\Policies\OpportunityPolicy;
 use App\Policies\SectorPolicy;
+use App\Policies\MachineDowntimePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -36,6 +38,7 @@ class AuthServiceProvider extends ServiceProvider
         Lead::class => LeadPolicy::class,
         Opportunity::class => OpportunityPolicy::class,
         Sector::class => SectorPolicy::class,
+        MachineDowntime::class => MachineDowntimePolicy::class,
     ];
 
     /**

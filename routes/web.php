@@ -143,6 +143,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{reason}', [\App\Http\Controllers\ReasonController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('machine-downtimes')->name('machine_downtimes.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\MachineDowntimeController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\MachineDowntimeController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\MachineDowntimeController::class, 'store'])->name('store');
+        Route::get('{machineDowntime}/modal', [\App\Http\Controllers\MachineDowntimeController::class, 'modal'])->name('modal');
+        Route::get('{machineDowntime}/edit', [\App\Http\Controllers\MachineDowntimeController::class, 'edit'])->name('edit');
+        Route::patch('{machineDowntime}', [\App\Http\Controllers\MachineDowntimeController::class, 'update'])->name('update');
+        Route::delete('{machineDowntime}', [\App\Http\Controllers\MachineDowntimeController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('orders')->name('orders.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\OrderController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\OrderController::class, 'create'])->name('create');
