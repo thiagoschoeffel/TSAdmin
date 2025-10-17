@@ -28,6 +28,10 @@ import {
   RectangleGroupIcon,
   CpuChipIcon,
   SwatchIcon,
+  TagIcon,
+  ClipboardDocumentListIcon,
+  ArrowsRightLeftIcon,
+  BuildingOfficeIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -63,6 +67,10 @@ const map = {
   'rectangle-group': RectangleGroupIcon,
   'cpu-chip': CpuChipIcon,
   'swatch': SwatchIcon,
+  'tag': TagIcon,
+  'clipboard-document-list': ClipboardDocumentListIcon,
+  'arrows-right-left': ArrowsRightLeftIcon,
+  'office-building': BuildingOfficeIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);

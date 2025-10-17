@@ -19,6 +19,7 @@ const canViewProducts = computed(() => isAdmin.value || !!user.value?.permission
 const canViewSectors = computed(() => isAdmin.value || !!user.value?.permissions?.sectors?.view);
 const canViewMachines = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.view);
 const canViewReasonTypes = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.view);
+const canViewReasons = computed(() => isAdmin.value || !!user.value?.permissions?.reasons?.view);
 
 // Logout modal state and action
 const logoutOpen = ref(false);
@@ -99,6 +100,10 @@ watch(() => page.props.flash, (f) => {
                 <Link v-if="canViewReasonTypes" class="dropdown-link" :href="route('reason-types.index')">
                   <HeroIcon name="swatch" class="h-5 w-5" />
                   <span>Tipos de Motivos</span>
+                </Link>
+                <Link v-if="canViewReasons" class="dropdown-link" :href="route('reasons.index')">
+                  <HeroIcon name="tag" class="h-5 w-5" />
+                  <span>Motivos</span>
                 </Link>
               </template>
             </Dropdown>

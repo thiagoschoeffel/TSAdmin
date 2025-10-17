@@ -76,5 +76,14 @@ return [
                 'delete' => 'Excluir tipos de motivos',
             ],
         ],
+        'reasons' => [
+            'label' => 'Motivos',
+            'abilities' => [
+                'view' => 'Visualizar motivos',
+                'create' => 'Criar motivos',
+                'update' => 'Editar motivos',
+                'delete' => 'Excluir motivos',
+            ],
+        ],
     ],
 ];

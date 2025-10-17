@@ -134,6 +134,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{reasonType}', [\App\Http\Controllers\ReasonTypesController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('reasons')->name('reasons.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\ReasonController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\ReasonController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ReasonController::class, 'store'])->name('store');
+        Route::get('{reason}', [\App\Http\Controllers\ReasonController::class, 'show'])->name('show');
+        Route::get('{reason}/edit', [\App\Http\Controllers\ReasonController::class, 'edit'])->name('edit');
+        Route::patch('{reason}', [\App\Http\Controllers\ReasonController::class, 'update'])->name('update');
+        Route::delete('{reason}', [\App\Http\Controllers\ReasonController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('orders')->name('orders.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\OrderController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\OrderController::class, 'create'])->name('create');
