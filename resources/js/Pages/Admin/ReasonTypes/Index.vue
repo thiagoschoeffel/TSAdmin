@@ -9,22 +9,22 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import PerPageSelector from '@/components/PerPageSelector.vue';
-import MachineDetailsModal from '@/components/machines/MachineDetailsModal.vue';
+import ReasonTypeDetailsModal from '@/components/reasonTypes/ReasonTypeDetailsModal.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
 
 const props = defineProps({
-  machines: { type: Object, required: true },
+  reasonTypes: { type: Object, required: true },
   filters: { type: Object, default: () => ({}) },
 });
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
 const isAdmin = computed(() => user.value?.role === 'admin');
-const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.create);
-const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.update);
-const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.delete);
-const canView = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.view);
+const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.create);
+const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.update);
+const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.delete);
+const canView = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.view);
 
 // Ziggy `route` helper from app globalProperties
 const instance = getCurrentInstance();
@@ -32,30 +32,29 @@ const route = instance.appContext.config.globalProperties.route;
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
-const sectorId = ref(props.filters.sector_id || '');
 
 const filtering = ref(false);
 const submitFilters = () => {
   filtering.value = true;
-  router.get(route('machines.index'), { search: search.value, status: status.value, sector_id: sectorId.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
+  router.get(route('reason-types.index'), { search: search.value, status: status.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
 };
-const resetFilters = () => { search.value = ''; status.value = ''; sectorId.value = ''; submitFilters(); };
+const resetFilters = () => { search.value = ''; status.value = ''; submitFilters(); };
 
 // Estado para confirmação de exclusão
-const deleteState = ref({ open: false, processing: false, machine: null });
+const deleteState = ref({ open: false, processing: false, reasonType: null });
 
-const confirmDelete = (machine) => {
-  deleteState.value = { open: true, processing: false, machine };
+const confirmDelete = (reasonType) => {
+  deleteState.value = { open: true, processing: false, reasonType };
 };
 
 const performDelete = async () => {
-  if (!deleteState.value.machine) return;
+  if (!deleteState.value.reasonType) return;
 
   deleteState.value.processing = true;
   try {
-    await router.delete(route('machines.destroy', deleteState.value.machine.id), {
+    await router.delete(route('reason-types.destroy', deleteState.value.reasonType.id), {
       onSuccess: () => {
-        deleteState.value = { open: false, processing: false, machine: null };
+        deleteState.value = { open: false, processing: false, reasonType: null };
       },
       onError: () => {
         deleteState.value.processing = false;
@@ -63,13 +62,13 @@ const performDelete = async () => {
     });
   } catch (error) {
     deleteState.value.processing = false;
-    console.error('Erro ao excluir máquina:', error);
+    console.error('Erro ao excluir tipo de motivo:', error);
   }
 };
 
 // Estado para modal de detalhes
-const details = ref({ open: false, machineId: null });
-const openDetails = (machine) => { details.value.machineId = machine.id; details.value.open = true; };
+const details = ref({ open: false, reasonTypeId: null });
+const openDetails = (reasonType) => { details.value.reasonTypeId = reasonType.id; details.value.open = true; };
 
 // DataTable configuration
 const columns = [
@@ -77,23 +76,18 @@ const columns = [
     header: 'Nome',
     key: 'name',
     component: 'button',
-    props: (machine) => ({
+    props: (reasonType) => ({
       type: 'button',
       class: canView.value ? 'font-bold text-blue-600 cursor-pointer' : 'text-slate-900',
-      onClick: () => openDetails(machine)
+      onClick: () => openDetails(reasonType)
     })
-  },
-  {
-    header: 'Setor',
-    key: 'sector',
-    formatter: (value) => value?.name || 'Setor não informado'
   },
   {
     header: 'Status',
     key: 'status',
     component: Badge,
-    props: (machine) => ({
-      variant: machine.status === 'active' ? 'success' : 'danger'
+    props: (reasonType) => ({
+      variant: reasonType.status === 'active' ? 'success' : 'danger'
     }),
     formatter: (value) => value === 'active' ? 'Ativo' : 'Inativo'
   }
@@ -107,8 +101,8 @@ const actions = computed(() => {
       label: 'Editar',
       icon: 'pencil',
       component: Link,
-      props: (machine) => ({
-        href: route('machines.edit', machine.id),
+      props: (reasonType) => ({
+        href: route('reason-types.edit', reasonType.id),
         class: 'menu-panel-link'
       })
     });
@@ -140,18 +134,18 @@ const handleTableAction = ({ action, item }) => {
 
 <template>
   <AdminLayout>
-    <Head title="Máquinas" />
+    <Head title="Tipos de Motivos" />
 
     <section class="card space-y-8">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 class="text-2xl font-semibold text-slate-900 flex items-center gap-2">
-            <HeroIcon name="cpu-chip" outline class="h-7 w-7 text-slate-700" />
-            Máquinas
+            <HeroIcon name="swatch" outline class="h-7 w-7 text-slate-700" />
+            Tipos de Motivos
           </h1>
-          <p class="mt-2 text-sm text-slate-500">Gerencie as máquinas cadastradas no sistema.</p>
+          <p class="mt-2 text-sm text-slate-500">Gerencie os tipos de motivos cadastrados no sistema.</p>
         </div>
-        <Button v-if="canCreate" variant="primary" :href="route('machines.create')">Nova máquina</Button>
+        <Button v-if="canCreate" variant="primary" :href="route('reason-types.create')">Novo tipo de motivo</Button>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">
@@ -168,12 +162,6 @@ const handleTableAction = ({ action, item }) => {
               { value: 'inactive', label: 'Inativos' }
             ]" placeholder="" />
           </label>
-          <label class="form-label">
-            Setor
-            <InputSelect v-model="sectorId" :options="[
-              { value: '', label: 'Todos' }
-            ]" placeholder="" />
-          </label>
         </div>
         <div class="flex flex-wrap gap-3">
           <Button type="submit" variant="primary" :loading="filtering">
@@ -186,31 +174,31 @@ const handleTableAction = ({ action, item }) => {
       </form>
 
       <div class="flex items-center justify-end">
-        <PerPageSelector :current="machines.per_page ?? machines.perPage ?? 10" />
+        <PerPageSelector :current="reasonTypes.per_page ?? reasonTypes.perPage ?? 10" />
       </div>
 
       <DataTable
         :columns="columns"
-        :data="machines.data"
+        :data="reasonTypes.data"
         :actions="actions"
-        empty-message="Nenhuma máquina encontrada."
+        empty-message="Nenhum tipo de motivo encontrado."
         @action="handleTableAction"
       />
 
-      <Pagination v-if="machines && machines.total" :paginator="machines" />
+      <Pagination v-if="reasonTypes && reasonTypes.total" :paginator="reasonTypes" />
     </section>
 
     <ConfirmModal v-model="deleteState.open"
                   :processing="deleteState.processing"
-                  title="Excluir máquina"
-                  :message="deleteState.machine ? `Deseja realmente remover ${deleteState.machine.name}?` : ''"
+                  title="Excluir tipo de motivo"
+                  :message="deleteState.reasonType ? `Deseja realmente remover ${deleteState.reasonType.name}?` : ''"
                   confirm-text="Excluir"
                   variant="danger"
                   @confirm="performDelete" />
 
-    <MachineDetailsModal
+    <ReasonTypeDetailsModal
       v-model="details.open"
-      :machine-id="details.machineId"
+      :reason-type-id="details.reasonTypeId"
     />
   </AdminLayout>
 </template>

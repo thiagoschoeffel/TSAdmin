@@ -123,6 +123,17 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{machine}', [\App\Http\Controllers\MachinesController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('reason-types')->name('reason-types.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\ReasonTypesController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\ReasonTypesController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ReasonTypesController::class, 'store'])->name('store');
+        Route::get('{reasonType}', [\App\Http\Controllers\ReasonTypesController::class, 'show'])->name('show');
+        Route::get('{reasonType}/modal', [\App\Http\Controllers\ReasonTypesController::class, 'modal'])->name('modal');
+        Route::get('{reasonType}/edit', [\App\Http\Controllers\ReasonTypesController::class, 'edit'])->name('edit');
+        Route::patch('{reasonType}', [\App\Http\Controllers\ReasonTypesController::class, 'update'])->name('update');
+        Route::delete('{reasonType}', [\App\Http\Controllers\ReasonTypesController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('orders')->name('orders.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\OrderController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\OrderController::class, 'create'])->name('create');

@@ -26,6 +26,7 @@ class DevSeeder extends Seeder
                 'leads',
                 'sectors',
                 'machines',
+                'reason_types',
             ] as $table
         ) {
             if (Schema::hasTable($table)) {
@@ -38,6 +39,8 @@ class DevSeeder extends Seeder
             // Reseed in coherent order
             $this->call(UserSeeder::class);
             $this->call(SectorSeeder::class);
+            $this->call(MachineSeeder::class);
+            $this->call(ReasonTypeSeeder::class);
             $this->call(ClientSeeder::class);
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);

@@ -36,7 +36,7 @@ const status = ref(props.filters.status || '');
 const filtering = ref(false);
 const submitFilters = () => {
   filtering.value = true;
-  router.get('/admin/sectors', { search: search.value, status: status.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
+  router.get(route('sectors.index'), { search: search.value, status: status.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
 };
 const resetFilters = () => { search.value = ''; status.value = ''; submitFilters(); };
 
@@ -52,7 +52,7 @@ const performDelete = async () => {
 
   deleteState.value.processing = true;
   try {
-    await router.delete(`/admin/sectors/${deleteState.value.sector.id}`, {
+    await router.delete(route('sectors.destroy', deleteState.value.sector.id), {
       onSuccess: () => {
         deleteState.value = { open: false, processing: false, sector: null };
       },

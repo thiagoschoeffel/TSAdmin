@@ -67,5 +67,14 @@ return [
                 'delete' => 'Excluir máquinas',
             ],
         ],
+        'reason_types' => [
+            'label' => 'Tipos de Motivos',
+            'abilities' => [
+                'view' => 'Visualizar tipos de motivos',
+                'create' => 'Criar tipos de motivos',
+                'update' => 'Editar tipos de motivos',
+                'delete' => 'Excluir tipos de motivos',
+            ],
+        ],
     ],
 ];

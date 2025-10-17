@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, getCurrentInstance } from 'vue';
 import Modal from '@/components/Modal.vue';
 import Badge from '@/components/Badge.vue';
 import Button from '@/components/Button.vue';
@@ -10,6 +10,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue']);
+
+const instance = getCurrentInstance();
+const route = instance.appContext.config.globalProperties.route;
 
 const open = ref(props.modelValue);
 const loading = ref(false);
@@ -26,7 +29,7 @@ async function tryFetch() {
   error.value = false;
   payload.value = null;
   try {
-    const res = await fetch(`/admin/sectors/${props.sectorId}/modal`, {
+    const res = await fetch(route('sectors.modal', props.sectorId), {
       headers: { Accept: 'application/json' },
       credentials: 'same-origin',
     });

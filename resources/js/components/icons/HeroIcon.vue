@@ -27,6 +27,7 @@ import {
   ChatBubbleOvalLeftEllipsisIcon,
   RectangleGroupIcon,
   CpuChipIcon,
+  SwatchIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -61,6 +62,7 @@ const map = {
   'chat-bubble-oval-left-ellipsis': ChatBubbleOvalLeftEllipsisIcon,
   'rectangle-group': RectangleGroupIcon,
   'cpu-chip': CpuChipIcon,
+  'swatch': SwatchIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);

@@ -17,7 +17,7 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.patch(`/admin/machines/${props.machine.id}`);
+  form.patch(route('machines.update', props.machine.id));
 };
 </script>
 
