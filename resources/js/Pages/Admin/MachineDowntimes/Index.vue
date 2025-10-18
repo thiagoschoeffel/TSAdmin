@@ -36,7 +36,10 @@ const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
 const machineId = ref(props.filters.machine_id || '');
 const reasonId = ref(props.filters.reason_id || '');
-const period = ref(props.filters.period || { from: '', to: '' });
+const period = ref({
+  start: props.filters.period?.from || '',
+  end: props.filters.period?.to || '',
+});
 
 const filtering = ref(false);
 const submitFilters = () => {
@@ -46,10 +49,13 @@ const submitFilters = () => {
     status: status.value,
     machine_id: machineId.value,
     reason_id: reasonId.value,
-    period: period.value,
+    period: {
+      from: period.value?.start || null,
+      to: period.value?.end || null,
+    },
   }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
 };
-const resetFilters = () => { search.value = ''; status.value = ''; machineId.value = ''; reasonId.value=''; period.value = { from: '', to: '' }; submitFilters(); };
+const resetFilters = () => { search.value = ''; status.value = ''; machineId.value = ''; reasonId.value=''; period.value = { start: '', end: '' }; submitFilters(); };
 
 const deleteState = ref({ open: false, processing: false, item: null });
 const confirmDelete = (item) => { deleteState.value = { open: true, processing: false, item }; };
@@ -131,9 +137,10 @@ const handleTableAction = ({ action, item }) => { if (action.key === 'delete') c
           </label>
         </div>
         <div class="flex flex-wrap gap-3">
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="primary" :loading="filtering">
             <HeroIcon name="funnel" class="h-5 w-5" />
-            <span>Filtrar</span>
+            <span v-if="!filtering">Filtrar</span>
+            <span v-else>Filtrando…</span>
           </Button>
           <Button type="button" variant="ghost" @click="resetFilters">Limpar filtros</Button>
         </div>
