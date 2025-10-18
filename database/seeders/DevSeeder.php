@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Termwind\Components\Raw;
 
 class DevSeeder extends Seeder
 {
@@ -31,6 +32,9 @@ class DevSeeder extends Seeder
                 'reasons',
                 'machine_downtimes',
                 'operators',
+                'block_types',
+                'mold_types',
+                'raw_materials',
             ] as $table
         ) {
             if (Schema::hasTable($table)) {
@@ -54,8 +58,10 @@ class DevSeeder extends Seeder
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);
             $this->call(LeadInteractionSeeder::class);
+            $this->call(OpportunitySeeder::class);
             $this->call(OrderSeeder::class);
             $this->call(OperatorSeeder::class);
+            $this->call(RawMaterialSeeder::class);
         });
     }
 }
