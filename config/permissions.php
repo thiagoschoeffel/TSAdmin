@@ -67,6 +67,15 @@ return [
                 'delete' => 'Excluir matérias-primas',
             ],
         ],
+        'block_types' => [
+            'label' => 'Gestão de tipos de blocos',
+            'abilities' => [
+                'view' => 'Visualizar tipos de blocos',
+                'create' => 'Criar tipos de blocos',
+                'update' => 'Editar tipos de blocos',
+                'delete' => 'Excluir tipos de blocos',
+            ],
+        ],
         'almoxarifados' => [
             'label' => 'Gestão de almoxarifados',
             'abilities' => [

@@ -26,7 +26,7 @@ class RawMaterialControllerTest extends TestCase
     $this->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
   }
 
-  public function test_index_displays_raw-materials_list()
+  public function test_index_displays_raw_materials_list()
   {
     RawMaterial::factory()->create(['name' => 'Produção']);
     RawMaterial::factory()->create(['name' => 'Manutenção']);

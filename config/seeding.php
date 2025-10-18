@@ -72,5 +72,7 @@ return [
         'reasons' => 23,
         'machine_downtimes' => 30,
         'operators' => 7,
+        'raw_materials' => 10,
+        'block_types' => 10,
     ],
 ];
