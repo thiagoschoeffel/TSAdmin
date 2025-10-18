@@ -25,6 +25,7 @@ class DevSeeder extends Seeder
                 'opportunities',
                 'leads',
                 'sectors',
+                'almoxarifados',
                 'machines',
                 'reason_types',
                 'reasons',
@@ -42,6 +43,7 @@ class DevSeeder extends Seeder
             // Reseed in coherent order
             $this->call(UserSeeder::class);
             $this->call(SectorSeeder::class);
+            $this->call(AlmoxarifadoSeeder::class);
             $this->call(MachineSeeder::class);
             $this->call(ReasonTypeSeeder::class);
             $this->call(ReasonSeeder::class);

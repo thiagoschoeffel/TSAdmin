@@ -17,6 +17,7 @@ const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions
 const canViewOrders = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.view);
 const canViewProducts = computed(() => isAdmin.value || !!user.value?.permissions?.products?.view);
 const canViewSectors = computed(() => isAdmin.value || !!user.value?.permissions?.sectors?.view);
+const canViewAlmoxarifados = computed(() => isAdmin.value || !!user.value?.permissions?.almoxarifados?.view);
 const canViewMachines = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.view);
 const canViewOperators = computed(() => isAdmin.value || !!user.value?.permissions?.operators?.view);
 const canViewReasonTypes = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.view);
@@ -91,6 +92,10 @@ watch(() => page.props.flash, (f) => {
                   <span>Produtos</span>
                 </Link>
                 <DropdownDivider />
+                <Link v-if="canViewAlmoxarifados" class="dropdown-link" :href="route('almoxarifados.index')">
+                  <HeroIcon name="view-columns" class="h-5 w-5" />
+                  <span>Almoxarifados</span>
+                </Link>
                 <Link v-if="canViewSectors" class="dropdown-link" :href="route('sectors.index')">
                   <HeroIcon name="rectangle-group" class="h-5 w-5" />
                   <span>Setores</span>

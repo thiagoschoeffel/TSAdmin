@@ -113,6 +113,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{sector}', [\App\Http\Controllers\SectorController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('almoxarifados')->name('almoxarifados.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\AlmoxarifadoController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\AlmoxarifadoController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\AlmoxarifadoController::class, 'store'])->name('store');
+        Route::get('{almoxarifado}/modal', [\App\Http\Controllers\AlmoxarifadoController::class, 'modal'])->name('modal');
+        Route::get('{almoxarifado}/edit', [\App\Http\Controllers\AlmoxarifadoController::class, 'edit'])->name('edit');
+        Route::patch('{almoxarifado}', [\App\Http\Controllers\AlmoxarifadoController::class, 'update'])->name('update');
+        Route::delete('{almoxarifado}', [\App\Http\Controllers\AlmoxarifadoController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('machines')->name('machines.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\MachinesController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\MachinesController::class, 'create'])->name('create');

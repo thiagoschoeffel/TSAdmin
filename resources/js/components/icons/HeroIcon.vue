@@ -34,6 +34,7 @@ import {
   ArrowsRightLeftIcon,
   BuildingOfficeIcon,
   FolderIcon,
+  ViewColumnsIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -75,6 +76,7 @@ const map = {
   'arrows-right-left': ArrowsRightLeftIcon,
   'office-building': BuildingOfficeIcon,
   'folder': FolderIcon,
+  'view-columns': ViewColumnsIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);

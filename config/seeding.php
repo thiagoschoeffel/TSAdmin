@@ -66,6 +66,7 @@ return [
         'orders' => 40,
         'opportunities' => 50,
         'sectors' => 10,
+        'almoxarifados' => 10,
         'machines' => 15,
         'reason_types' => 5,
         'reasons' => 23,

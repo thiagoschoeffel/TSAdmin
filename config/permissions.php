@@ -58,6 +58,15 @@ return [
                 'delete' => 'Excluir setores',
             ],
         ],
+        'almoxarifados' => [
+            'label' => 'Gestão de almoxarifados',
+            'abilities' => [
+                'view' => 'Visualizar almoxarifados',
+                'create' => 'Criar almoxarifados',
+                'update' => 'Editar almoxarifados',
+                'delete' => 'Excluir almoxarifados',
+            ],
+        ],
         'machines' => [
             'label' => 'Gestão de máquinas',
             'abilities' => [
