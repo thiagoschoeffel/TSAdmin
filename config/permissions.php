@@ -94,5 +94,14 @@ return [
                 'delete' => 'Excluir paradas de máquina',
             ],
         ],
+        'operators' => [
+            'label' => 'Gestão de operadores',
+            'abilities' => [
+                'view' => 'Visualizar operadores',
+                'create' => 'Criar operadores',
+                'update' => 'Editar operadores',
+                'delete' => 'Excluir operadores',
+            ],
+        ],
     ],
 ];
