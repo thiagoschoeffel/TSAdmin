@@ -29,6 +29,7 @@ class DevSeeder extends Seeder
                 'reason_types',
                 'reasons',
                 'machine_downtimes',
+                'operators',
             ] as $table
         ) {
             if (Schema::hasTable($table)) {
@@ -51,6 +52,7 @@ class DevSeeder extends Seeder
             $this->call(LeadInteractionSeeder::class);
             $this->call(OrderSeeder::class);
             $this->call(OpportunitySeeder::class);
+            $this->call(OperatorSeeder::class);
         });
     }
 }

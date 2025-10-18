@@ -18,6 +18,7 @@ const canViewOrders = computed(() => isAdmin.value || !!user.value?.permissions?
 const canViewProducts = computed(() => isAdmin.value || !!user.value?.permissions?.products?.view);
 const canViewSectors = computed(() => isAdmin.value || !!user.value?.permissions?.sectors?.view);
 const canViewMachines = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.view);
+const canViewOperators = computed(() => isAdmin.value || !!user.value?.permissions?.operators?.view);
 const canViewReasonTypes = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.view);
 const canViewReasons = computed(() => isAdmin.value || !!user.value?.permissions?.reasons?.view);
 const canViewMachineDowntimes = computed(() => isAdmin.value || !!user.value?.permissions?.machine_downtimes?.view);
@@ -97,6 +98,10 @@ watch(() => page.props.flash, (f) => {
                 <Link v-if="canViewMachines" class="dropdown-link" :href="route('machines.index')">
                   <HeroIcon name="cpu-chip" class="h-5 w-5" />
                   <span>Máquinas</span>
+                </Link>
+                <Link v-if="canViewOperators" class="dropdown-link" :href="route('operators.index')">
+                  <HeroIcon name="user-group" class="h-5 w-5" />
+                  <span>Operadores</span>
                 </Link>
                 <Link v-if="canViewReasonTypes" class="dropdown-link" :href="route('reason-types.index')">
                   <HeroIcon name="swatch" class="h-5 w-5" />
