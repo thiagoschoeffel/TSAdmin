@@ -103,7 +103,7 @@ class MachineDowntimeController extends Controller
             'status' => $data['status'] ?? 'active',
             'created_by' => Auth::id(),
         ]);
-        return redirect()->route('machine_downtimes.index')->with('status', 'Registro criado com sucesso.');
+        return redirect()->route('machine_downtimes.create')->with('status', 'Registro criado com sucesso.');
     }
 
     public function edit(MachineDowntime $machineDowntime): InertiaResponse
