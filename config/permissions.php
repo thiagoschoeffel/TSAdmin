@@ -49,5 +49,50 @@ return [
                 'delete' => 'Excluir oportunidades',
             ],
         ],
+        'sectors' => [
+            'label' => 'Gestão de setores',
+            'abilities' => [
+                'view' => 'Visualizar setores',
+                'create' => 'Criar setores',
+                'update' => 'Editar setores',
+                'delete' => 'Excluir setores',
+            ],
+        ],
+        'machines' => [
+            'label' => 'Gestão de máquinas',
+            'abilities' => [
+                'view' => 'Visualizar máquinas',
+                'create' => 'Criar máquinas',
+                'update' => 'Editar máquinas',
+                'delete' => 'Excluir máquinas',
+            ],
+        ],
+        'reason_types' => [
+            'label' => 'Tipos de Motivos',
+            'abilities' => [
+                'view' => 'Visualizar tipos de motivos',
+                'create' => 'Criar tipos de motivos',
+                'update' => 'Editar tipos de motivos',
+                'delete' => 'Excluir tipos de motivos',
+            ],
+        ],
+        'reasons' => [
+            'label' => 'Motivos',
+            'abilities' => [
+                'view' => 'Visualizar motivos',
+                'create' => 'Criar motivos',
+                'update' => 'Editar motivos',
+                'delete' => 'Excluir motivos',
+            ],
+        ],
+        'machine_downtimes' => [
+            'label' => 'Paradas de Máquina',
+            'abilities' => [
+                'view' => 'Visualizar paradas de máquina',
+                'create' => 'Criar paradas de máquina',
+                'update' => 'Editar paradas de máquina',
+                'delete' => 'Excluir paradas de máquina',
+            ],
+        ],
     ],
 ];

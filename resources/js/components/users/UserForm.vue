@@ -4,6 +4,7 @@ import Button from '@/components/Button.vue';
 import PermissionsMatrix from '@/components/users/PermissionsMatrix.vue';
 import InputText from '@/components/InputText.vue';
 import InputSelect from '@/components/InputSelect.vue';
+import HeroIcon from '@/components/icons/HeroIcon.vue';
 
 const props = defineProps({
   form: { type: Object, required: true },
@@ -74,8 +75,8 @@ const onSubmit = () => emit('submit');
       <p class="text-sm text-slate-500">Preencha apenas se desejar definir uma nova senha para o usuário.</p>
     </fieldset>
 
-    <div class="space-y-2">
-      <span class="text-sm font-semibold text-slate-700">Perfil de acesso</span>
+    <fieldset class="space-y-3">
+      <legend class="text-sm font-semibold text-slate-700">Perfil de acesso</legend>
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="form-label">
           Função *
@@ -84,12 +85,14 @@ const onSubmit = () => emit('submit');
             { value: 'admin', label: 'Administrador' }
           ]" placeholder="" required :error="!!form.errors.role" />
         </label>
-        <p class="text-sm text-slate-500">
-          Administradores podem gerenciar usuários. Demais perfis possuem acesso restrito às próprias operações.
-        </p>
+
       </div>
       <span v-if="form.errors.role" class="text-sm font-medium text-rose-600">{{ form.errors.role }}</span>
-    </div>
+      <span class="text-sm text-blue-500 mt-1 flex items-center gap-1">
+          <HeroIcon name="information-circle" class="h-4 w-4" />
+          Administradores podem gerenciar usuários. Demais perfis possuem acesso restrito às próprias operações.
+        </span>
+    </fieldset>
 
     <PermissionsMatrix :resources="props.resources"
                        :role="form.role"

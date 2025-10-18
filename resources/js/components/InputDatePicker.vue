@@ -86,6 +86,18 @@ const endH = ref(0), endM = ref(0)
 onMounted(() => syncFromModel())
 watch(() => props.modelValue, () => syncFromModel())
 
+if (!props.range) {
+  watch([singleH, singleM], () => {
+    if (singleDate.value) commitSingle()
+  })
+}
+
+if (props.range) {
+  watch([startH, startM, endH, endM], () => {
+    if (rangeStart.value && rangeEnd.value) commitRange()
+  })
+}
+
 function syncFromModel() {
   if (props.range) {
     const startS = props.modelValue?.start || null

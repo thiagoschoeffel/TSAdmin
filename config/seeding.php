@@ -65,6 +65,10 @@ return [
         'lead_interactions_per_lead' => [0, 5],
         'orders' => 250,
         'opportunities' => 50,
+        'sectors' => 10,
+        'machines' => 15,
+        'reason_types' => 5,
+        'reasons' => 23,
+        'machine_downtimes' => 30,
     ],
 ];
-

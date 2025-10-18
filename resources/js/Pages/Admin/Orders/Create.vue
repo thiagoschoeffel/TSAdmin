@@ -73,7 +73,7 @@ const removeItem = (index) => {
 // Modal
 const modalOpen = ref(false);
 const selectedClient = ref(null);
-const paymentMethod = ref('');
+const paymentMethod = ref('cash');
 const deliveryType = ref('pickup');
 const selectedAddress = ref(null);
 
@@ -108,7 +108,7 @@ const finalizeOrder = () => {
       // Limpar formulário para novo pedido
       items.value = [];
       selectedClient.value = null;
-      paymentMethod.value = '';
+      paymentMethod.value = 'cash';
       deliveryType.value = 'pickup';
       selectedAddress.value = null;
 

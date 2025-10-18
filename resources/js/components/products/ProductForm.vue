@@ -423,7 +423,7 @@ const handleComponentAction = ({ action, item }) => {
 
       <label class="form-label">
         Unidade de Medida *
-        <InputSelect v-model="form.unit_of_measure" required :error="!!form.errors.unit_of_measure" :options="[
+        <InputSelect v-model="form.unit_of_measure" required :error="!!form.errors.unit_of_measure" :placeholder="null" :options="[
           { value: 'UND', label: 'Unidade (UND)' },
           { value: 'KG', label: 'Quilograma (KG)' },
           { value: 'M2', label: 'Metro Quadrado (M²)' },

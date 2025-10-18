@@ -148,7 +148,7 @@ const handleTableAction = ({ action, item }) => {
               { value: '', label: 'Todos' },
               { value: 'individual', label: 'Pessoa Física' },
               { value: 'company', label: 'Pessoa Jurídica' }
-            ]" />
+            ]" placeholder="" />
           </label>
           <label class="form-label">
             Status
@@ -156,7 +156,7 @@ const handleTableAction = ({ action, item }) => {
               { value: '', label: 'Todos' },
               { value: 'active', label: 'Ativos' },
               { value: 'inactive', label: 'Inativos' }
-            ]" />
+            ]" placeholder="" />
           </label>
         </div>
         <div class="flex flex-wrap gap-3">

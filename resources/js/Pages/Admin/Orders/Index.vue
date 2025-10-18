@@ -245,7 +245,7 @@ const handleTableAction = ({ action, item }) => {
               { value: 'shipped', label: 'Enviado' },
               { value: 'delivered', label: 'Entregue' },
               { value: 'cancelled', label: 'Cancelado' }
-            ]" />
+            ]" placeholder="" />
           </label>
           <label class="form-label">
             Período do pedido

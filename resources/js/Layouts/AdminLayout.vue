@@ -16,6 +16,11 @@ const isAdmin = computed(() => user.value?.role === 'admin');
 const canViewClients = computed(() => isAdmin.value || !!user.value?.permissions?.clients?.view);
 const canViewOrders = computed(() => isAdmin.value || !!user.value?.permissions?.orders?.view);
 const canViewProducts = computed(() => isAdmin.value || !!user.value?.permissions?.products?.view);
+const canViewSectors = computed(() => isAdmin.value || !!user.value?.permissions?.sectors?.view);
+const canViewMachines = computed(() => isAdmin.value || !!user.value?.permissions?.machines?.view);
+const canViewReasonTypes = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.view);
+const canViewReasons = computed(() => isAdmin.value || !!user.value?.permissions?.reasons?.view);
+const canViewMachineDowntimes = computed(() => isAdmin.value || !!user.value?.permissions?.machine_downtimes?.view);
 
 // Logout modal state and action
 const logoutOpen = ref(false);
@@ -84,6 +89,23 @@ watch(() => page.props.flash, (f) => {
                   <HeroIcon name="cube" class="h-5 w-5" />
                   <span>Produtos</span>
                 </Link>
+                <DropdownDivider />
+                <Link v-if="canViewSectors" class="dropdown-link" :href="route('sectors.index')">
+                  <HeroIcon name="rectangle-group" class="h-5 w-5" />
+                  <span>Setores</span>
+                </Link>
+                <Link v-if="canViewMachines" class="dropdown-link" :href="route('machines.index')">
+                  <HeroIcon name="cpu-chip" class="h-5 w-5" />
+                  <span>Máquinas</span>
+                </Link>
+                <Link v-if="canViewReasonTypes" class="dropdown-link" :href="route('reason-types.index')">
+                  <HeroIcon name="swatch" class="h-5 w-5" />
+                  <span>Tipos de Motivos</span>
+                </Link>
+                <Link v-if="canViewReasons" class="dropdown-link" :href="route('reasons.index')">
+                  <HeroIcon name="tag" class="h-5 w-5" />
+                  <span>Motivos</span>
+                </Link>
               </template>
             </Dropdown>
             <Dropdown panelClass="menu-panel" openClass="is-open">
@@ -100,6 +122,11 @@ watch(() => page.props.flash, (f) => {
                 <Link v-if="canViewOrders" class="dropdown-link" :href="route('orders.index')">
                   <HeroIcon name="shopping-bag" class="h-5 w-5" />
                   <span>Pedidos</span>
+                </Link>
+                <DropdownDivider />
+                <Link v-if="canViewMachineDowntimes" class="dropdown-link" :href="route('machine_downtimes.index')">
+                  <HeroIcon name="pause-circle" class="h-5 w-5" />
+                  <span class="whitespace-nowrap">Paradas de Máquina</span>
                 </Link>
               </template>
             </Dropdown>

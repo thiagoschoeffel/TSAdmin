@@ -103,6 +103,56 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('sectors')->name('sectors.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\SectorController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\SectorController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\SectorController::class, 'store'])->name('store');
+        Route::get('{sector}/modal', [\App\Http\Controllers\SectorController::class, 'modal'])->name('modal');
+        Route::get('{sector}/edit', [\App\Http\Controllers\SectorController::class, 'edit'])->name('edit');
+        Route::patch('{sector}', [\App\Http\Controllers\SectorController::class, 'update'])->name('update');
+        Route::delete('{sector}', [\App\Http\Controllers\SectorController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('machines')->name('machines.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\MachinesController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\MachinesController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\MachinesController::class, 'store'])->name('store');
+        Route::get('{machine}/modal', [\App\Http\Controllers\MachinesController::class, 'modal'])->name('modal');
+        Route::get('{machine}/edit', [\App\Http\Controllers\MachinesController::class, 'edit'])->name('edit');
+        Route::patch('{machine}', [\App\Http\Controllers\MachinesController::class, 'update'])->name('update');
+        Route::delete('{machine}', [\App\Http\Controllers\MachinesController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('reason-types')->name('reason-types.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\ReasonTypesController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\ReasonTypesController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ReasonTypesController::class, 'store'])->name('store');
+        Route::get('{reasonType}/modal', [\App\Http\Controllers\ReasonTypesController::class, 'modal'])->name('modal');
+        Route::get('{reasonType}/edit', [\App\Http\Controllers\ReasonTypesController::class, 'edit'])->name('edit');
+        Route::patch('{reasonType}', [\App\Http\Controllers\ReasonTypesController::class, 'update'])->name('update');
+        Route::delete('{reasonType}', [\App\Http\Controllers\ReasonTypesController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('reasons')->name('reasons.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\ReasonController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\ReasonController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ReasonController::class, 'store'])->name('store');
+        Route::get('{reason}/modal', [\App\Http\Controllers\ReasonController::class, 'modal'])->name('modal');
+        Route::get('{reason}/edit', [\App\Http\Controllers\ReasonController::class, 'edit'])->name('edit');
+        Route::patch('{reason}', [\App\Http\Controllers\ReasonController::class, 'update'])->name('update');
+        Route::delete('{reason}', [\App\Http\Controllers\ReasonController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('machine-downtimes')->name('machine_downtimes.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\MachineDowntimeController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\MachineDowntimeController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\MachineDowntimeController::class, 'store'])->name('store');
+        Route::get('{machineDowntime}/modal', [\App\Http\Controllers\MachineDowntimeController::class, 'modal'])->name('modal');
+        Route::get('{machineDowntime}/edit', [\App\Http\Controllers\MachineDowntimeController::class, 'edit'])->name('edit');
+        Route::patch('{machineDowntime}', [\App\Http\Controllers\MachineDowntimeController::class, 'update'])->name('update');
+        Route::delete('{machineDowntime}', [\App\Http\Controllers\MachineDowntimeController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('orders')->name('orders.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\OrderController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\OrderController::class, 'create'])->name('create');

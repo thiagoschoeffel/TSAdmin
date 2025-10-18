@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: example_app
-      POSTGRES_USER: example
-      POSTGRES_PASSWORD: example
+      POSTGRES_DB: tsadmin
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
@@ -22,4 +22,4 @@ services:
 
 volumes:
   db-data:
-    name: example_app_db_data
+    name: tsadmin_db_data
