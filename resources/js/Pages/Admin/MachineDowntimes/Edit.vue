@@ -17,8 +17,8 @@ const route = instance.appContext.config.globalProperties.route;
 const form = reactive({
   machine_id: props.downtime.machine_id,
   reason_id: props.downtime.reason_id,
-  started_at: props.downtime.started_at?.substring(0,16) ?? '',
-  ended_at: props.downtime.ended_at?.substring(0,16) ?? '',
+  started_at: props.downtime.started_at ? new Date(props.downtime.started_at).toISOString().slice(0, 16).replace('T', ' ') : '',
+  ended_at: props.downtime.ended_at ? new Date(props.downtime.ended_at).toISOString().slice(0, 16).replace('T', ' ') : '',
   notes: props.downtime.notes || '',
   status: props.downtime.status || 'active',
   errors: {},
