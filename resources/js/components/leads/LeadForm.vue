@@ -374,7 +374,7 @@ const getTypeIcon = (type) => {
     email: 'envelope',
     meeting: 'user-group',
     message: 'device-phone-mobile',
-    visit: 'home',
+    visit: 'office-building',
     other: 'chat-bubble-oval-left-ellipsis'
   };
   return icons[type] || 'chat-bubble-oval-left-ellipsis';
