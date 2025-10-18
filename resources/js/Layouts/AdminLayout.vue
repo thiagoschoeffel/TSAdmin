@@ -156,6 +156,20 @@ watch(() => page.props.flash, (f) => {
                 </Link>
               </template>
             </Dropdown>
+            <Dropdown panelClass="menu-panel" openClass="is-open">
+              <template #trigger="{ toggle }">
+                <button type="button" class="group transition hover:text-white" @click="toggle">
+                  <span class="inline-flex items-center gap-2">
+                    <HeroIcon name="folder" class="h-4 w-4 transition-colors group-hover:text-white" />
+                    <span>Industrialização EPS</span>
+                    <HeroIcon name="chevron-down" class="h-4 w-4 transition-colors group-hover:text-white" />
+                  </span>
+                </button>
+              </template>
+              <template #default>
+                <!-- Empty for now -->
+              </template>
+            </Dropdown>
           </div>
         </div>
 

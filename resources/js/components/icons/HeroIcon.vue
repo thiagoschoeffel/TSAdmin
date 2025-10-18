@@ -33,6 +33,7 @@ import {
   ClipboardDocumentListIcon,
   ArrowsRightLeftIcon,
   BuildingOfficeIcon,
+  FolderIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -73,6 +74,7 @@ const map = {
   'clipboard-document-list': ClipboardDocumentListIcon,
   'arrows-right-left': ArrowsRightLeftIcon,
   'office-building': BuildingOfficeIcon,
+  'folder': FolderIcon,
 };
 
 const Icon = computed(() => map[props.name] || null);
