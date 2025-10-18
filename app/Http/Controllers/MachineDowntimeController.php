@@ -51,8 +51,9 @@ class MachineDowntimeController extends Controller
         // Decorate with derived fields
         $downtimes->getCollection()->transform(function (MachineDowntime $m) {
             $duration = null;
-            if ($m->started_at && $m->ended_at) {
-                $minutes = max(0, $m->ended_at->diffInMinutes($m->started_at));
+            if ($m->started_at) {
+                $endTime = $m->ended_at ?: now();
+                $minutes = abs($endTime->diffInMinutes($m->started_at));
                 $hh = str_pad((string) intdiv($minutes, 60), 2, '0', STR_PAD_LEFT);
                 $mm = str_pad((string) ($minutes % 60), 2, '0', STR_PAD_LEFT);
                 $duration = $hh . ':' . $mm;
@@ -60,6 +61,8 @@ class MachineDowntimeController extends Controller
             $m->machine_name = $m->machine?->name;
             $m->reason_name = $m->reason?->name;
             $m->duration = $duration;
+            $m->started_at_formatted = $m->started_at?->format('d/m/Y H:i');
+            $m->ended_at_formatted = $m->ended_at?->format('d/m/Y H:i');
             return $m;
         });
 
@@ -142,8 +145,9 @@ class MachineDowntimeController extends Controller
         $machineDowntime->load(['machine', 'reason', 'creator', 'updater']);
 
         $duration = null;
-        if ($machineDowntime->started_at && $machineDowntime->ended_at) {
-            $minutes = max(0, $machineDowntime->ended_at->diffInMinutes($machineDowntime->started_at));
+        if ($machineDowntime->started_at) {
+            $endTime = $machineDowntime->ended_at ?: now();
+            $minutes = abs($endTime->diffInMinutes($machineDowntime->started_at));
             $hh = str_pad((string) intdiv($minutes, 60), 2, '0', STR_PAD_LEFT);
             $mm = str_pad((string) ($minutes % 60), 2, '0', STR_PAD_LEFT);
             $duration = $hh . ':' . $mm;
@@ -156,8 +160,8 @@ class MachineDowntimeController extends Controller
                 'machine_name' => $machineDowntime->machine?->name,
                 'reason_id' => $machineDowntime->reason_id,
                 'reason_name' => $machineDowntime->reason?->name,
-                'started_at' => $machineDowntime->started_at?->format('Y-m-d\TH:i'),
-                'ended_at' => $machineDowntime->ended_at?->format('Y-m-d\TH:i'),
+                'started_at' => $machineDowntime->started_at?->format('d/m/Y H:i'),
+                'ended_at' => $machineDowntime->ended_at?->format('d/m/Y H:i'),
                 'duration' => $duration,
                 'notes' => $machineDowntime->notes,
                 'status' => $machineDowntime->status,

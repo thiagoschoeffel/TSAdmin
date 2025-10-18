@@ -42,7 +42,6 @@ async function submit() {
           <h1 class="text-2xl font-semibold text-slate-900">Editar Parada de Máquina</h1>
           <p class="mt-2 text-sm text-slate-500">Atualize os dados da parada.</p>
         </div>
-        <Button as="a" :href="route('machine_downtimes.index')" variant="ghost">Voltar</Button>
       </div>
 
       <MachineDowntimeForm :form="form" :machines="props.machines" :reasons="props.reasons" :submit-label="'Salvar alterações'" :cancel-href="route('machine_downtimes.index')" @submit="submit" />

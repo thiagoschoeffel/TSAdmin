@@ -52,6 +52,26 @@ const handleReasonInput = () => {
 watch(() => props.form.machine_id, syncMachineFromId, { immediate: true });
 watch(() => props.form.reason_id, syncReasonFromId, { immediate: true });
 
+// Local refs for date fields to ensure proper reactivity
+const startedAt = ref(props.form.started_at);
+const endedAt = ref(props.form.ended_at);
+
+// Watch local refs and update form
+watch(startedAt, (newVal) => {
+  props.form.started_at = newVal;
+});
+watch(endedAt, (newVal) => {
+  props.form.ended_at = newVal;
+});
+
+// Sync local refs from form changes (e.g., on edit)
+watch(() => props.form.started_at, (newVal) => {
+  startedAt.value = newVal;
+}, { immediate: true });
+watch(() => props.form.ended_at, (newVal) => {
+  endedAt.value = newVal;
+}, { immediate: true });
+
 const submit = () => emit('submit');
 </script>
 
@@ -67,6 +87,7 @@ const submit = () => emit('submit');
                    required
                    :error="!!form.errors?.machine_id"
                    @input="handleMachineInput" @change="handleMachineInput" />
+        <span v-if="form.errors?.machine_id" class="text-sm font-medium text-rose-600">{{ form.errors.machine_id }}</span>
         <datalist id="machines-list">
           <option v-for="m in machineSuggestions" :key="m.id" :value="m.name">{{ m.name }}</option>
         </datalist>
@@ -80,21 +101,25 @@ const submit = () => emit('submit');
                    required
                    :error="!!form.errors?.reason_id"
                    @input="handleReasonInput" @change="handleReasonInput" />
+        <span v-if="form.errors?.reason_id" class="text-sm font-medium text-rose-600">{{ form.errors.reason_id }}</span>
         <datalist id="reasons-list">
           <option v-for="r in reasonSuggestions" :key="r.id" :value="r.name">{{ r.name }}</option>
         </datalist>
       </label>
       <label class="form-label">
         Início *
-        <InputDatePicker v-model="form.started_at" :withTime="true" required :error="!!form.errors?.started_at" />
+        <InputDatePicker v-model="startedAt" :withTime="true" required :error="!!form.errors?.started_at" />
+        <span v-if="form.errors?.started_at" class="text-sm font-medium text-rose-600">{{ form.errors.started_at }}</span>
       </label>
       <label class="form-label">
         Fim *
-        <InputDatePicker v-model="form.ended_at" :withTime="true" required :error="!!form.errors?.ended_at" />
+        <InputDatePicker v-model="endedAt" :withTime="true" required :error="!!form.errors?.ended_at" />
+        <span v-if="form.errors?.ended_at" class="text-sm font-medium text-rose-600">{{ form.errors.ended_at }}</span>
       </label>
       <label class="form-label sm:col-span-2">
         Observações
         <InputTextarea v-model="form.notes" placeholder="Observações (opcional)" :error="!!form.errors?.notes" />
+        <span v-if="form.errors?.notes" class="text-sm font-medium text-rose-600">{{ form.errors.notes }}</span>
       </label>
       <div class="switch-field sm:col-span-2">
         <span class="switch-label">Status da parada</span>
@@ -103,6 +128,7 @@ const submit = () => emit('submit');
           {{ form.status === 'active' ? 'Ativo' : 'Inativo' }}
         </span>
       </div>
+      <span v-if="form.errors?.status" class="text-sm font-medium text-rose-600 sm:col-span-2">{{ form.errors.status }}</span>
     </div>
 
     <div class="flex gap-3">

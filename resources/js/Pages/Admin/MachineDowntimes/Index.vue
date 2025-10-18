@@ -70,10 +70,9 @@ const openDetails = (row) => { details.value.id = row.id; details.value.open = t
 const columns = [
   { header: 'Máquina', key: 'machine_name', component: 'button', props: (row) => ({ type:'button', class: canView.value ? 'font-bold text-blue-600 cursor-pointer' : 'text-slate-900', onClick: () => openDetails(row) }) },
   { header: 'Motivo', key: 'reason_name' },
-  { header: 'Início', key: 'started_at' },
-  { header: 'Fim', key: 'ended_at' },
+  { header: 'Início', key: 'started_at_formatted' },
+  { header: 'Fim', key: 'ended_at_formatted' },
   { header: 'Duração', key: 'duration' },
-  { header: 'Atualizado em', key: 'updated_at' },
   { header: 'Status', key: 'status', component: Badge, props: (r) => ({ variant: r.status === 'active' ? 'success' : 'danger' }), formatter: (v) => v === 'active' ? 'Ativo' : 'Inativo' },
 ];
 
