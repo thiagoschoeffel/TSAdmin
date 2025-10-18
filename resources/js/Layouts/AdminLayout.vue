@@ -25,6 +25,7 @@ const canViewReasons = computed(() => isAdmin.value || !!user.value?.permissions
 const canViewMachineDowntimes = computed(() => isAdmin.value || !!user.value?.permissions?.machine_downtimes?.view);
 const canViewRawMaterials = computed(() => isAdmin.value || !!user.value?.permissions?.raw_materials?.view);
 const canViewBlockTypes = computed(() => isAdmin.value || !!user.value?.permissions?.block_types?.view);
+const canViewMoldTypes = computed(() => isAdmin.value || !!user.value?.permissions?.mold_types?.view);
 
 // Logout modal state and action
 const logoutOpen = ref(false);
@@ -181,6 +182,10 @@ watch(() => page.props.flash, (f) => {
                 <Link v-if="canViewBlockTypes" class="dropdown-link" :href="route('block-types.index')">
                   <HeroIcon name="command-line" class="h-5 w-5" />
                   <span class="whitespace-nowrap">Tipos de Blocos</span>
+                </Link>
+                <Link v-if="canViewMoldTypes" class="dropdown-link" :href="route('mold-types.index')">
+                  <HeroIcon name="command-line" class="h-5 w-5" />
+                  <span class="whitespace-nowrap">Tipos de Moldados</span>
                 </Link>
               </template>
             </Dropdown>

@@ -48,12 +48,13 @@ class DevSeeder extends Seeder
             $this->call(ReasonTypeSeeder::class);
             $this->call(ReasonSeeder::class);
             $this->call(MachineDowntimeSeeder::class);
-            $this->call(ClientSeeder::class);
+            $this->call(OperatorSeeder::class);
+            $this->call(BlockTypeSeeder::class);
+            $this->call(MoldTypeSeeder::class);
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);
             $this->call(LeadInteractionSeeder::class);
             $this->call(OrderSeeder::class);
-            $this->call(OpportunitySeeder::class);
             $this->call(OperatorSeeder::class);
         });
     }

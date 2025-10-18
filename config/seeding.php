@@ -74,5 +74,6 @@ return [
         'operators' => 7,
         'raw_materials' => 10,
         'block_types' => 10,
+        'mold_types' => 10,
     ],
 ];

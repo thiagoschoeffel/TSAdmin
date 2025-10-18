@@ -9,23 +9,23 @@ import HeroIcon from '@/components/icons/HeroIcon.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import PerPageSelector from '@/components/PerPageSelector.vue';
-import BlockTypeDetailsModal from '@/components/blockTypes/BlockTypeDetailsModal.vue';
+import MoldTypeDetailsModal from '@/components/moldTypes/MoldTypeDetailsModal.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
 import { formatQuantity } from '@/utils/formatters.js';
 
 const props = defineProps({
-  blockTypes: { type: Object, required: true },
+  moldTypes: { type: Object, required: true },
   filters: { type: Object, default: () => ({}) },
 });
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user || null);
 const isAdmin = computed(() => user.value?.role === 'admin');
-const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.block_types?.create);
-const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.block_types?.update);
-const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.block_types?.delete);
-const canView = computed(() => isAdmin.value || !!user.value?.permissions?.block_types?.view);
+const canCreate = computed(() => isAdmin.value || !!user.value?.permissions?.mold_types?.create);
+const canUpdate = computed(() => isAdmin.value || !!user.value?.permissions?.mold_types?.update);
+const canDelete = computed(() => isAdmin.value || !!user.value?.permissions?.mold_types?.delete);
+const canView = computed(() => isAdmin.value || !!user.value?.permissions?.mold_types?.view);
 
 // Ziggy `route` helper from app globalProperties
 const instance = getCurrentInstance();
@@ -37,25 +37,25 @@ const status = ref(props.filters.status || '');
 const filtering = ref(false);
 const submitFilters = () => {
   filtering.value = true;
-  router.get(route('block-types.index'), { search: search.value, status: status.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
+  router.get(route('mold-types.index'), { search: search.value, status: status.value }, { preserveState: true, replace: true, onFinish: () => filtering.value = false });
 };
 const resetFilters = () => { search.value = ''; status.value = ''; submitFilters(); };
 
 // Estado para confirmação de exclusão
-const deleteState = ref({ open: false, processing: false, blockType: null });
+const deleteState = ref({ open: false, processing: false, moldType: null });
 
-const confirmDelete = (blockType) => {
-  deleteState.value = { open: true, processing: false, blockType };
+const confirmDelete = (moldType) => {
+  deleteState.value = { open: true, processing: false, moldType };
 };
 
 const performDelete = async () => {
-  if (!deleteState.value.blockType) return;
+  if (!deleteState.value.moldType) return;
 
   deleteState.value.processing = true;
   try {
-    await router.delete(route('block-types.destroy', deleteState.value.blockType.id), {
+    await router.delete(route('mold-types.destroy', deleteState.value.moldType.id), {
       onSuccess: () => {
-        deleteState.value = { open: false, processing: false, blockType: null };
+        deleteState.value = { open: false, processing: false, moldType: null };
       },
       onError: () => {
         deleteState.value.processing = false;
@@ -63,13 +63,13 @@ const performDelete = async () => {
     });
   } catch (error) {
     deleteState.value.processing = false;
-    console.error('Erro ao excluir tipo de bloco:', error);
+    console.error('Erro ao excluir tipo de moldado:', error);
   }
 };
 
 // Estado para modal de detalhes
-const details = ref({ open: false, blockTypeId: null });
-const openDetails = (blockType) => { details.value.blockTypeId = blockType.id; details.value.open = true; };
+const details = ref({ open: false, moldTypeId: null });
+const openDetails = (moldType) => { details.value.moldTypeId = moldType.id; details.value.open = true; };
 
 // DataTable configuration
 const columns = [
@@ -77,23 +77,23 @@ const columns = [
     header: 'Nome',
     key: 'name',
     component: 'button',
-    props: (blockType) => ({
+    props: (moldType) => ({
       type: 'button',
       class: canView.value ? 'font-bold text-blue-600 cursor-pointer' : 'text-slate-900',
-      onClick: () => openDetails(blockType)
+      onClick: () => openDetails(moldType)
     })
   },
   {
-    header: 'Matéria-Prima Virgem (%)',
-    key: 'raw_material_percentage',
-    formatter: (value) => value ? `${formatQuantity(value)}%` : '-'
+    header: 'Quantidade de peças por pacote (UND)',
+    key: 'pieces_per_package',
+    formatter: (value) => value ? formatQuantity(value) : '-'
   },
   {
     header: 'Status',
     key: 'status',
     component: Badge,
-    props: (blockType) => ({
-      variant: blockType.status === 'active' ? 'success' : 'danger'
+    props: (moldType) => ({
+      variant: moldType.status === 'active' ? 'success' : 'danger'
     }),
     formatter: (value) => value === 'active' ? 'Ativo' : 'Inativo'
   }
@@ -107,8 +107,8 @@ const actions = computed(() => {
       label: 'Editar',
       icon: 'pencil',
       component: Link,
-      props: (blockType) => ({
-        href: route('block-types.edit', blockType.id),
+      props: (moldType) => ({
+        href: route('mold-types.edit', moldType.id),
         class: 'menu-panel-link'
       })
     });
@@ -140,18 +140,18 @@ const handleTableAction = ({ action, item }) => {
 
 <template>
   <AdminLayout>
-    <Head title="Tipos de Blocos" />
+    <Head title="Tipos de Moldados" />
 
     <section class="card space-y-8">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 class="text-2xl font-semibold text-slate-900 flex items-center gap-2">
             <HeroIcon name="command-line" outline class="h-7 w-7 text-slate-700" />
-            Tipos de Blocos
+            Tipos de Moldados
           </h1>
-          <p class="mt-2 text-sm text-slate-500">Gerencie os tipos de blocos cadastrados no sistema.</p>
+          <p class="mt-2 text-sm text-slate-500">Gerencie os tipos de moldados cadastrados no sistema.</p>
         </div>
-        <Button v-if="canCreate" variant="primary" :href="route('block-types.create')">Novo tipo de bloco</Button>
+        <Button v-if="canCreate" variant="primary" :href="route('mold-types.create')">Novo tipo de moldado</Button>
       </div>
 
       <form @submit.prevent="submitFilters" class="space-y-4">
@@ -180,31 +180,31 @@ const handleTableAction = ({ action, item }) => {
       </form>
 
       <div class="flex items-center justify-end">
-        <PerPageSelector :current="blockTypes.per_page ?? blockTypes.perPage ?? 10" />
+        <PerPageSelector :current="moldTypes.per_page ?? moldTypes.perPage ?? 10" />
       </div>
 
       <DataTable
         :columns="columns"
-        :data="blockTypes.data"
+        :data="moldTypes.data"
         :actions="actions"
-        empty-message="Nenhum tipo de bloco encontrado."
+        empty-message="Nenhum tipo de moldado encontrado."
         @action="handleTableAction"
       />
 
-      <Pagination v-if="blockTypes && blockTypes.total" :paginator="blockTypes" />
+      <Pagination v-if="moldTypes && moldTypes.total" :paginator="moldTypes" />
     </section>
 
     <ConfirmModal v-model="deleteState.open"
                   :processing="deleteState.processing"
-                  title="Excluir tipo de bloco"
-                  :message="deleteState.blockType ? `Deseja realmente remover ${deleteState.blockType.name}?` : ''"
+                  title="Excluir tipo de moldado"
+                  :message="deleteState.moldType ? `Deseja realmente remover ${deleteState.moldType.name}?` : ''"
                   confirm-text="Excluir"
                   variant="danger"
                   @confirm="performDelete" />
 
-    <BlockTypeDetailsModal
+    <MoldTypeDetailsModal
       v-model="details.open"
-      :block-type-id="details.blockTypeId"
+      :mold-type-id="details.moldTypeId"
     />
   </AdminLayout>
 </template>

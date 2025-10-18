@@ -7,7 +7,7 @@ import { formatQuantity } from '@/utils/formatters.js';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
-  blockTypeId: { type: [Number, String, null], default: null },
+  moldTypeId: { type: [Number, String, null], default: null },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -18,26 +18,26 @@ const route = instance.appContext.config.globalProperties.route;
 const open = ref(props.modelValue);
 const loading = ref(false);
 const error = ref(false);
-const payload = ref(null); // structured blockType data (required)
+const payload = ref(null); // structured moldType data (required)
 
 watch(() => props.modelValue, (v) => { open.value = v; if (v) tryFetch(); });
 watch(open, (v) => emit('update:modelValue', v));
-watch(() => props.blockTypeId, () => { if (open.value) tryFetch(); });
+watch(() => props.moldTypeId, () => { if (open.value) tryFetch(); });
 
 async function tryFetch() {
-  if (!props.blockTypeId) return;
+  if (!props.moldTypeId) return;
   loading.value = true;
   error.value = false;
   payload.value = null;
   try {
-    const res = await fetch(route('block-types.modal', props.blockTypeId), {
+    const res = await fetch(route('mold-types.modal', props.moldTypeId), {
       headers: { Accept: 'application/json' },
       credentials: 'same-origin',
     });
     if (!res.ok) throw new Error('failed');
     const data = await res.json();
-    if (!data || !data.blockType) throw new Error('invalid');
-    payload.value = data.blockType;
+    if (!data || !data.moldType) throw new Error('invalid');
+    payload.value = data.moldType;
   } catch (_) {
     error.value = true;
   } finally {
@@ -78,7 +78,7 @@ const updatedBy = computed(() => {
 </script>
 
 <template>
-  <Modal v-model="open" title="Detalhes do tipo de bloco" size="lg" :lockScroll="true" :closeOnBackdrop="true">
+  <Modal v-model="open" title="Detalhes do tipo de moldado" size="lg" :lockScroll="true" :closeOnBackdrop="true">
     <div v-if="loading" class="space-y-6" aria-hidden="true">
       <div class="space-y-3">
         <div class="skeleton h-6 w-48 rounded-md"></div>
@@ -106,11 +106,11 @@ const updatedBy = computed(() => {
           </div>
         </div>
       </div>
-      <span class="sr-only">Carregando detalhes do tipo de bloco...</span>
+      <span class="sr-only">Carregando detalhes do tipo de moldado...</span>
     </div>
 
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 text-center text-sm text-slate-500">
-      <p class="text-sm text-rose-600">Não foi possível carregar os detalhes do tipo de bloco.</p>
+      <p class="text-sm text-rose-600">Não foi possível carregar os detalhes do tipo de moldado.</p>
       <Button type="button" variant="secondary" @click="retry">Tentar novamente</Button>
     </div>
 
@@ -123,8 +123,8 @@ const updatedBy = computed(() => {
             <dd class="text-sm text-slate-800">{{ payload.name }}</dd>
           </div>
           <div class="space-y-1">
-            <dt class="text-sm font-semibold text-slate-500">Matéria-Prima Virgem (%)</dt>
-            <dd class="text-sm text-slate-800">{{ payload.raw_material_percentage ? `${formatQuantity(payload.raw_material_percentage)}%` : '—' }}</dd>
+            <dt class="text-sm font-semibold text-slate-500">Quantidade de peças por pacote (UND)</dt>
+            <dd class="text-sm text-slate-800">{{ payload.pieces_per_package ? formatQuantity(payload.pieces_per_package) : '—' }}</dd>
           </div>
           <div class="space-y-1">
             <dt class="text-sm font-semibold text-slate-500">Status</dt>

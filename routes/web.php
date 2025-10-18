@@ -133,6 +133,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{blockType}', [\App\Http\Controllers\BlockTypeController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('mold-types')->name('mold-types.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\MoldTypeController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\MoldTypeController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\MoldTypeController::class, 'store'])->name('store');
+        Route::get('{moldType}/modal', [\App\Http\Controllers\MoldTypeController::class, 'modal'])->name('modal');
+        Route::get('{moldType}/edit', [\App\Http\Controllers\MoldTypeController::class, 'edit'])->name('edit');
+        Route::patch('{moldType}', [\App\Http\Controllers\MoldTypeController::class, 'update'])->name('update');
+        Route::delete('{moldType}', [\App\Http\Controllers\MoldTypeController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('almoxarifados')->name('almoxarifados.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\AlmoxarifadoController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\AlmoxarifadoController::class, 'create'])->name('create');
