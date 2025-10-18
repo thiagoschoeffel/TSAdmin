@@ -28,6 +28,7 @@ class DevSeeder extends Seeder
                 'machines',
                 'reason_types',
                 'reasons',
+                'machine_downtimes',
             ] as $table
         ) {
             if (Schema::hasTable($table)) {
@@ -43,6 +44,7 @@ class DevSeeder extends Seeder
             $this->call(MachineSeeder::class);
             $this->call(ReasonTypeSeeder::class);
             $this->call(ReasonSeeder::class);
+            $this->call(MachineDowntimeSeeder::class);
             $this->call(ClientSeeder::class);
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);
