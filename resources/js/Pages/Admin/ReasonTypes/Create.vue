@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import { route } from '@/ziggy-client';
 import { Head, useForm } from '@inertiajs/vue3';
 import ReasonTypeForm from '@/components/reasonTypes/ReasonTypeForm.vue';
 import Button from '@/components/Button.vue';

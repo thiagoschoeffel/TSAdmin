@@ -67,7 +67,7 @@ class ReasonTypesController extends Controller
             'created_by' => Auth::id(),
         ]);
 
-        return redirect()->route('reason-types.index')->with('status', 'Registro criado com sucesso.');
+    return redirect()->route('reason-types.index')->with('status', 'Tipo de motivo criado com sucesso!');
     }
 
     public function edit(ReasonType $reasonType): InertiaResponse
@@ -90,7 +90,7 @@ class ReasonTypesController extends Controller
             'updated_by' => Auth::id(),
         ]);
 
-        return redirect()->route('reason-types.index')->with('status', 'Registro atualizado com sucesso.');
+    return redirect()->route('reason-types.index')->with('status', 'Tipo de motivo atualizado com sucesso!');
     }
 
     public function destroy(ReasonType $reasonType): RedirectResponse
@@ -98,7 +98,7 @@ class ReasonTypesController extends Controller
         try {
             $this->authorize('delete', $reasonType);
             $reasonType->delete();
-            return redirect()->route('reason-types.index')->with('status', 'Registro excluído com sucesso.');
+            return redirect()->route('reason-types.index')->with('status', 'Tipo de motivo removido com sucesso!');
         } catch (AuthorizationException $e) {
             abort(403, $e->getMessage());
         } catch (\Exception $e) {
@@ -107,7 +107,7 @@ class ReasonTypesController extends Controller
                 'user_id' => Auth::id(),
                 'error' => $e->getMessage(),
             ]);
-            return back()->with('error', 'Erro interno ao excluir registro.');
+            return back()->with('error', 'Erro interno ao excluir tipo de motivo.');
         }
     }
 

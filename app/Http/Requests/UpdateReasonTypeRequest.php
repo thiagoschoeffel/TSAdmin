@@ -12,7 +12,7 @@ class UpdateReasonTypeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('reason_type'));
+    return $this->user()->can('update', $this->route('reasonType'));
     }
 
     /**
@@ -22,7 +22,7 @@ class UpdateReasonTypeRequest extends FormRequest
      */
     public function rules(): array
     {
-        $reasonType = $this->route('reason_type');
+    $reasonType = $this->route('reasonType');
 
         return [
             'name' => [
