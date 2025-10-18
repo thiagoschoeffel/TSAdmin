@@ -67,6 +67,15 @@ return [
                 'delete' => 'Excluir matérias-primas',
             ],
         ],
+        'silos' => [
+            'label' => 'Gestão de silos',
+            'abilities' => [
+                'view' => 'Visualizar silos',
+                'create' => 'Criar silos',
+                'update' => 'Editar silos',
+                'delete' => 'Excluir silos',
+            ],
+        ],
         'block_types' => [
             'label' => 'Gestão de tipos de blocos',
             'abilities' => [

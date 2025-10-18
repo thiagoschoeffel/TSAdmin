@@ -35,6 +35,7 @@ class DevSeeder extends Seeder
                 'block_types',
                 'mold_types',
                 'raw_materials',
+                'silos',
             ] as $table
         ) {
             if (Schema::hasTable($table)) {
@@ -62,6 +63,7 @@ class DevSeeder extends Seeder
             $this->call(OrderSeeder::class);
             $this->call(OperatorSeeder::class);
             $this->call(RawMaterialSeeder::class);
+            $this->call(SiloSeeder::class);
         });
     }
 }

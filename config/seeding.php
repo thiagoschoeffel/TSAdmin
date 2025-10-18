@@ -73,6 +73,7 @@ return [
         'machine_downtimes' => 30,
         'operators' => 7,
         'raw_materials' => 10,
+        'silos' => 10,
         'block_types' => 10,
         'mold_types' => 10,
     ],
