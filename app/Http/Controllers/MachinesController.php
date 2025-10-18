@@ -50,6 +50,7 @@ class MachinesController extends Controller
         return Inertia::render('Admin/Machines/Index', [
             'machines' => $machines,
             'filters' => request()->only(['search', 'status', 'sector_id']),
+            'sectors' => \App\Models\Sector::where('status', 'active')->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 

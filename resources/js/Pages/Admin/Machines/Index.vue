@@ -16,6 +16,7 @@ import DataTable from '@/components/DataTable.vue';
 const props = defineProps({
   machines: { type: Object, required: true },
   filters: { type: Object, default: () => ({}) },
+  sectors: { type: Array, default: () => [] },
 });
 
 const page = usePage();
@@ -161,17 +162,22 @@ const handleTableAction = ({ action, item }) => {
             <InputText v-model="search" placeholder="Digite para buscar" />
           </label>
           <label class="form-label">
+            Setor
+            <InputSelect
+              v-model="sectorId"
+              :options="[
+                { value: '', label: 'Todos' },
+                ...props.sectors.map(sector => ({ value: sector.id, label: sector.name }))
+              ]"
+              placeholder=""
+            />
+          </label>
+          <label class="form-label">
             Status
             <InputSelect v-model="status" :options="[
               { value: '', label: 'Todos' },
               { value: 'active', label: 'Ativos' },
               { value: 'inactive', label: 'Inativos' }
-            ]" placeholder="" />
-          </label>
-          <label class="form-label">
-            Setor
-            <InputSelect v-model="sectorId" :options="[
-              { value: '', label: 'Todos' }
             ]" placeholder="" />
           </label>
         </div>
