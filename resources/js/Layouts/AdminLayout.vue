@@ -70,7 +70,7 @@ watch(() => page.props.flash, (f) => {
                 <span>Dashboard</span>
               </span>
             </Link>
-            <Dropdown panelClass="menu-panel" openClass="is-open">
+            <Dropdown panelClass="menu-panel" openClass="is-open" align="center">
               <template #trigger="{ toggle }">
                 <button type="button" class="group transition hover:text-white" @click="toggle">
                   <span class="inline-flex items-center gap-2">
@@ -121,7 +121,7 @@ watch(() => page.props.flash, (f) => {
                 </Link>
               </template>
             </Dropdown>
-            <Dropdown panelClass="menu-panel" openClass="is-open">
+            <Dropdown panelClass="menu-panel" openClass="is-open" align="center">
               <template #trigger="{ toggle }">
                 <button type="button" class="group transition hover:text-white" @click="toggle">
                   <span class="inline-flex items-center gap-2">
@@ -143,7 +143,7 @@ watch(() => page.props.flash, (f) => {
                 </Link>
               </template>
             </Dropdown>
-            <Dropdown panelClass="menu-panel" openClass="is-open">
+            <Dropdown panelClass="menu-panel" openClass="is-open" align="center">
               <template #trigger="{ toggle }">
                 <button type="button" class="group transition hover:text-white" @click="toggle">
                   <span class="inline-flex items-center gap-2">
@@ -164,7 +164,7 @@ watch(() => page.props.flash, (f) => {
                 </Link>
               </template>
             </Dropdown>
-            <Dropdown panelClass="menu-panel" openClass="is-open">
+            <Dropdown panelClass="menu-panel" openClass="is-open" align="center">
               <template #trigger="{ toggle }">
                 <button type="button" class="group transition hover:text-white" @click="toggle">
                   <span class="inline-flex items-center gap-2">

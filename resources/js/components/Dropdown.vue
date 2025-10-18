@@ -7,6 +7,7 @@ const props = defineProps({
   offset: { type: Number, default: 8 },
   minWidth: { type: Number, default: 170 },
   portal: { type: Boolean, default: true },
+  align: { type: String, default: 'end', validator: (value) => ['center', 'end'].includes(value) },
 });
 
 const isOpen = ref(false);
@@ -46,16 +47,21 @@ function updatePosition() {
   el.style.visibility = prevStyle.visibility || '';
   el.style.display = prevStyle.display || '';
 
-  // Horizontal placement: prefer end; fall back to start if overflowing
-  let left = rect.right - width; // end-aligned
-  const overflowRight = left + width > vw - 8;
-  const canStart = rect.left + width <= vw - 8;
-  if (overflowRight && canStart) {
-    left = Math.max(8, rect.left);
+  // Horizontal placement
+  let left;
+  if (props.align === 'center') {
+    left = rect.left + rect.width / 2 - width / 2; // center-aligned
+  } else {
+    left = rect.right - width; // end-aligned (default)
   }
-  // Clamp within viewport margins
-  if (left + width > vw - 8) left = vw - width - 8;
-  if (left < 8) left = 8;
+  const overflowRight = left + width > vw - 8;
+  const overflowLeft = left < 8;
+  if (overflowRight) {
+    left = vw - width - 8;
+  }
+  if (overflowLeft) {
+    left = 8;
+  }
 
   // Vertical placement: prefer below; flip above if needed
   let top = rect.bottom + props.offset;
