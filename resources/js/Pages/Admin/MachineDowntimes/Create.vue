@@ -27,6 +27,15 @@ const form = reactive({
 async function submit() {
   form.errors = {};
   await router.post(route('machine_downtimes.store'), form, {
+    onSuccess: () => {
+      // Limpar formulário para novo registro
+      form.machine_id = '';
+      form.reason_id = '';
+      form.started_at = '';
+      form.ended_at = '';
+      form.notes = '';
+      form.status = 'active';
+    },
     onError: (e) => form.errors = e,
   });
 }
