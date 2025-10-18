@@ -15,27 +15,28 @@ const props = defineProps({
 const emit = defineEmits(['submit']);
 
 const sectorOptions = computed(() => {
-  const options = [{ value: '', label: 'Selecione um setor' }];
-  props.sectors.forEach(sector => {
-    options.push({ value: sector.id, label: sector.name });
-  });
-  return options;
+  return props.sectors.map(sector => ({ value: sector.id, label: sector.name }));
 });
+
+// Set default sector_id to the first sector if not already set
+if (!props.form.sector_id && props.sectors.length > 0) {
+  props.form.sector_id = props.sectors[0].id;
+}
 </script>
 
 <template>
   <form @submit.prevent="$emit('submit')" class="space-y-6">
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <label class="form-label">
-        Setor *
-        <InputSelect v-model="form.sector_id" :options="sectorOptions" required :error="!!form.errors.sector_id" />
-        <span v-if="form.errors.sector_id" class="text-sm font-medium text-rose-600">{{ form.errors.sector_id }}</span>
-      </label>
-
-      <label class="form-label">
         Nome *
         <InputText v-model="form.name" required :error="!!form.errors.name" />
         <span v-if="form.errors.name" class="text-sm font-medium text-rose-600">{{ form.errors.name }}</span>
+      </label>
+
+      <label class="form-label">
+        Setor *
+  <InputSelect v-model="form.sector_id" :options="sectorOptions" required :error="!!form.errors.sector_id" :placeholder="null" />
+        <span v-if="form.errors.sector_id" class="text-sm font-medium text-rose-600">{{ form.errors.sector_id }}</span>
       </label>
 
       <div class="switch-field sm:col-span-2 lg:col-span-3">
