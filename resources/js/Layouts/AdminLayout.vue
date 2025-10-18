@@ -106,10 +106,6 @@ watch(() => page.props.flash, (f) => {
                   <HeroIcon name="tag" class="h-5 w-5" />
                   <span>Motivos</span>
                 </Link>
-                <Link v-if="canViewMachineDowntimes" class="dropdown-link" :href="route('machine_downtimes.index')">
-                  <HeroIcon name="pause-circle" class="h-5 w-5" />
-                  <span>Paradas de Máquina</span>
-                </Link>
               </template>
             </Dropdown>
             <Dropdown panelClass="menu-panel" openClass="is-open">
@@ -126,6 +122,11 @@ watch(() => page.props.flash, (f) => {
                 <Link v-if="canViewOrders" class="dropdown-link" :href="route('orders.index')">
                   <HeroIcon name="shopping-bag" class="h-5 w-5" />
                   <span>Pedidos</span>
+                </Link>
+                <DropdownDivider />
+                <Link v-if="canViewMachineDowntimes" class="dropdown-link" :href="route('machine_downtimes.index')">
+                  <HeroIcon name="pause-circle" class="h-5 w-5" />
+                  <span class="whitespace-nowrap">Paradas de Máquina</span>
                 </Link>
               </template>
             </Dropdown>
