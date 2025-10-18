@@ -113,6 +113,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{sector}', [\App\Http\Controllers\SectorController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('raw-materials')->name('raw-materials.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\RawMaterialController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\RawMaterialController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\RawMaterialController::class, 'store'])->name('store');
+        Route::get('{rawMaterial}/modal', [\App\Http\Controllers\RawMaterialController::class, 'modal'])->name('modal');
+        Route::get('{rawMaterial}/edit', [\App\Http\Controllers\RawMaterialController::class, 'edit'])->name('edit');
+        Route::patch('{rawMaterial}', [\App\Http\Controllers\RawMaterialController::class, 'update'])->name('update');
+        Route::delete('{rawMaterial}', [\App\Http\Controllers\RawMaterialController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('almoxarifados')->name('almoxarifados.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\AlmoxarifadoController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\AlmoxarifadoController::class, 'create'])->name('create');

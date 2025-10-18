@@ -58,6 +58,15 @@ return [
                 'delete' => 'Excluir setores',
             ],
         ],
+        'raw_materials' => [
+            'label' => 'Gestão de matérias-primas',
+            'abilities' => [
+                'view' => 'Visualizar matérias-primas',
+                'create' => 'Criar matérias-primas',
+                'update' => 'Editar matérias-primas',
+                'delete' => 'Excluir matérias-primas',
+            ],
+        ],
         'almoxarifados' => [
             'label' => 'Gestão de almoxarifados',
             'abilities' => [

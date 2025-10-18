@@ -23,6 +23,7 @@ const canViewOperators = computed(() => isAdmin.value || !!user.value?.permissio
 const canViewReasonTypes = computed(() => isAdmin.value || !!user.value?.permissions?.reason_types?.view);
 const canViewReasons = computed(() => isAdmin.value || !!user.value?.permissions?.reasons?.view);
 const canViewMachineDowntimes = computed(() => isAdmin.value || !!user.value?.permissions?.machine_downtimes?.view);
+const canViewRawMaterials = computed(() => isAdmin.value || !!user.value?.permissions?.raw_materials?.view);
 
 // Logout modal state and action
 const logoutOpen = ref(false);
@@ -172,7 +173,10 @@ watch(() => page.props.flash, (f) => {
                 </button>
               </template>
               <template #default>
-                <!-- Empty for now -->
+                <Link v-if="canViewRawMaterials" class="dropdown-link" :href="route('raw-materials.index')">
+                  <HeroIcon name="command-line" class="h-5 w-5" />
+                  <span class="whitespace-nowrap">Matérias-Primas</span>
+                </Link>
               </template>
             </Dropdown>
           </div>
