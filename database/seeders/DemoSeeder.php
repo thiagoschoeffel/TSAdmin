@@ -15,6 +15,8 @@ class DemoSeeder extends Seeder
         foreach ([
             'order_items', 'orders',
             'product_components', 'products',
+            'production_pointing_operator', 'production_pointing_silo', 'production_pointings',
+            'raw_materials', 'operators', 'silos',
             'addresses', 'clients',
             'lead_interactions', 'opportunity_items', 'opportunities', 'leads',
         ] as $table) {
@@ -35,4 +37,3 @@ class DemoSeeder extends Seeder
         });
     }
 }
-

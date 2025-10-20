@@ -34,6 +34,9 @@ class DevSeeder extends Seeder
                 'operators',
                 'block_types',
                 'mold_types',
+                'production_pointing_operator',
+                'production_pointing_silo',
+                'production_pointings',
                 'raw_materials',
                 'silos',
             ] as $table
@@ -54,16 +57,17 @@ class DevSeeder extends Seeder
             $this->call(ReasonSeeder::class);
             $this->call(MachineDowntimeSeeder::class);
             $this->call(OperatorSeeder::class);
+            $this->call(RawMaterialSeeder::class);
+            $this->call(SiloSeeder::class);
             $this->call(BlockTypeSeeder::class);
             $this->call(MoldTypeSeeder::class);
+            $this->call(ProductionPointingSeeder::class);
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);
             $this->call(LeadInteractionSeeder::class);
             $this->call(OpportunitySeeder::class);
             $this->call(OrderSeeder::class);
             $this->call(OperatorSeeder::class);
-            $this->call(RawMaterialSeeder::class);
-            $this->call(SiloSeeder::class);
         });
     }
 }

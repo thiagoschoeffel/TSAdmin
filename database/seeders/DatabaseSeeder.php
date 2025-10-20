@@ -64,6 +64,7 @@ class DatabaseSeeder extends Seeder
             'sectors' => \App\Models\Sector::count(),
             'machines' => \App\Models\Machine::count(),
             'reason_types' => \App\Models\ReasonType::count(),
+            'production_pointings' => \App\Models\ProductionPointing::count(),
         ];
 
         $elapsed = microtime(true) - $this->startedAt;

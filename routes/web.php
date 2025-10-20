@@ -123,6 +123,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{rawMaterial}', [\App\Http\Controllers\RawMaterialController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('production-pointings')->name('production-pointings.')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\ProductionPointingController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\ProductionPointingController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ProductionPointingController::class, 'store'])->name('store');
+        Route::get('{productionPointing}/modal', [\App\Http\Controllers\ProductionPointingController::class, 'modal'])->name('modal');
+        Route::get('{productionPointing}/edit', [\App\Http\Controllers\ProductionPointingController::class, 'edit'])->name('edit');
+        Route::patch('{productionPointing}', [\App\Http\Controllers\ProductionPointingController::class, 'update'])->name('update');
+        Route::delete('{productionPointing}', [\App\Http\Controllers\ProductionPointingController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('silos')->name('silos.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\SiloController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\SiloController::class, 'create'])->name('create');

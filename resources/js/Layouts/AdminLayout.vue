@@ -24,6 +24,7 @@ const canViewReasonTypes = computed(() => isAdmin.value || !!user.value?.permiss
 const canViewReasons = computed(() => isAdmin.value || !!user.value?.permissions?.reasons?.view);
 const canViewMachineDowntimes = computed(() => isAdmin.value || !!user.value?.permissions?.machine_downtimes?.view);
 const canViewRawMaterials = computed(() => isAdmin.value || !!user.value?.permissions?.raw_materials?.view);
+const canViewProductionPointings = computed(() => isAdmin.value || !!user.value?.permissions?.production_pointings?.view);
 const canViewBlockTypes = computed(() => isAdmin.value || !!user.value?.permissions?.block_types?.view);
 const canViewMoldTypes = computed(() => isAdmin.value || !!user.value?.permissions?.mold_types?.view);
 const canViewSilos = computed(() => isAdmin.value || !!user.value?.permissions?.silos?.view);
@@ -191,6 +192,11 @@ watch(() => page.props.flash, (f) => {
                 <Link v-if="canViewMoldTypes" class="dropdown-link" :href="route('mold-types.index')">
                   <HeroIcon name="command-line" class="h-5 w-5" />
                   <span class="whitespace-nowrap">Tipos de Moldados</span>
+                </Link>
+                <DropdownDivider />
+                <Link v-if="canViewProductionPointings" class="dropdown-link" :href="route('production-pointings.index')">
+                  <HeroIcon name="command-line" class="h-5 w-5" />
+                  <span class="whitespace-nowrap">Apontamentos de Produção</span>
                 </Link>
               </template>
             </Dropdown>
