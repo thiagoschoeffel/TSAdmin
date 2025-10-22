@@ -36,8 +36,8 @@ const route = instance?.appContext?.config?.globalProperties?.route;
 const productType = ref('blocks');
 const blocksFormRef = ref(null);
 const moldedFormRef = ref(null);
-const startBlockPicker = ref(null);
-const startMoldedPicker = ref(null);
+const sheetBlockRef = ref(null);
+const sheetMoldedRef = ref(null);
 
 const form = ref({
   started_at: null,
@@ -160,8 +160,10 @@ watch(open, (v) => {
     loadEntries();
     loadMoldedEntries();
     nextTick(() => {
-      if (productType.value === 'blocks') startBlockPicker.value?.focus();
-      else startMoldedPicker.value?.focus();
+      setTimeout(() => {
+        if (productType.value === 'blocks') sheetBlockRef.value?.focus?.();
+        else sheetMoldedRef.value?.focus?.();
+      }, 10);
     });
   } else {
     // Resetar estado quando modal for fechado
@@ -169,7 +171,25 @@ watch(open, (v) => {
   }
 });
 watch(() => props.requestSheetNumber, () => { if (open.value) { loadEntries(); loadMoldedEntries(); } });
-watch(productType, (val) => { if (open.value) { nextTick(() => { setTimeout(() => { if (val === 'blocks') startBlockPicker.value?.focus(); else startMoldedPicker.value?.focus(); }, 50); }); } });
+watch(productType, (val) => {
+  if (open.value) {
+    if (val === 'blocks') {
+      resetBlocksForm();
+      nextTick(() => {
+        setTimeout(() => {
+          sheetBlockRef.value?.focus?.();
+        }, 10);
+      });
+    } else {
+      resetMoldedForm();
+      nextTick(() => {
+        setTimeout(() => {
+          sheetMoldedRef.value?.focus?.();
+        }, 10);
+      });
+    }
+  }
+});
 // Sempre que desabilitar a personalização, restaura valores padrão
 watch(() => form.value.enable_dimension_customization, (v) => {
   if (!v) {
@@ -336,7 +356,7 @@ const handleEntryAction = async ({ action, item }) => {
     form.value.enable_dimension_customization = (form.value.length !== 4060 || form.value.width !== 1020);
     form.value.operator_ids = Array.isArray(item.operator_ids) ? [...item.operator_ids] : [];
     form.value.silo_ids = Array.isArray(item.silo_ids) ? [...item.silo_ids] : [];
-    nextTick(() => startBlockPicker.value?.focus?.());
+  nextTick(() => sheetBlockRef.value?.focus?.());
   }
 };
 
@@ -375,7 +395,7 @@ function resetBlocksForm() {
 
 function cancelBlocks() {
   resetBlocksForm();
-  nextTick(() => startBlockPicker.value?.focus?.());
+  nextTick(() => sheetBlockRef.value?.focus?.());
 }
 
 // Submissão Moldados
@@ -478,7 +498,7 @@ const handleEntryActionMolded = ({ action, item }) => {
     formMolded.value.loss_factor = typeof item.loss_factor === 'number' ? item.loss_factor : 0.42;
     formMolded.value.operator_ids = Array.isArray(item.operator_ids) ? [...item.operator_ids] : [];
     formMolded.value.silo_ids = Array.isArray(item.silo_ids) ? [...item.silo_ids] : [];
-    nextTick(() => startMoldedPicker.value?.focus?.());
+  nextTick(() => sheetMoldedRef.value?.focus?.());
   }
 };
 const performDeleteMolded = async () => {
@@ -515,7 +535,7 @@ function resetMoldedForm() {
 
 function cancelMolded() {
   resetMoldedForm();
-  nextTick(() => startMoldedPicker.value?.focus?.());
+  nextTick(() => sheetMoldedRef.value?.focus?.());
 }
 
 function resetModalState() {
@@ -605,10 +625,16 @@ const columnsMolded = [
         </Checkbox>
       </div>
       <!-- Linha 1: Início, Fim, Ficha -->
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <label class="form-label">
+          Número da ficha *
+          <InputNumber ref="sheetBlockRef" v-model="form.sheet_number" :formatted="true" :precision="0" :min="1" :step="1" placeholder="0" required :error="!!form.errors.sheet_number" />
+          <span v-if="form.errors.sheet_number" class="text-sm font-medium text-rose-600">{{ form.errors.sheet_number }}</span>
+        </label>
+
         <label class="form-label">
           Início *
-          <InputDatePicker ref="startBlockPicker" v-model="form.started_at" :withTime="true" :allowManualInput="true" :autofocus="true" required :error="!!form.errors.started_at" />
+          <InputDatePicker v-model="form.started_at" :withTime="true" :allowManualInput="true" required :error="!!form.errors.started_at" />
           <span v-if="form.errors.started_at" class="text-sm font-medium text-rose-600">{{ form.errors.started_at }}</span>
         </label>
 
@@ -619,20 +645,14 @@ const columnsMolded = [
         </label>
 
         <label class="form-label">
-          Número da ficha *
-          <InputNumber v-model="form.sheet_number" :formatted="true" :precision="0" :min="1" :step="1" placeholder="0" required :error="!!form.errors.sheet_number" />
-          <span v-if="form.errors.sheet_number" class="text-sm font-medium text-rose-600">{{ form.errors.sheet_number }}</span>
-        </label>
-      </div>
-
-      <!-- Linha 2: Tipo de bloco, Peso, Comprimento, Largura, Altura -->
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <label class="form-label">
           Tipo de bloco *
           <InputSelect v-model="form.block_type_id" :options="blockTypeOptions()" placeholder="Selecione o tipo" required :error="!!form.errors.block_type_id" />
           <span v-if="form.errors.block_type_id" class="text-sm font-medium text-rose-600">{{ form.errors.block_type_id }}</span>
         </label>
+      </div>
 
+      <!-- Linha 2: Tipo de bloco, Peso, Comprimento, Largura, Altura -->
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <label class="form-label">
           Peso (kg) *
           <InputNumber v-model="form.weight" :formatted="true" :precision="2" :min="0.01" :step="0.01" placeholder="0,00" required :error="!!form.errors.weight" />
@@ -722,10 +742,18 @@ const columnsMolded = [
           Habilitar personalização do fator de perda de peso
         </Checkbox>
       </div>
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+      <!-- Linha 1: Número da ficha, Início, Fim, Tipo de moldado -->
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <label class="form-label">
+          Número da ficha *
+          <InputNumber ref="sheetMoldedRef" v-model="formMolded.sheet_number" :formatted="true" :precision="0" :min="1" :step="1" placeholder="0" required :error="!!formMolded.errors.sheet_number" />
+          <span v-if="formMolded.errors.sheet_number" class="text-sm font-medium text-rose-600">{{ formMolded.errors.sheet_number }}</span>
+        </label>
+
         <label class="form-label">
           Início *
-          <InputDatePicker ref="startMoldedPicker" v-model="formMolded.started_at" :withTime="true" :allowManualInput="true" :autofocus="true" required :error="!!formMolded.errors.started_at" />
+          <InputDatePicker v-model="formMolded.started_at" :withTime="true" :allowManualInput="true" required :error="!!formMolded.errors.started_at" />
           <span v-if="formMolded.errors.started_at" class="text-sm font-medium text-rose-600">{{ formMolded.errors.started_at }}</span>
         </label>
 
@@ -736,21 +764,14 @@ const columnsMolded = [
         </label>
 
         <label class="form-label">
-          Número da ficha *
-          <InputNumber v-model="formMolded.sheet_number" :formatted="true" :precision="0" :min="1" :step="1" placeholder="0" required :error="!!formMolded.errors.sheet_number" />
-          <span v-if="formMolded.errors.sheet_number" class="text-sm font-medium text-rose-600">{{ formMolded.errors.sheet_number }}</span>
-        </label>
-
-      </div>
-
-      <!-- Linha: Tipo de moldado, Quantidade, Peso médio do pacote, Fator de perda de peso -->
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <label class="form-label">
           Tipo de moldado *
           <InputSelect v-model="formMolded.mold_type_id" :options="moldTypeOptions()" placeholder="Selecione o tipo" required :error="!!formMolded.errors.mold_type_id" />
           <span v-if="formMolded.errors.mold_type_id" class="text-sm font-medium text-rose-600">{{ formMolded.errors.mold_type_id }}</span>
         </label>
+      </div>
 
+      <!-- Linha 2: Quantidade, Peso médio do pacote, Fator de perda de peso -->
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <label class="form-label">
           Quantidade (unid.) *
           <InputNumber v-model="formMolded.quantity" :formatted="true" :precision="0" :min="1" :step="1" placeholder="0" required :error="!!formMolded.errors.quantity" />
