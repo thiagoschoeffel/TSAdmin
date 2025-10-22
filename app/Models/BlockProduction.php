@@ -21,6 +21,7 @@ class BlockProduction extends Model
         'length_mm',
         'width_mm',
         'height_mm',
+        'is_scrap',
         'dimension_customization_enabled',
         'created_by_id',
         'updated_by_id',
@@ -33,6 +34,7 @@ class BlockProduction extends Model
         'length_mm' => 'integer',
         'width_mm' => 'integer',
         'height_mm' => 'integer',
+        'is_scrap' => 'boolean',
         'dimension_customization_enabled' => 'boolean',
     ];
 

@@ -37,6 +37,13 @@ class BlockProductionSeeder extends Seeder
             BlockProduction::factory()->count($count)->create([
                 'production_pointing_id' => $pp->id,
             ]);
+
+            // Criar pelo menos um refugo para demonstração (10% das vezes)
+            if (mt_rand(1, 10) === 1) {
+                BlockProduction::factory()->scrap()->create([
+                    'production_pointing_id' => $pp->id,
+                ]);
+            }
         }
     }
 }

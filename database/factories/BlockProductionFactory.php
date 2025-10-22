@@ -24,7 +24,7 @@ class BlockProductionFactory extends Factory
 
         // Times within today
         $start = $this->faker->dateTimeBetween('-2 days', 'now');
-        $end = (clone $start)->modify('+'. mt_rand(1, 8) .' hours');
+        $end = (clone $start)->modify('+' . mt_rand(1, 8) . ' hours');
 
         $customDims = $this->faker->boolean(30);
         $length = $customDims ? $this->faker->numberBetween(3600, 4600) : 4060;
@@ -41,6 +41,7 @@ class BlockProductionFactory extends Factory
             'width_mm' => $width,
             'height_mm' => $this->faker->numberBetween(50, 600),
             'dimension_customization_enabled' => $customDims,
+            'is_scrap' => $this->faker->boolean(15), // 15% chance de ser refugo
             'created_by_id' => $userId,
             'updated_by_id' => $userId,
         ];
@@ -54,5 +55,25 @@ class BlockProductionFactory extends Factory
             $bp->operators()->sync($ops);
             $bp->silos()->sync($silos);
         });
+    }
+
+    /**
+     * Indicate that the block production is scrap.
+     */
+    public function scrap(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'is_scrap' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the block production is not scrap.
+     */
+    public function notScrap(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'is_scrap' => false,
+        ]);
     }
 }

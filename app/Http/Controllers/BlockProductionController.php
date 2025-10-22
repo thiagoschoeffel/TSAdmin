@@ -58,6 +58,7 @@ class BlockProductionController extends Controller
                 'operator_names' => $bp->operators->pluck('name')->values(),
                 'silo_ids' => $bp->silos->pluck('id')->values(),
                 'operator_ids' => $bp->operators->pluck('id')->values(),
+                'is_scrap' => (bool) $bp->is_scrap,
                 'dimension_customization_enabled' => (bool) $bp->dimension_customization_enabled,
             ];
         })->values();
@@ -77,6 +78,7 @@ class BlockProductionController extends Controller
             'length_mm' => ['nullable', 'integer', 'min:1'],
             'width_mm' => ['nullable', 'integer', 'min:1'],
             'height_mm' => ['required', 'integer', 'min:1'],
+            'is_scrap' => ['nullable', 'boolean'],
             'dimension_customization_enabled' => ['nullable', 'boolean'],
             'operator_ids' => ['array'],
             'operator_ids.*' => ['integer', 'exists:operators,id'],
@@ -97,6 +99,7 @@ class BlockProductionController extends Controller
             'length_mm' => (int) $length,
             'width_mm' => (int) $width,
             'height_mm' => (int) $validated['height_mm'],
+            'is_scrap' => (bool) ($validated['is_scrap'] ?? false),
             'dimension_customization_enabled' => (bool) ($validated['dimension_customization_enabled'] ?? false),
             'created_by_id' => Auth::id(),
             'updated_by_id' => Auth::id(),
@@ -166,6 +169,7 @@ class BlockProductionController extends Controller
             'length_mm' => ['nullable', 'integer', 'min:1'],
             'width_mm' => ['nullable', 'integer', 'min:1'],
             'height_mm' => ['required', 'integer', 'min:1'],
+            'is_scrap' => ['nullable', 'boolean'],
             'dimension_customization_enabled' => ['nullable', 'boolean'],
             'operator_ids' => ['array'],
             'operator_ids.*' => ['integer', 'exists:operators,id'],
@@ -185,6 +189,7 @@ class BlockProductionController extends Controller
             'length_mm' => (int) $length,
             'width_mm' => (int) $width,
             'height_mm' => (int) $validated['height_mm'],
+            'is_scrap' => (bool) ($validated['is_scrap'] ?? false),
             'dimension_customization_enabled' => (bool) ($validated['dimension_customization_enabled'] ?? false),
             'updated_by_id' => Auth::id(),
         ]);
@@ -224,6 +229,7 @@ class BlockProductionController extends Controller
                 'silo_ids' => $blockProduction->silos->pluck('id')->values(),
                 'operator_ids' => $blockProduction->operators->pluck('id')->values(),
                 'block_type_id' => $blockProduction->block_type_id,
+                'is_scrap' => (bool) $blockProduction->is_scrap,
             ],
         ]);
     }

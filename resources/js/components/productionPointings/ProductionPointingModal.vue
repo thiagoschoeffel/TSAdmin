@@ -11,6 +11,7 @@ import Button from '@/components/Button.vue';
 import DataTable from '@/components/DataTable.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
+import Badge from '@/components/Badge.vue';
 
 const props = defineProps({
     modelValue: { type: Boolean, default: false },
@@ -190,6 +191,7 @@ const form = ref({
     length: 4060,
     width: 1020,
     enable_dimension_customization: false,
+    is_scrap: false,
     operator_ids: [],
     silo_ids: [],
     errors: {},
@@ -370,6 +372,7 @@ const handleSubmit = async () => {
             width_mm: useCustomDims ? widthMm : 1020,
             height_mm: heightMm,
             dimension_customization_enabled: useCustomDims,
+            is_scrap: !!form.value.is_scrap,
             operator_ids: form.value.operator_ids,
             silo_ids: form.value.silo_ids,
         };
@@ -394,6 +397,7 @@ const handleSubmit = async () => {
         form.value.weight = null;
         form.value.block_type_id = null;
         form.value.height = null;
+        form.value.is_scrap = false;
         form.value.operator_ids = [];
         form.value.silo_ids = [];
     } catch (e) {
@@ -405,6 +409,13 @@ const handleSubmit = async () => {
 
 const columns = [
     { header: 'Sequência', key: 'seq', formatter: (v) => v != null ? nf0.format(v) : '-' },
+    {
+        header: 'Refugo',
+        key: 'is_scrap',
+        cellRenderer: (row) => h(Badge, {
+            variant: row.is_scrap ? 'danger' : 'success',
+        }, () => row.is_scrap ? 'Sim' : 'Não')
+    },
     { header: 'Início', key: 'started_at', formatter: (v) => formatDateTimeBR(v) },
     { header: 'Fim', key: 'ended_at', formatter: (v) => formatDateTimeBR(v) },
     { header: 'Ficha', key: 'sheet_number', formatter: (v) => v != null ? nf0.format(v) : '-' },
@@ -448,6 +459,7 @@ const handleEntryAction = async ({ action, item }) => {
         form.value.length = item.length_mm ?? 4060;
         form.value.width = item.width_mm ?? 1020;
         form.value.enable_dimension_customization = (form.value.length !== 4060 || form.value.width !== 1020);
+        form.value.is_scrap = !!item.is_scrap;
         form.value.operator_ids = Array.isArray(item.operator_ids) ? [...item.operator_ids] : [];
         form.value.silo_ids = Array.isArray(item.silo_ids) ? [...item.silo_ids] : [];
         nextTick(() => sheetBlockRef.value?.focus?.());
@@ -482,6 +494,7 @@ function resetBlocksForm() {
     form.value.length = 4060;
     form.value.width = 1020;
     form.value.enable_dimension_customization = false;
+    form.value.is_scrap = false;
     form.value.operator_ids = [];
     form.value.silo_ids = [];
     form.value.errors = {};
@@ -753,7 +766,7 @@ const columnsMolded = [
                     <InputDatePicker v-model="form.ended_at" :withTime="true" :allowManualInput="true" required
                         :error="!!form.errors.ended_at" />
                     <span v-if="form.errors.ended_at" class="text-sm font-medium text-rose-600">{{ form.errors.ended_at
-                    }}</span>
+                        }}</span>
                 </label>
 
                 <label class="form-label">
@@ -772,7 +785,7 @@ const columnsMolded = [
                     <InputNumber v-model="form.weight" :formatted="true" :precision="2" :min="0.01" :step="0.01"
                         placeholder="0,00" required :error="!!form.errors.weight" />
                     <span v-if="form.errors.weight" class="text-sm font-medium text-rose-600">{{ form.errors.weight
-                    }}</span>
+                        }}</span>
                 </label>
 
                 <label class="form-label">
@@ -792,7 +805,7 @@ const columnsMolded = [
                     <InputNumber v-model="form.height" :formatted="true" :precision="0" :min="1" :step="1"
                         placeholder="0" required :error="!!form.errors.height" />
                     <span v-if="form.errors.height" class="text-sm font-medium text-rose-600">{{ form.errors.height
-                    }}</span>
+                        }}</span>
                 </label>
             </div>
 
@@ -807,7 +820,7 @@ const columnsMolded = [
                         cadastrado.</p>
                 </div>
                 <span v-if="form.errors.silo_ids" class="text-sm font-medium text-rose-600">{{ form.errors.silo_ids
-                }}</span>
+                    }}</span>
             </div>
 
             <div class="space-y-3">
@@ -824,9 +837,14 @@ const columnsMolded = [
                     form.errors.operator_ids }}</span>
             </div>
 
-            <div class="flex justify-end gap-2">
-                <Button variant="ghost" type="button" @click="cancelBlocks">Cancelar</Button>
-                <Button variant="primary" type="submit" :loading="form.processing">Salvar</Button>
+            <div class="flex items-center justify-between gap-2">
+                <Checkbox v-model="form.is_scrap">
+                    Marcar como refugo
+                </Checkbox>
+                <div class="flex gap-2">
+                    <Button variant="ghost" type="button" @click="cancelBlocks">Cancelar</Button>
+                    <Button variant="primary" type="submit" :loading="form.processing">Salvar</Button>
+                </div>
             </div>
         </form>
 
@@ -952,7 +970,7 @@ const columnsMolded = [
                 </div>
                 <span v-if="formMolded.errors.silo_ids" class="text-sm font-medium text-rose-600">{{
                     formMolded.errors.silo_ids
-                }}</span>
+                    }}</span>
             </div>
 
             <div class="space-y-3">
