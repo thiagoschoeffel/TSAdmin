@@ -12,6 +12,8 @@ use App\Models\Opportunity;
 use App\Models\Sector;
 use App\Models\Almoxarifado;
 use App\Models\MachineDowntime;
+use App\Models\Operator;
+use App\Models\ProductionPointing;
 use App\Policies\AddressPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\OrderPolicy;
@@ -23,6 +25,7 @@ use App\Policies\SectorPolicy;
 use App\Policies\AlmoxarifadoPolicy;
 use App\Policies\MachineDowntimePolicy;
 use App\Policies\OperatorPolicy;
+use App\Policies\ProductionPointingPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -44,6 +47,7 @@ class AuthServiceProvider extends ServiceProvider
         Almoxarifado::class => AlmoxarifadoPolicy::class,
         MachineDowntime::class => MachineDowntimePolicy::class,
         Operator::class => OperatorPolicy::class,
+        ProductionPointing::class => ProductionPointingPolicy::class,
     ];
 
     /**

@@ -123,6 +123,7 @@ const handleBlur = (event) => {
 }
 
 const handleFocus = (event) => {
+  try { setTimeout(() => event.target?.select?.(), 0) } catch (_) {}
   emit('focus', event)
 }
 

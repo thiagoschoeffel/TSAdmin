@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, nextTick, defineExpose } from 'vue';
 
 const props = defineProps({
   panelClass: { type: String, default: 'menu-panel' },
@@ -8,6 +8,7 @@ const props = defineProps({
   minWidth: { type: Number, default: 170 },
   portal: { type: Boolean, default: true },
   align: { type: String, default: 'end', validator: (value) => ['center', 'end'].includes(value) },
+  zIndex: { type: Number, default: 1000 },
 });
 
 const isOpen = ref(false);
@@ -17,6 +18,7 @@ const coords = ref({ left: 0, top: 0, width: 0 });
 
 const toggle = () => { isOpen.value = !isOpen.value; };
 const close = () => { isOpen.value = false; };
+const open = () => { isOpen.value = true; };
 
 function updatePosition() {
   if (!root.value || !panel.value) return;
@@ -108,6 +110,16 @@ onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll, true);
   window.removeEventListener('resize', onResize, true);
 });
+
+// Expose simple API for parent components
+defineExpose({
+  open,
+  close,
+  toggle,
+  isOpen,
+  panel,
+  root,
+});
 </script>
 
 <template>
@@ -118,7 +130,7 @@ onBeforeUnmount(() => {
     <Teleport to="body" v-if="portal">
       <div v-show="isOpen"
            :class="[panelClass, isOpen ? openClass : 'hidden']"
-           :style="{ position: 'fixed', left: `${coords.left}px`, top: `${coords.top}px`, width: `${coords.width}px`, zIndex: 1000 }"
+           :style="{ position: 'fixed', left: `${coords.left}px`, top: `${coords.top}px`, width: `${coords.width}px`, zIndex: zIndex }"
            ref="panel">
         <slot :close="close" />
       </div>

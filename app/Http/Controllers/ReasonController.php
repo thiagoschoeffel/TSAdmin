@@ -15,6 +15,24 @@ use Inertia\Response as InertiaResponse;
 
 class ReasonController extends Controller
 {
+    /**
+     * Retorna todos os motivos ativos para uso em selects (refugo, etc).
+     */
+    public function allActive(): JsonResponse
+    {
+        $reasons = Reason::active()->orderBy('name')->get(['id', 'name']);
+        return response()->json(['data' => $reasons]);
+    }
+
+    /**
+     * Retorna todos os motivos (ativos e inativos) em formato JSON.
+     * Usado para carregar motivos inativos que foram usados em registros antigos.
+     */
+    public function all(): JsonResponse
+    {
+        $reasons = Reason::orderBy('name')->get(['id', 'name', 'status']);
+        return response()->json(['data' => $reasons]);
+    }
     public function index(): InertiaResponse|\Illuminate\Http\Response
     {
         $this->authorize('viewAny', Reason::class);

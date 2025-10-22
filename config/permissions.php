@@ -67,6 +67,15 @@ return [
                 'delete' => 'Excluir matérias-primas',
             ],
         ],
+        'production_pointings' => [
+            'label' => 'Apontamento de produção EPS',
+            'abilities' => [
+                'view' => 'Visualizar apontamentos de produção',
+                'create' => 'Criar apontamentos de produção',
+                'update' => 'Editar apontamentos de produção',
+                'delete' => 'Excluir apontamentos de produção',
+            ],
+        ],
         'silos' => [
             'label' => 'Gestão de silos',
             'abilities' => [

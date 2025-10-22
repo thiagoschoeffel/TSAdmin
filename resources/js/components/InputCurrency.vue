@@ -143,6 +143,8 @@ const handleBlur = (event) => {
 }
 
 const handleFocus = (event) => {
+  // Seleciona todo o conteúdo ao focar para facilitar edição
+  try { setTimeout(() => inputRef.value?.select?.(), 0) } catch (_) {}
   emit('focus', event)
 }
 
@@ -152,7 +154,7 @@ const handleChange = (event) => {
 
 // Expose focus method
 defineExpose({
-  focus: () => inputRef.value?.focus(),
+  focus: () => { inputRef.value?.focus?.(); try { inputRef.value?.select?.() } catch (_) {} },
   blur: () => inputRef.value?.blur()
 })
 </script>

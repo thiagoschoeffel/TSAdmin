@@ -13,8 +13,12 @@ class DemoSeeder extends Seeder
         // Similar to Dev seeding, but volumes can be overridden via --qtd
         Schema::disableForeignKeyConstraints();
         foreach ([
+            'molded_production_operator','molded_production_silo','molded_productions',
+            'block_production_operator','block_production_silo','block_productions',
             'order_items', 'orders',
             'product_components', 'products',
+            'production_pointing_operator', 'production_pointing_silo', 'production_pointings',
+            'raw_materials', 'operators', 'silos',
             'addresses', 'clients',
             'lead_interactions', 'opportunity_items', 'opportunities', 'leads',
         ] as $table) {
@@ -35,4 +39,3 @@ class DemoSeeder extends Seeder
         });
     }
 }
-

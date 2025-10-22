@@ -5,7 +5,7 @@ import InputDatePicker from '@/components/InputDatePicker.vue';
 import InputTextarea from '@/components/InputTextarea.vue';
 import Switch from '@/components/ui/Switch.vue';
 import Button from '@/components/Button.vue';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 
 const props = defineProps({
   form: { type: Object, required: true },
@@ -53,6 +53,14 @@ watch(() => props.form.machine_id, syncMachineFromId, { immediate: true });
 watch(() => props.form.reason_id, syncReasonFromId, { immediate: true });
 
 const submit = () => emit('submit');
+
+onMounted(() => {
+  const pad = (n) => String(n).padStart(2, '0')
+  const now = new Date()
+  const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+  if (!props.form.started_at) props.form.started_at = nowStr
+  if (!props.form.ended_at) props.form.ended_at = nowStr
+});
 </script>
 
 <template>
@@ -88,12 +96,12 @@ const submit = () => emit('submit');
       </label>
       <label class="form-label">
         Início *
-        <InputDatePicker v-model="form.started_at" :withTime="true" required :error="!!form.errors?.started_at" />
+        <InputDatePicker v-model="form.started_at" :withTime="true" :allowManualInput="true" required :error="!!form.errors?.started_at" />
         <span v-if="form.errors?.started_at" class="text-sm font-medium text-rose-600">{{ form.errors.started_at }}</span>
       </label>
       <label class="form-label">
         Fim *
-        <InputDatePicker v-model="form.ended_at" :withTime="true" required :error="!!form.errors?.ended_at" />
+        <InputDatePicker v-model="form.ended_at" :withTime="true" :allowManualInput="true" required :error="!!form.errors?.ended_at" />
         <span v-if="form.errors?.ended_at" class="text-sm font-medium text-rose-600">{{ form.errors.ended_at }}</span>
       </label>
       <label class="form-label sm:col-span-2">
