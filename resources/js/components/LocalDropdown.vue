@@ -28,13 +28,8 @@ function updatePanelPosition() {
   const minWidth = props.minWidth
   const viewportWidth = window.innerWidth
 
-  // Obter largura natural do conteúdo (como o Dropdown.vue original)
+  // Usar apenas minWidth, deixando o conteúdo definir a largura natural
   let width = minWidth
-  if (panel.value) {
-    const intrinsicWidth = Math.ceil(panel.value.offsetWidth || panel.value.scrollWidth || 0)
-    const maxAllowed = Math.max(160, viewportWidth - 16)
-    width = Math.min(maxAllowed, Math.max(minWidth, intrinsicWidth))
-  }
 
   // Alinhar à esquerda do input se houver espaço, senão à direita
   let left = rect.left
@@ -60,7 +55,7 @@ function updatePanelPosition() {
     left: left + 'px',
     top: top + 'px',
     minWidth: minWidth + 'px',
-    width: width + 'px',
+    width: 'auto', // Largura automática baseada no conteúdo
     zIndex: props.zIndex,
   }
 }

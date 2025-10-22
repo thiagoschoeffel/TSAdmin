@@ -139,6 +139,8 @@ const endH = ref(0), endM = ref(0)
 
 if (!props.range) {
   watch([singleH, singleM], () => {
+    // Não emitir automaticamente se estiver em modo de edição manual
+    if (isEditing.value) return
     if (singleDate.value) commitSingle()
   })
 }
@@ -206,7 +208,9 @@ onMounted(() => {
   })
 })
 
-watch(() => props.modelValue, () => syncFromModel())
+watch(() => props.modelValue, (newVal, oldVal) => {
+  syncFromModel()
+})
 
 function selectAllSoon() {
   try {
@@ -348,10 +352,15 @@ function onSelectDay(day) {
     }
   } else {
     singleDate.value = startOfDay(day.d)
+
     if (!props.withTime) {
-      // emite imediatamente
-      emit('update:modelValue', toYMD(singleDate.value))
-      emit('change', toYMD(singleDate.value))
+      // emite imediatamente quando não há seleção de horário
+      const output = toYMD(singleDate.value)
+      emit('update:modelValue', output)
+      emit('change', output)
+    } else {
+      // Com horário: atualiza a data mas mantém a hora atual e emite
+      commitSingle()
     }
   }
 }
@@ -376,6 +385,13 @@ function commitSingle() {
   const d = new Date(singleDate.value)
   d.setHours(props.withTime ? Number(singleH.value)||0 : 0, props.withTime ? Number(singleM.value)||0 : 0, 0, 0)
   const out = props.withTime ? toYMDHM(d) : toYMD(d)
+
+  // Reset manual editing mode when selecting from calendar
+  if (isManual.value) {
+    isEditing.value = false
+    userInput.value = displayValue.value
+  }
+
   emit('update:modelValue', out)
   emit('change', out)
 }
@@ -409,6 +425,11 @@ function clearValue() {
     emit('change', { start: null, end: null })
   } else {
     singleDate.value = null
+    // Limpar também o userInput quando em modo manual
+    if (isManual.value) {
+      userInput.value = ''
+      isEditing.value = false
+    }
     emit('update:modelValue', null)
     emit('change', null)
   }
@@ -471,18 +492,43 @@ watch([displayValue, isManual], () => {
   if (!isEditing.value) userInput.value = displayValue.value
 })
 
+// Watch userInput para atualizar calendário em tempo real (sem emitir)
+watch(userInput, (newVal) => {
+  if (!isManual.value || !isEditing.value) return
+
+  const d = parsePtBrManual(newVal)
+
+  if (d) {
+    // Atualiza APENAS a visualização do calendário (sem emitir)
+    viewMonth.value = new Date(d.getFullYear(), d.getMonth(), 1)
+
+    // Atualiza os valores internos SEM disparar o commit
+    // (o isEditing já bloqueia o watch de singleH/singleM)
+    singleDate.value = startOfDay(d)
+    if (props.withTime) {
+      singleH.value = d.getHours()
+      singleM.value = d.getMinutes()
+    }
+  }
+})
+
 function parsePtBrManual(val) {
   if (!val || typeof val !== 'string') return null
   const s = val.trim()
+
   // Accept dd/mm/yyyy or dd/mm/yyyy HH:mm or dd/mm/yyyy HH:mm:ss
   const m = s.match(/^\s*(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?\s*$/)
+
   if (!m) return null
   const dd = Number(m[1]), mm = Number(m[2]), yyyy = Number(m[3])
   const hh = Number(m[4] ?? '0'), mi = Number(m[5] ?? '0')
+
   // Basic validation
   if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null
+
   const d = new Date(yyyy, mm - 1, dd, hh, mi, 0, 0)
   if (Number.isNaN(d.getTime())) return null
+
   return d
 }
 
@@ -490,36 +536,44 @@ function maskManual(val) {
   // Keep only digits
   let digits = String(val || '').replace(/\D/g, '')
   const withTime = !!props.withTime
-  const maxLen = withTime ? 14 : 8
+  const maxLen = withTime ? 12 : 8 // ddMMyyyyHHmm or ddMMyyyy
   digits = digits.slice(0, maxLen)
 
   // Build masked string progressively
   let out = ''
-  // DD
-  if (digits.length >= 1) out += digits.slice(0, Math.min(2, digits.length))
-  // add '/'
-  if (digits.length >= 3) out = out.slice(0, 2) + '/' + digits.slice(2)
-  // after adding '/', re-evaluate
-  if (digits.length > 2) {
-    const d2 = digits.slice(2)
-    // MM
-    const mm = d2.slice(0, Math.min(2, d2.length))
-    out = digits.slice(0, 2) + '/' + mm
-    // add second '/'
-    if (digits.length >= 7) {
-      out += '/' + digits.slice(4, Math.min(8, digits.length))
-    }
+
+  // DD (2 dígitos)
+  if (digits.length >= 1) {
+    out = digits.slice(0, Math.min(2, digits.length))
   }
-  // date complete (8)
+
+  // Add '/' after DD
+  if (digits.length >= 3) {
+    out = digits.slice(0, 2) + '/' + digits.slice(2, Math.min(4, digits.length))
+  }
+
+  // Add second '/' after MM
+  if (digits.length >= 5) {
+    out = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4, Math.min(8, digits.length))
+  }
+
+  // Se não tiver tempo ou não tiver mais dígitos, retorna
   if (!withTime || digits.length <= 8) {
     return out
   }
-  // add space then time
-  out = `${digits.slice(0,2)}/${digits.slice(2,4)}/${digits.slice(4,8)}`
+
+  // Add space then time HH:mm
+  const dateStr = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4, 8)
   const timeDigits = digits.slice(8)
-  if (timeDigits.length >= 1) out += ' ' + timeDigits.slice(0, Math.min(2, timeDigits.length))
-  if (timeDigits.length >= 3) out = out + ':' + timeDigits.slice(2, Math.min(4, timeDigits.length))
-  if (timeDigits.length >= 5) out = out + ':' + timeDigits.slice(4, Math.min(6, timeDigits.length))
+
+  if (timeDigits.length >= 1) {
+    out = dateStr + ' ' + timeDigits.slice(0, Math.min(2, timeDigits.length))
+  }
+
+  if (timeDigits.length >= 3) {
+    out = dateStr + ' ' + timeDigits.slice(0, 2) + ':' + timeDigits.slice(2, Math.min(4, timeDigits.length))
+  }
+
   return out
 }
 
@@ -527,12 +581,21 @@ function onManualCommit() {
   if (!isManual.value) return
   const d = parsePtBrManual(userInput.value)
   if (!d) return
+
+  // Atualiza a data selecionada
   singleDate.value = startOfDay(d)
   if (props.withTime) {
     singleH.value = d.getHours()
     singleM.value = d.getMinutes()
   }
+
+  // Atualiza a visualização do calendário para mostrar o mês correto
+  viewMonth.value = new Date(d.getFullYear(), d.getMonth(), 1)
+
+  // Reseta o modo de edição e sincroniza
+  isEditing.value = false
   commitSingle()
+
   // Sync back to display string
   userInput.value = displayValue.value
 }
@@ -578,7 +641,7 @@ const delay = (fn, ms = 0) => setTimeout(fn, ms)
         :value="isManual ? userInput : displayValue"
         :placeholder="effectivePlaceholder"
         :disabled="props.disabled"
-        :readonly="props.range ? false : !isManual"
+        :readonly="!isManual"
         :class="finalClasses"
         :autofocus="props.autofocus"
         @input="(e) => { if (isManual) userInput = maskManual(e.target.value) }"
