@@ -1,6 +1,14 @@
 <script setup>
-import { ref, computed, watch, onMounted, defineExpose, nextTick } from 'vue'
-import Dropdown from './Dropdown.vue'
+// Utilitário seguro para comparar datas
+function isSameDay(a, b) {
+  if (!a || !b) return false
+  if (!(a instanceof Date) || !(b instanceof Date)) return false
+  return a.getFullYear() === b.getFullYear() &&
+         a.getMonth() === b.getMonth() &&
+         a.getDate() === b.getDate()
+}
+import { ref, computed, watch, onMounted, onUnmounted, defineExpose, nextTick } from 'vue'
+import LocalDropdown from './LocalDropdown.vue'
 import InputSelect from './InputSelect.vue'
 import Button from './Button.vue'
 import { ChevronRightIcon, CalendarDaysIcon, ClockIcon, XMarkIcon } from '@heroicons/vue/24/outline'
@@ -70,6 +78,47 @@ const clampDate = (d) => {
 }
 
 // Estado interno de seleção (Dropdown controla abrir/fechar)
+const instanceId = Math.random().toString(36).slice(2)
+const rootEl = ref(null)
+
+function getPanelEl() {
+  return dropdownRef.value?.panel?.value || null
+}
+
+function isInsideDropdown(el) {
+  if (!el) return false
+  const root = rootEl.value
+  const panel = getPanelEl()
+  if (root && root.contains(el)) return true
+  if (panel && panel.contains(el)) return true
+  return false
+}
+
+let suppressBlurClose = false
+let suppressBlurTimeout = null
+function markInternalInteraction() {
+  suppressBlurClose = true
+  if (suppressBlurTimeout) clearTimeout(suppressBlurTimeout)
+  suppressBlurTimeout = setTimeout(() => {
+    suppressBlurClose = false
+    suppressBlurTimeout = null
+  }, 120)
+}
+
+function handleClickOutside(e) {
+  if (!isInsideDropdown(e.target) && dropdownRef.value && dropdownRef.value.isOpen) {
+    dropdownRef.value.isOpen = false
+  }
+}
+
+// Fallback global: se algum foco for para fora e este datepicker estiver aberto, fecha
+function handleGlobalFocusIn(e) {
+  if (!dropdownRef.value || !dropdownRef.value.isOpen) return
+  const target = e.target
+  if (target !== inputEl.value && !isInsideDropdown(target)) {
+    dropdownRef.value.isOpen = false
+  }
+}
 
 // Visualização de mês(es)
 const today = new Date()
@@ -85,10 +134,6 @@ const rangeEnd = ref(null)
 const hoverDate = ref(null)
 const startH = ref(0), startM = ref(0)
 const endH = ref(0), endM = ref(0)
-
-// Inicializar com modelValue
-onMounted(() => syncFromModel())
-watch(() => props.modelValue, () => syncFromModel())
 
 // (moved below refs declaration) Reforça a seleção quando o dropdown abre
 
@@ -149,6 +194,20 @@ const finalClasses = computed(() => [inputClasses.value, props.class || ''].filt
 const inputEl = ref(null)
 const dropdownRef = ref(null)
 
+// Inicializar com modelValue
+onMounted(() => {
+  syncFromModel()
+  document.addEventListener('focusin', handleGlobalFocusIn, true)
+  window.addEventListener('tsadmin:datepicker-open', (e) => {
+    const other = e?.detail?.id
+    if (other && other !== instanceId && dropdownRef.value && dropdownRef.value.isOpen) {
+      dropdownRef.value.isOpen = false
+    }
+  })
+})
+
+watch(() => props.modelValue, () => syncFromModel())
+
 function selectAllSoon() {
   try {
     // First tick: after focus settles
@@ -180,9 +239,24 @@ defineExpose({
 })
 
 // Reforça a seleção quando o dropdown abre (alguns browsers mexem na seleção ao abrir popups)
-watch(() => dropdownRef.value?.isOpen?.value, (open) => {
-  if (open && document.activeElement === inputEl.value) {
-    selectAllSoon()
+watch(() => dropdownRef.value?.isOpen, (open) => {
+  if (open) {
+    document.addEventListener('mousedown', handleClickOutside, true)
+    window.dispatchEvent(new CustomEvent('tsadmin:datepicker-open', { detail: { id: instanceId } }))
+    if (document.activeElement === inputEl.value) {
+      selectAllSoon()
+    }
+  } else {
+    document.removeEventListener('mousedown', handleClickOutside, true)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('focusin', handleGlobalFocusIn, true)
+  document.removeEventListener('mousedown', handleClickOutside, true)
+  if (suppressBlurTimeout) {
+    clearTimeout(suppressBlurTimeout)
+    suppressBlurTimeout = null
   }
 })
 
@@ -269,13 +343,13 @@ function onSelectDay(day) {
       endM.value = props.withTime ? endM.value : 0
     }
     if (!props.withTime) {
-      // emitir automaticamente quando não há tempo; fechamento via template
+      // emitir automaticamente quando não há tempo
       commitRange()
     }
   } else {
     singleDate.value = startOfDay(day.d)
     if (!props.withTime) {
-      // emite imediatamente; fechamento via template
+      // emite imediatamente
       emit('update:modelValue', toYMD(singleDate.value))
       emit('change', toYMD(singleDate.value))
     }
@@ -340,37 +414,42 @@ function clearValue() {
   }
 }
 
-const autoCloseOnSelect = computed(() => !props.range && !props.withTime)
 const effectivePlaceholder = computed(() => {
   if (props.placeholder) return props.placeholder
   return props.range ? (props.withTime ? 'Selecionar período e horário' : 'Selecionar período') : (props.withTime ? 'Selecionar data e horário' : 'Selecionar data')
 })
 
-function openPicker() { /* no-op: Dropdown gerencia a abertura */ }
-
 // Para navegação por hover no range
-function onHoverDay(day) { if (props.range) hoverDate.value = day?.d || null }
+function onHoverDay(day) { hoverDate.value = day?.d || null }
 
 // Clique em um dia: aplica seleção e decide fechamento do painel
 function handleDayClick(cell, close) {
   onSelectDay(cell)
+  // Só fecha dropdown se for seleção simples sem hora
   if (!props.range && !props.withTime) {
-    close && close()
+    nextTick(() => close && close())
     return
   }
+  // Para range sem hora, fecha apenas quando ambos os lados estão selecionados
   if (props.range && !props.withTime && rangeStart.value && rangeEnd.value) {
-    close && close()
+    nextTick(() => close && close())
+    return
   }
+  // Para os demais casos (com hora), não fecha automaticamente
 }
 
 function applyRange(close) {
   commitRange()
-  close && close()
+  if (dropdownRef.value && dropdownRef.value.isOpen) {
+    dropdownRef.value.isOpen = false
+  }
 }
 
 function applySingle(close) {
   commitSingle()
-  close && close()
+  if (dropdownRef.value && dropdownRef.value.isOpen) {
+    dropdownRef.value.isOpen = false
+  }
 }
 
 // Validação: range máximo em dias
@@ -458,59 +537,81 @@ function onManualCommit() {
   userInput.value = displayValue.value
 }
 
-function handleTriggerClick(toggle) {
-  // Mesmo em modo manual, abrir o dropdown e mantê-lo aberto
-  if (!props.disabled && !props.readonly) {
-    openPicker();
-    toggle();
-  }
+function handleBlur(event) {
+  setTimeout(() => {
+    const active = document.activeElement
+    if (dropdownRef.value && dropdownRef.value.isOpen && !isInsideDropdown(active)) {
+      dropdownRef.value.isOpen = false
+    }
+  }, 150)
 }
+
+function openDropdown() {
+  if (props.disabled) return
+  dropdownRef.value?.open?.()
+}
+
+function handleFocus() {
+  if (props.disabled) return
+  if (!dropdownRef.value?.isOpen) selectAllSoon()
+  if (isManual.value) isEditing.value = true
+  window.dispatchEvent(new CustomEvent('tsadmin:datepicker-open', { detail: { id: instanceId } }))
+  openDropdown()
+}
+
+function handleTriggerClick() {
+  if (props.disabled) return
+  openDropdown()
+  delay(() => inputEl.value?.focus?.())
+}
+
+const delay = (fn, ms = 0) => setTimeout(fn, ms)
 </script>
 
 <template>
-  <div class="block w-full">
-    <Dropdown ref="dropdownRef" class="block w-full" :portal="true" :minWidth="props.range ? 560 : 280" :panelClass="'menu-panel'" :openClass="'is-open'" :zIndex="2000">
-      <!-- Trigger (slot nomeado) -->
-      <template #trigger="{ toggle }">
-        <div class="relative inline-flex w-full" @click="handleTriggerClick(toggle)" :aria-disabled="props.disabled">
-          <input
-            ref="inputEl"
-            :value="isManual ? userInput : displayValue"
-            :placeholder="effectivePlaceholder"
-            :disabled="props.disabled"
-            :readonly="!isManual"
-            :class="finalClasses"
-            :autofocus="props.autofocus"
-            @input="(e) => { if (isManual) userInput = maskManual(e.target.value) }"
-            @focus="() => { selectAllSoon(); if (isManual) isEditing = true }"
-            @keydown.enter.prevent="onManualCommit"
-            @blur="() => { if (isManual) { isEditing = false; onManualCommit() } ; try { dropdownRef?.close?.() } catch (_) {} }"
-          />
-          <CalendarDaysIcon class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-          <button v-if="clearable && !props.disabled && displayValue" type="button" class="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" @click.stop="clearValue">
-            <XMarkIcon class="h-4 w-4" />
-          </button>
-        </div>
-      </template>
-      <!-- Painel (slot padrão) -->
-      <template #default="{ close }">
-      <div class="p-3" @mouseleave="onHoverDay(null)">
+  <div class="block w-full" ref="rootEl">
+    <!-- Labels acima dos inputs -->
+    <!-- Nenhum label interno, apenas o input -->
+    <div class="relative inline-flex w-full" :aria-disabled="props.disabled">
+      <input
+        ref="inputEl"
+        :value="isManual ? userInput : displayValue"
+        :placeholder="effectivePlaceholder"
+        :disabled="props.disabled"
+        :readonly="props.range ? false : !isManual"
+        :class="finalClasses"
+        :autofocus="props.autofocus"
+        @input="(e) => { if (isManual) userInput = maskManual(e.target.value) }"
+        @focus="handleFocus"
+        @click="handleFocus"
+        @keydown.enter.prevent="onManualCommit"
+        @blur="handleBlur"
+      />
+      <CalendarDaysIcon class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+      <button v-if="clearable && !props.disabled && displayValue" type="button" tabindex="-1" class="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" @click.stop="clearValue">
+        <XMarkIcon class="h-5 w-5" />
+      </button>
+    </div>
+    <!-- Dropdown apenas para o painel/calendário -->
+    <LocalDropdown ref="dropdownRef" class="block w-full" :minWidth="props.range ? 560 : 280" :openClass="'is-open'" :zIndex="2000">
+  <template #default="{ close }">
+  <div class="p-3" @mouseleave="onHoverDay(null)" @mousedown.stop>
         <!-- Cabeçalho superior: meses e setas -->
         <div class="pb-2">
           <template v-if="props.range">
             <div class="grid grid-cols-2 items-center gap-3">
-              <div class="px-1 font-semibold text-slate-700">
+              <div class="px-1 text-sm text-slate-700">
                 {{ monthNames[viewMonth.getMonth()] }} de {{ viewMonth.getFullYear() }}
               </div>
               <div class="flex items-center justify-between">
-                <div class="px-1 font-semibold text-slate-700">
+                <div class="px-1 text-sm text-slate-700">
                   {{ monthNames[nextMonth.getMonth()] }} de {{ nextMonth.getFullYear() }}
                 </div>
                 <div class="flex items-center gap-1">
-                  <button class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100" @click.stop="prevMonth" :disabled="props.disabled">
+                  <button type="button" tabindex="-1" class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100" @click.stop="prevMonth" :disabled="props.disabled">
                     <ChevronRightIcon class="h-4 w-4 rotate-180" />
                   </button>
-                  <button class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100" @click.stop="nextMonthFn" :disabled="props.disabled">
+                  <button type="button" tabindex="-1" class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100" @click.stop="nextMonthFn" :disabled="props.disabled">
                     <ChevronRightIcon class="h-4 w-4" />
                   </button>
                 </div>
@@ -519,14 +620,14 @@ function handleTriggerClick(toggle) {
           </template>
           <template v-else>
             <div class="flex items-center justify-between">
-              <div class="px-1 font-semibold text-slate-700">
+              <div class="px-1 text-sm text-slate-700">
                 {{ monthNames[viewMonth.getMonth()] }} de {{ viewMonth.getFullYear() }}
               </div>
               <div class="flex items-center gap-1">
-                <button class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100" @click.stop="prevMonth" :disabled="props.disabled">
+                <button type="button" tabindex="-1" class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100" @click.stop="prevMonth" :disabled="props.disabled">
                   <ChevronRightIcon class="h-4 w-4 rotate-180" />
                 </button>
-                <button class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100" @click.stop="nextMonthFn" :disabled="props.disabled">
+                <button type="button" tabindex="-1" class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100" @click.stop="nextMonthFn" :disabled="props.disabled">
                   <ChevronRightIcon class="h-4 w-4" />
                 </button>
               </div>
@@ -537,7 +638,7 @@ function handleTriggerClick(toggle) {
         <div :class="gridClass">
           <!-- Calendário A -->
           <div>
-            <div class="grid grid-cols-7 gap-1 px-1 pb-1 text-center text-xs font-semibold text-slate-500">
+            <div class="grid grid-cols-7 gap-1 px-1 pb-1 text-center text-xs text-slate-500">
               <div v-for="w in weekDays" :key="w">{{ w }}</div>
             </div>
             <div class="grid grid-cols-7 gap-1 px-1">
@@ -545,14 +646,19 @@ function handleTriggerClick(toggle) {
                 v-for="cell in monthA"
                 :key="cellKey(cell,'-a')"
                 type="button"
-                class="h-9 w-full rounded-md text-sm flex items-center justify-center"
+                tabindex="-1"
+                class="h-9 w-full rounded-md text-sm font-normal flex items-center justify-center"
                 :class="[
                   cell.placeholder ? 'text-transparent pointer-events-none' : 'text-slate-800',
                   cell.isToday && !cell.placeholder ? 'ring-1 ring-blue-400' : '',
                   (props.range && !cell.placeholder && inSelectedRange(cell.d)) ? 'bg-blue-100' : '',
+                  isSameDay(cell.d, hoverDate) ? 'bg-blue-200' : '',
+                  (!props.range && isSameDay(cell.d, hoverDate)) ? 'bg-blue-200' : '',
+                  (!props.range && isSameDay(cell.d, singleDate)) ? 'bg-blue-100' : '',
                 ]"
                 :disabled="cell.disabled || cell.placeholder"
                 @mouseenter="onHoverDay(cell)"
+                @mouseleave="onHoverDay(null)"
                 @click.stop="handleDayClick(cell, close)"
               >
                 {{ cell.placeholder ? '\u00A0' : cell.d.getDate() }}
@@ -563,22 +669,22 @@ function handleTriggerClick(toggle) {
             <div v-if="props.withTime && (!props.range || (props.range && rangeStart))" class="mt-2 flex items-center gap-2 text-sm">
               <ClockIcon class="h-4 w-4 text-slate-500" />
               <template v-if="!props.range">
-                <div class="w-18"><InputSelect v-model="singleH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
+                <div class="w-18"><InputSelect v-model="singleH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" tabindex="-1" /></div>
                 <span>:</span>
-                <div class="w-18"><InputSelect v-model="singleM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
+                <div class="w-18"><InputSelect v-model="singleM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" tabindex="-1" /></div>
               </template>
               <template v-else>
                 <div class="text-slate-500">Início</div>
-                <div class="w-18"><InputSelect v-model="startH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
+                <div class="w-18"><InputSelect v-model="startH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" tabindex="-1" /></div>
                 <span>:</span>
-                <div class="w-18"><InputSelect v-model="startM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
+                <div class="w-18"><InputSelect v-model="startM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" tabindex="-1" /></div>
               </template>
             </div>
           </div>
 
           <!-- Calendário B (apenas range) -->
           <div v-if="props.range">
-            <div class="grid grid-cols-7 gap-1 px-1 pb-1 text-center text-xs font-semibold text-slate-500">
+            <div class="grid grid-cols-7 gap-1 px-1 pb-1 text-center text-xs text-slate-500">
               <div v-for="w in weekDays" :key="'b'+w">{{ w }}</div>
             </div>
             <div class="grid grid-cols-7 gap-1 px-1">
@@ -586,14 +692,18 @@ function handleTriggerClick(toggle) {
                 v-for="cell in monthB"
                 :key="cellKey(cell,'-b')"
                 type="button"
-                class="h-9 w-full rounded-md text-sm flex items-center justify-center"
+                tabindex="-1"
+                class="h-9 w-full rounded-md text-sm font-normal flex items-center justify-center"
                 :class="[
                   cell.placeholder ? 'text-transparent pointer-events-none' : 'text-slate-800',
                   cell.isToday && !cell.placeholder ? 'ring-1 ring-blue-400' : '',
                   (!cell.placeholder && inSelectedRange(cell.d)) ? 'bg-blue-100' : '',
+                  isSameDay(cell.d, hoverDate) ? 'bg-blue-200' : '',
+                  (!props.range && isSameDay(cell.d, singleDate)) ? 'bg-blue-200' : '',
                 ]"
                 :disabled="cell.disabled || cell.placeholder"
                 @mouseenter="onHoverDay(cell)"
+                @mouseleave="onHoverDay(null)"
                 @click.stop="handleDayClick(cell, close)"
               >
                 {{ cell.placeholder ? '\u00A0' : cell.d.getDate() }}
@@ -603,9 +713,9 @@ function handleTriggerClick(toggle) {
             <div v-if="props.withTime && rangeEnd" class="mt-2 flex items-center gap-2 text-sm">
               <ClockIcon class="h-4 w-4 text-slate-500" />
               <div class="text-slate-500">Fim</div>
-              <div class="w-18"><InputSelect v-model="endH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
+              <div class="w-18"><InputSelect v-model="endH" :options="hourOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" tabindex="-1" /></div>
               <span>:</span>
-              <div class="w-18"><InputSelect v-model="endM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" /></div>
+              <div class="w-18"><InputSelect v-model="endM" :options="minuteOptions" size="sm" :optionValue="'value'" :optionLabel="'label'" :placeholder="null" tabindex="-1" /></div>
             </div>
           </div>
         </div>
@@ -617,14 +727,14 @@ function handleTriggerClick(toggle) {
 
         <!-- Ações -->
         <div v-if="props.withTime || props.range" class="mt-3 flex items-center justify-end gap-2">
-          <Button v-if="clearable" variant="ghost" size="sm" @click.stop="clearValue">Limpar</Button>
-          <Button v-if="props.range && !props.withTime" variant="primary" size="sm" :disabled="!rangeStart || !rangeEnd || maxRangeExceeded" @click.stop="applyRange(close)">Aplicar</Button>
-          <Button v-else-if="props.range && props.withTime" variant="primary" size="sm" :disabled="!rangeStart || !rangeEnd || maxRangeExceeded" @click.stop="applyRange(close)">Aplicar</Button>
-          <Button v-else-if="!props.range && props.withTime" variant="primary" size="sm" :disabled="!singleDate" @click.stop="applySingle(close)">Aplicar</Button>
+          <Button v-if="clearable" variant="ghost" size="sm" tabindex="-1" @click.stop="clearValue">Limpar</Button>
+          <Button v-if="props.range && !props.withTime" variant="primary" size="sm" tabindex="-1" :disabled="!rangeStart || !rangeEnd || maxRangeExceeded" @click.stop="applyRange(close)">Aplicar</Button>
+          <Button v-else-if="props.range && props.withTime" variant="primary" size="sm" tabindex="-1" :disabled="!rangeStart || !rangeEnd || maxRangeExceeded" @click.stop="applyRange(close)">Aplicar</Button>
+          <Button v-else-if="!props.range && props.withTime" variant="primary" size="sm" tabindex="-1" :disabled="!singleDate" @click.stop="applySingle(close)">Aplicar</Button>
         </div>
       </div>
       </template>
-    </Dropdown>
+  </LocalDropdown>
   </div>
 </template>
 

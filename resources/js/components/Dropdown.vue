@@ -112,7 +112,14 @@ onBeforeUnmount(() => {
 });
 
 // Expose simple API for parent components
-defineExpose({ open, close, toggle, isOpen });
+defineExpose({
+  open,
+  close,
+  toggle,
+  isOpen,
+  panel,
+  root,
+});
 </script>
 
 <template>

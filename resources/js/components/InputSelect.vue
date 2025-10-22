@@ -54,6 +54,10 @@ const props = defineProps({
   id: {
     type: String,
     default: ''
+  },
+  tabindex: {
+    type: [String, Number],
+    default: undefined
   }
 })
 
@@ -179,6 +183,7 @@ defineExpose({
       :value="modelValue"
       :required="required"
       :disabled="disabled"
+      :tabindex="tabindex"
       :class="finalClasses"
       @change="handleChange"
       @blur="handleBlur"
