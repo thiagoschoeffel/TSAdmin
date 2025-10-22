@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   openClass: { type: String, default: 'is-open' },
@@ -20,6 +20,24 @@ const props = defineProps({
 const isOpen = ref(false)
 const panel = ref(null)
 const panelStyle = ref({})
+
+function addPositionListeners() {
+  window.addEventListener('scroll', onScroll, true)
+  window.addEventListener('resize', onResize, true)
+}
+
+function removePositionListeners() {
+  window.removeEventListener('scroll', onScroll, true)
+  window.removeEventListener('resize', onResize, true)
+}
+
+function onScroll() {
+  if (isOpen.value) updatePanelPosition()
+}
+
+function onResize() {
+  if (isOpen.value) updatePanelPosition()
+}
 
 function updatePanelPosition() {
   const trigger = panel.value?.parentElement?.querySelector('input')
@@ -60,17 +78,23 @@ function updatePanelPosition() {
   }
 }
 
+
 function open() {
   isOpen.value = true
-  nextTick(() => updatePanelPosition())
+  nextTick(() => {
+    updatePanelPosition()
+    addPositionListeners()
+  })
 }
 
 function forceClose() {
   isOpen.value = false
+  removePositionListeners()
 }
 
 function close() {
   isOpen.value = false
+  removePositionListeners()
 }
 
 defineExpose({
@@ -81,7 +105,18 @@ defineExpose({
 })
 
 watch(isOpen, (val) => {
-  if (val) nextTick(() => updatePanelPosition())
+  if (val) {
+    nextTick(() => {
+      updatePanelPosition()
+      addPositionListeners()
+    })
+  } else {
+    removePositionListeners()
+  }
+})
+
+onBeforeUnmount(() => {
+  removePositionListeners()
 })
 </script>
 
