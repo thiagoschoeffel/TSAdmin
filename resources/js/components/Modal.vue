@@ -29,6 +29,7 @@ const sizes = {
   md: 'max-w-lg',
   lg: 'max-w-2xl',
   xl: 'max-w-4xl',
+  '2xl': 'max-w-6xl',
 };
 const panelSize = computed(() => sizes[props.size] || sizes.md);
 

@@ -18,6 +18,11 @@ const props = defineProps({
     type: [Array, Function],
     default: () => []
   },
+  // Optional inline action buttons rendered before the dropdown per row
+  inlineActions: {
+    type: [Array, Function],
+    default: () => []
+  },
   // Keep last column sticky to the right
   stickyActions: {
     type: Boolean,
@@ -43,7 +48,11 @@ const emit = defineEmits(['action']);
 const instance = getCurrentInstance();
 const route = instance.appContext.config.globalProperties.route;
 
-const colspan = computed(() => props.columns.length + ((typeof props.actions === 'function' || props.actions.length > 0) ? 1 : 0));
+const colspan = computed(() => {
+  const hasDropdown = (typeof props.actions === 'function' || (Array.isArray(props.actions) && props.actions.length > 0));
+  const hasInline = (typeof props.inlineActions === 'function' || (Array.isArray(props.inlineActions) && props.inlineActions.length > 0));
+  return props.columns.length + ((hasDropdown || hasInline) ? 1 : 0);
+});
 
 const handleAction = (action, item) => {
   emit('action', { action, item });
@@ -110,7 +119,7 @@ onBeforeUnmount(() => {
             {{ column.header }}
           </th>
           <th
-            v-if="typeof actions === 'function' || actions.length > 0"
+            v-if="(typeof actions === 'function' || (Array.isArray(actions) && actions.length > 0)) || (typeof inlineActions === 'function' || (Array.isArray(inlineActions) && inlineActions.length > 0))"
             :class="[
               'dt-cell dt-actions border-b-2 border-slate-200 px-3 py-3 text-left text-sm font-semibold text-slate-600',
               stickyActions ? 'dt-sticky-actions' : ''
@@ -144,13 +153,25 @@ onBeforeUnmount(() => {
             </template>
           </td>
           <td
-            v-if="typeof actions === 'function' || actions.length > 0"
+            v-if="(typeof actions === 'function' || (Array.isArray(actions) && actions.length > 0)) || (typeof inlineActions === 'function' || (Array.isArray(inlineActions) && inlineActions.length > 0))"
             :class="[
               'dt-cell dt-actions border-b border-slate-200 px-3 py-3 text-sm text-slate-800',
               stickyActions ? 'dt-sticky-actions' : ''
             ]"
           >
-            <Dropdown v-if="typeof actions === 'function' ? actions(item, data.indexOf(item), route).length > 0 : actions.length > 0">
+            <!-- Inline actions before dropdown -->
+            <template v-for="action in (typeof inlineActions === 'function' ? inlineActions(item, data.indexOf(item), route) : inlineActions)" :key="['inline', item[rowKey], action.key].join('-')">
+              <Button
+                :variant="action.variant || 'ghost'"
+                size="sm"
+                class="mr-2"
+                :aria-label="action.label || 'Ação'"
+                @click="handleAction(action, item)"
+              >
+                <HeroIcon v-if="action.icon" :name="action.icon" class="h-5 w-5" />
+              </Button>
+            </template>
+            <Dropdown v-if="typeof actions === 'function' ? actions(item, data.indexOf(item), route).length > 0 : (Array.isArray(actions) && actions.length > 0)" :zIndex="2000">
               <template #trigger="{ toggle }">
                 <Button variant="ghost" size="sm" @click="toggle" aria-label="Abrir menu de ações">
                   <HeroIcon name="ellipsis-horizontal" class="h-5 w-5" />

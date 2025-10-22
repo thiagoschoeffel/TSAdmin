@@ -142,6 +142,11 @@ const handleBlur = (event) => {
 }
 
 const handleFocus = (event) => {
+  try {
+    // Select current option text by focusing the select element.
+    // Native select doesn't support text range selection, but focusing is enough for consistency.
+    setTimeout(() => selectRef.value?.focus?.(), 0)
+  } catch (_) {}
   emit('focus', event)
 }
 
@@ -161,7 +166,7 @@ const getOptionLabel = (option) => {
 
 // Expose focus method
 defineExpose({
-  focus: () => selectRef.value?.focus(),
+  focus: () => { selectRef.value?.focus?.() },
   blur: () => selectRef.value?.blur()
 })
 </script>

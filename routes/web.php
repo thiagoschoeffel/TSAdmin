@@ -131,6 +131,18 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::get('{productionPointing}/edit', [\App\Http\Controllers\ProductionPointingController::class, 'edit'])->name('edit');
         Route::patch('{productionPointing}', [\App\Http\Controllers\ProductionPointingController::class, 'update'])->name('update');
         Route::delete('{productionPointing}', [\App\Http\Controllers\ProductionPointingController::class, 'destroy'])->name('destroy');
+
+        // Block productions (entries) for a production pointing
+        Route::get('{productionPointing}/block-productions', [\App\Http\Controllers\BlockProductionController::class, 'index'])->name('block-productions.index');
+        Route::post('{productionPointing}/block-productions', [\App\Http\Controllers\BlockProductionController::class, 'store'])->name('block-productions.store');
+        Route::patch('{productionPointing}/block-productions/{blockProduction}', [\App\Http\Controllers\BlockProductionController::class, 'update'])->name('block-productions.update');
+        Route::delete('{productionPointing}/block-productions/{blockProduction}', [\App\Http\Controllers\BlockProductionController::class, 'destroy'])->name('block-productions.destroy');
+
+        // Molded productions for a production pointing
+        Route::get('{productionPointing}/molded-productions', [\App\Http\Controllers\MoldedProductionController::class, 'index'])->name('molded-productions.index');
+        Route::post('{productionPointing}/molded-productions', [\App\Http\Controllers\MoldedProductionController::class, 'store'])->name('molded-productions.store');
+        Route::patch('{productionPointing}/molded-productions/{moldedProduction}', [\App\Http\Controllers\MoldedProductionController::class, 'update'])->name('molded-productions.update');
+        Route::delete('{productionPointing}/molded-productions/{moldedProduction}', [\App\Http\Controllers\MoldedProductionController::class, 'destroy'])->name('molded-productions.destroy');
     });
 
     Route::prefix('silos')->name('silos.')->group(function (): void {

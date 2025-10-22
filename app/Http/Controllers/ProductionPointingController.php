@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductionPointingRequest;
 use App\Http\Requests\UpdateProductionPointingRequest;
 use App\Models\Operator;
+use App\Models\BlockType;
+use App\Models\MoldType;
 use App\Models\ProductionPointing;
 use App\Models\RawMaterial;
 use App\Models\Silo;
@@ -71,6 +73,10 @@ class ProductionPointingController extends Controller
         return Inertia::render('Admin/ProductionPointings/Index', [
             'productionPointings' => $productionPointings,
             'filters' => request()->only(['search', 'status', 'period']),
+            'blockTypes' => BlockType::query()->active()->orderBy('name')->get(['id', 'name', 'raw_material_percentage']),
+            'moldTypes' => MoldType::query()->orderBy('name')->get(['id', 'name']),
+            'operators' => Operator::query()->orderBy('name')->get(['id', 'name']),
+            'silos' => Silo::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 

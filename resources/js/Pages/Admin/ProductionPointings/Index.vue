@@ -11,12 +11,17 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import PerPageSelector from '@/components/PerPageSelector.vue';
 import ProductionPointingDetailsModal from '@/components/productionPointings/ProductionPointingDetailsModal.vue';
+import ProductionPointingModal from '@/components/productionPointings/ProductionPointingModal.vue';
 import Badge from '@/components/Badge.vue';
 import DataTable from '@/components/DataTable.vue';
 
 const props = defineProps({
   productionPointings: { type: Object, required: true },
   filters: { type: Object, default: () => ({}) },
+  blockTypes: { type: Array, default: () => [] },
+  moldTypes: { type: Array, default: () => [] },
+  operators: { type: Array, default: () => [] },
+  silos: { type: Array, default: () => [] },
 });
 
 const page = usePage();
@@ -180,7 +185,24 @@ const actions = computed(() => {
   return acts;
 });
 
+// Inline action button before dropdown
+const inlineActions = (item) => ([
+  {
+    key: 'details',
+    label: 'Apontamento de produção',
+    icon: 'arrow-down-tray',
+    variant: 'primary',
+  }
+]);
+
+// New empty modal state (Apontamento de produção)
+const ppModal = ref({ open: false, productionPointingId: null, requestSheetNumber: null });
+
 const handleTableAction = ({ action, item }) => {
+  if (action.key === 'details') {
+    ppModal.value = { open: true, productionPointingId: item.id, requestSheetNumber: item.sheet_number };
+    return;
+  }
   if (action.key === 'delete') {
     confirmDelete(item);
   }
@@ -217,7 +239,7 @@ const handleTableAction = ({ action, item }) => {
               { value: 'inactive', label: 'Inativos' }
             ]" placeholder="" />
           </label>
-          <label class="form-label lg:col-span-2">
+          <label class="form-label">
             Período
             <InputDatePicker v-model="period" :range="true" :withTime="true" placeholder="Selecione o período" />
           </label>
@@ -239,6 +261,7 @@ const handleTableAction = ({ action, item }) => {
       <DataTable
         :columns="columns"
         :data="productionPointings.data"
+        :inline-actions="inlineActions"
         :actions="actions"
         empty-message="Nenhum apontamento encontrado."
         @action="handleTableAction"
@@ -258,6 +281,16 @@ const handleTableAction = ({ action, item }) => {
     <ProductionPointingDetailsModal
       v-model="details.open"
       :production-pointing-id="details.productionPointingId"
+    />
+
+    <ProductionPointingModal
+      v-model="ppModal.open"
+      :production-pointing-id="ppModal.productionPointingId"
+      :block-types="blockTypes"
+      :mold-types="moldTypes"
+      :operators="operators"
+      :silos="silos"
+      :request-sheet-number="ppModal.requestSheetNumber"
     />
   </AdminLayout>
 </template>

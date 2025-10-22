@@ -15,6 +15,12 @@ class DevSeeder extends Seeder
         Schema::disableForeignKeyConstraints();
         foreach (
             [
+                'molded_production_operator',
+                'molded_production_silo',
+                'molded_productions',
+                'block_production_operator',
+                'block_production_silo',
+                'block_productions',
                 'order_items',
                 'orders',
                 'product_components',
@@ -62,6 +68,8 @@ class DevSeeder extends Seeder
             $this->call(BlockTypeSeeder::class);
             $this->call(MoldTypeSeeder::class);
             $this->call(ProductionPointingSeeder::class);
+            $this->call(BlockProductionSeeder::class);
+            $this->call(MoldedProductionSeeder::class);
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);
             $this->call(LeadInteractionSeeder::class);

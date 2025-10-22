@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, defineExpose, nextTick } from 'vue'
 import Dropdown from './Dropdown.vue'
 import InputSelect from './InputSelect.vue'
 import Button from './Button.vue'
@@ -24,6 +24,10 @@ const props = defineProps({
   class: { type: String, default: '' },
   // Validação opcional de range máximo em dias (apenas quando range=true)
   maxRangeDays: { type: Number, default: null },
+  // Permite digitação manual (apenas quando range=false)
+  allowManualInput: { type: Boolean, default: false },
+  // Permite priorizar foco deste input ao abrir modais
+  autofocus: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue', 'change'])
@@ -86,6 +90,8 @@ const endH = ref(0), endM = ref(0)
 onMounted(() => syncFromModel())
 watch(() => props.modelValue, () => syncFromModel())
 
+// (moved below refs declaration) Reforça a seleção quando o dropdown abre
+
 if (!props.range) {
   watch([singleH, singleM], () => {
     if (singleDate.value) commitSingle()
@@ -138,6 +144,47 @@ const inputClasses = computed(() => {
   return base.join(' ')
 })
 const finalClasses = computed(() => [inputClasses.value, props.class || ''].filter(Boolean).join(' '))
+
+// Expose focus method to parent components
+const inputEl = ref(null)
+const dropdownRef = ref(null)
+
+function selectAllSoon() {
+  try {
+    // First tick: after focus settles
+    setTimeout(() => {
+      try {
+        const el = inputEl.value
+        if (!el) return
+        const wasRo = el.readOnly
+        if (wasRo) el.readOnly = false
+        el.select && el.select()
+        if (wasRo) el.readOnly = true
+      } catch (_) {}
+    }, 0)
+    // Second tick: after any value updates/toggles that might override selection
+    setTimeout(() => {
+      try {
+        const el = inputEl.value
+        if (!el) return
+        const wasRo = el.readOnly
+        if (wasRo) el.readOnly = false
+        el.select && el.select()
+        if (wasRo) el.readOnly = true
+      } catch (_) {}
+    }, 50)
+  } catch (_) {}
+}
+defineExpose({
+  focus: () => { inputEl.value?.focus?.(); selectAllSoon() }
+})
+
+// Reforça a seleção quando o dropdown abre (alguns browsers mexem na seleção ao abrir popups)
+watch(() => dropdownRef.value?.isOpen?.value, (open) => {
+  if (open && document.activeElement === inputEl.value) {
+    selectAllSoon()
+  }
+})
 
 // Labels/formatos
 const weekDays = ['D','S','T','Q','Q','S','S']
@@ -334,20 +381,110 @@ const maxRangeExceeded = computed(() => {
   const days = ms / (1000 * 60 * 60 * 24)
   return days > props.maxRangeDays
 })
+
+// Entrada manual (apenas quando range=false e allowManualInput=true)
+const isManual = computed(() => props.allowManualInput && !props.range)
+const userInput = ref('')
+const isEditing = ref(false)
+
+watch([displayValue, isManual], () => {
+  if (!isManual.value) return
+  if (!isEditing.value) userInput.value = displayValue.value
+})
+
+function parsePtBrManual(val) {
+  if (!val || typeof val !== 'string') return null
+  const s = val.trim()
+  // Accept dd/mm/yyyy or dd/mm/yyyy HH:mm or dd/mm/yyyy HH:mm:ss
+  const m = s.match(/^\s*(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?\s*$/)
+  if (!m) return null
+  const dd = Number(m[1]), mm = Number(m[2]), yyyy = Number(m[3])
+  const hh = Number(m[4] ?? '0'), mi = Number(m[5] ?? '0')
+  // Basic validation
+  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null
+  const d = new Date(yyyy, mm - 1, dd, hh, mi, 0, 0)
+  if (Number.isNaN(d.getTime())) return null
+  return d
+}
+
+function maskManual(val) {
+  // Keep only digits
+  let digits = String(val || '').replace(/\D/g, '')
+  const withTime = !!props.withTime
+  const maxLen = withTime ? 14 : 8
+  digits = digits.slice(0, maxLen)
+
+  // Build masked string progressively
+  let out = ''
+  // DD
+  if (digits.length >= 1) out += digits.slice(0, Math.min(2, digits.length))
+  // add '/'
+  if (digits.length >= 3) out = out.slice(0, 2) + '/' + digits.slice(2)
+  // after adding '/', re-evaluate
+  if (digits.length > 2) {
+    const d2 = digits.slice(2)
+    // MM
+    const mm = d2.slice(0, Math.min(2, d2.length))
+    out = digits.slice(0, 2) + '/' + mm
+    // add second '/'
+    if (digits.length >= 7) {
+      out += '/' + digits.slice(4, Math.min(8, digits.length))
+    }
+  }
+  // date complete (8)
+  if (!withTime || digits.length <= 8) {
+    return out
+  }
+  // add space then time
+  out = `${digits.slice(0,2)}/${digits.slice(2,4)}/${digits.slice(4,8)}`
+  const timeDigits = digits.slice(8)
+  if (timeDigits.length >= 1) out += ' ' + timeDigits.slice(0, Math.min(2, timeDigits.length))
+  if (timeDigits.length >= 3) out = out + ':' + timeDigits.slice(2, Math.min(4, timeDigits.length))
+  if (timeDigits.length >= 5) out = out + ':' + timeDigits.slice(4, Math.min(6, timeDigits.length))
+  return out
+}
+
+function onManualCommit() {
+  if (!isManual.value) return
+  const d = parsePtBrManual(userInput.value)
+  if (!d) return
+  singleDate.value = startOfDay(d)
+  if (props.withTime) {
+    singleH.value = d.getHours()
+    singleM.value = d.getMinutes()
+  }
+  commitSingle()
+  // Sync back to display string
+  userInput.value = displayValue.value
+}
+
+function handleTriggerClick(toggle) {
+  // Mesmo em modo manual, abrir o dropdown e mantê-lo aberto
+  if (!props.disabled && !props.readonly) {
+    openPicker();
+    toggle();
+  }
+}
 </script>
 
 <template>
   <div class="block w-full">
-    <Dropdown class="block w-full" :portal="true" :minWidth="props.range ? 560 : 280" :panelClass="'menu-panel'" :openClass="'is-open'">
+    <Dropdown ref="dropdownRef" class="block w-full" :portal="true" :minWidth="props.range ? 560 : 280" :panelClass="'menu-panel'" :openClass="'is-open'" :zIndex="2000">
       <!-- Trigger (slot nomeado) -->
       <template #trigger="{ toggle }">
-        <div class="relative inline-flex w-full" @click="!props.disabled && !props.readonly && (openPicker(), toggle())" :aria-disabled="props.disabled">
+        <div class="relative inline-flex w-full" @click="handleTriggerClick(toggle)" :aria-disabled="props.disabled">
           <input
-            :value="displayValue"
+            ref="inputEl"
+            :value="isManual ? userInput : displayValue"
             :placeholder="effectivePlaceholder"
             :disabled="props.disabled"
-            :readonly="true"
+            :readonly="!isManual"
             :class="finalClasses"
+            :autofocus="props.autofocus"
+            @input="(e) => { if (isManual) userInput = maskManual(e.target.value) }"
+            @focus="() => { selectAllSoon(); if (isManual) isEditing = true }"
+            @keydown.enter.prevent="onManualCommit"
+            @blur="() => { if (isManual) { isEditing = false; onManualCommit() } ; try { dropdownRef?.close?.() } catch (_) {} }"
           />
           <CalendarDaysIcon class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
           <button v-if="clearable && !props.disabled && displayValue" type="button" class="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" @click.stop="clearValue">
