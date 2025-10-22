@@ -154,9 +154,22 @@ function ensureDefaultTimes() {
   if (!formMolded.value.ended_at) formMolded.value.ended_at = nowYMDHM()
 }
 
-watch(open, (v) => { if (v) { ensureDefaultTimes(); loadEntries(); loadMoldedEntries(); nextTick(() => { if (productType.value === 'blocks') startBlockPicker.value?.focus(); else startMoldedPicker.value?.focus(); }); } });
+watch(open, (v) => {
+  if (v) {
+    ensureDefaultTimes();
+    loadEntries();
+    loadMoldedEntries();
+    nextTick(() => {
+      if (productType.value === 'blocks') startBlockPicker.value?.focus();
+      else startMoldedPicker.value?.focus();
+    });
+  } else {
+    // Resetar estado quando modal for fechado
+    resetModalState();
+  }
+});
 watch(() => props.requestSheetNumber, () => { if (open.value) { loadEntries(); loadMoldedEntries(); } });
-watch(productType, (val) => { if (open.value) { nextTick(() => { if (val === 'blocks') startBlockPicker.value?.focus(); else startMoldedPicker.value?.focus(); }); } });
+watch(productType, (val) => { if (open.value) { nextTick(() => { setTimeout(() => { if (val === 'blocks') startBlockPicker.value?.focus(); else startMoldedPicker.value?.focus(); }, 50); }); } });
 // Sempre que desabilitar a personalização, restaura valores padrão
 watch(() => form.value.enable_dimension_customization, (v) => {
   if (!v) {
@@ -311,8 +324,9 @@ const handleEntryAction = async ({ action, item }) => {
   } else if (action.key === 'edit-block') {
     productType.value = 'blocks';
     editingBlockId.value = item.id;
-    form.value.started_at = item.started_at || nowYMDHM();
-    form.value.ended_at = item.ended_at || nowYMDHM();
+    // Garantir formato compatível com InputDatePicker (YYYY-MM-DD HH:mm)
+    form.value.started_at = item.started_at ? String(item.started_at).replace('T', ' ').substring(0, 16) : nowYMDHM();
+    form.value.ended_at = item.ended_at ? String(item.ended_at).replace('T', ' ').substring(0, 16) : nowYMDHM();
     form.value.sheet_number = item.sheet_number ?? null;
     form.value.weight = item.weight ?? null;
     form.value.block_type_id = item.block_type_id ?? null;
@@ -453,8 +467,9 @@ const handleEntryActionMolded = ({ action, item }) => {
   } else if (action.key === 'edit-molded') {
     productType.value = 'moldeds';
     editingMoldedId.value = item.id;
-    formMolded.value.started_at = item.started_at || nowYMDHM();
-    formMolded.value.ended_at = item.ended_at || nowYMDHM();
+    // Garantir formato compatível com InputDatePicker (YYYY-MM-DD HH:mm)
+    formMolded.value.started_at = item.started_at ? String(item.started_at).replace('T', ' ').substring(0, 16) : nowYMDHM();
+    formMolded.value.ended_at = item.ended_at ? String(item.ended_at).replace('T', ' ').substring(0, 16) : nowYMDHM();
     formMolded.value.sheet_number = item.sheet_number ?? null;
     formMolded.value.mold_type_id = item.mold_type_id ?? null;
     formMolded.value.quantity = item.quantity ?? null;
@@ -501,6 +516,33 @@ function resetMoldedForm() {
 function cancelMolded() {
   resetMoldedForm();
   nextTick(() => startMoldedPicker.value?.focus?.());
+}
+
+function resetModalState() {
+  // Resetar tipo de produto para blocos
+  productType.value = 'blocks';
+
+  // Resetar formulários
+  resetBlocksForm();
+  resetMoldedForm();
+
+  // Limpar listas de apontamentos
+  entries.value = [];
+  entriesMolded.value = [];
+  seqCounter = 0;
+  seqMolded = 0;
+
+  // Limpar estados de loading
+  loadingEntries.value = false;
+  loadingMolded.value = false;
+
+  // Limpar modais de confirmação
+  confirmDelete.value = { open: false, processing: false, entry: null };
+  confirmDeleteMolded.value = { open: false, processing: false, entry: null };
+
+  // Limpar IDs de edição
+  editingBlockId.value = null;
+  editingMoldedId.value = null;
 }
 
 // Colunas Moldados
