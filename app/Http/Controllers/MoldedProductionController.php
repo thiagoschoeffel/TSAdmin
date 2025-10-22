@@ -16,7 +16,12 @@ class MoldedProductionController extends Controller
 
         $rows = MoldedProduction::query()
             ->where('production_pointing_id', $productionPointing->id)
-            ->with(['moldType:id,name', 'operators:id,name', 'silos:id,name'])
+            ->with([
+                'moldType:id,name',
+                'operators:id,name',
+                'silos:id,name',
+                'scraps.reason:id,name' // eager load scraps and their reasons
+            ])
             ->orderBy('id')
             ->get();
 
@@ -39,6 +44,17 @@ class MoldedProductionController extends Controller
                 'operator_names' => $mp->operators->pluck('name')->values(),
                 'silo_ids' => $mp->silos->pluck('id')->values(),
                 'operator_ids' => $mp->operators->pluck('id')->values(),
+                'scraps' => $mp->scraps->map(function ($scrap) {
+                    return [
+                        'id' => $scrap->id,
+                        'reason_id' => $scrap->reason_id,
+                        'quantity' => $scrap->quantity,
+                        'reason' => $scrap->reason ? [
+                            'id' => $scrap->reason->id,
+                            'name' => $scrap->reason->name,
+                        ] : null,
+                    ];
+                })->values(),
             ];
         })->values();
 
@@ -55,8 +71,10 @@ class MoldedProductionController extends Controller
             'sheet_number' => ['required', 'integer', 'min:1'],
             'mold_type_id' => ['required', 'exists:mold_types,id'],
             'quantity' => ['required', 'integer', 'min:1'],
+            'scraps' => ['array'],
+            'scraps.*.reason_id' => ['required', 'integer', 'exists:reasons,id'],
+            'scraps.*.quantity' => ['required', 'integer', 'min:1'],
             'package_weight' => ['required', 'numeric', 'min:0.01'],
-            // Customização do fator de perda (opcional)
             'loss_factor_enabled' => ['nullable', 'boolean'],
             'loss_factor' => ['nullable', 'numeric', 'min:0', 'max:1'],
             'operator_ids' => ['array'],
@@ -64,7 +82,7 @@ class MoldedProductionController extends Controller
             'silo_ids' => ['array'],
             'silo_ids.*' => ['integer', 'exists:silos,id'],
         ]);
-        // Usar quantidade por pacote do cadastro de tipo de moldado
+
         $moldType = \App\Models\MoldType::query()->findOrFail((int) $data['mold_type_id']);
         $packageQty = max(1, (int) round((float) ($moldType->pieces_per_package ?? 1)));
         $perUnit = ((float) $data['package_weight'] / $packageQty);
@@ -95,7 +113,17 @@ class MoldedProductionController extends Controller
         $mp->operators()->sync($data['operator_ids'] ?? []);
         $mp->silos()->sync($data['silo_ids'] ?? []);
 
-        $mp->load(['moldType:id,name', 'operators:id,name', 'silos:id,name']);
+        // Sincronizar scraps
+        if (!empty($data['scraps'])) {
+            foreach ($data['scraps'] as $scrap) {
+                $mp->scraps()->create([
+                    'reason_id' => $scrap['reason_id'],
+                    'quantity' => $scrap['quantity'],
+                ]);
+            }
+        }
+
+        $mp->load(['moldType:id,name', 'operators:id,name', 'silos:id,name', 'scraps.reason:id,name']);
 
         return response()->json([
             'moldedProduction' => [
@@ -110,6 +138,14 @@ class MoldedProductionController extends Controller
                 'total_weight_considered' => (float) $mp->total_weight_considered,
                 'silo_names' => $mp->silos->pluck('name')->values(),
                 'operator_names' => $mp->operators->pluck('name')->values(),
+                'scraps' => $mp->scraps->map(function ($scrap) {
+                    return [
+                        'id' => $scrap->id,
+                        'reason_id' => $scrap->reason_id,
+                        'reason_name' => $scrap->reason?->name,
+                        'quantity' => $scrap->quantity,
+                    ];
+                }),
             ],
         ]);
     }
@@ -137,6 +173,9 @@ class MoldedProductionController extends Controller
             'sheet_number' => ['required', 'integer', 'min:1'],
             'mold_type_id' => ['required', 'exists:mold_types,id'],
             'quantity' => ['required', 'integer', 'min:1'],
+            'scraps' => ['array'],
+            'scraps.*.reason_id' => ['required', 'integer', 'exists:reasons,id'],
+            'scraps.*.quantity' => ['required', 'integer', 'min:1'],
             'package_weight' => ['required', 'numeric', 'min:0.01'],
             'loss_factor_enabled' => ['nullable', 'boolean'],
             'loss_factor' => ['nullable', 'numeric', 'min:0', 'max:1'],
@@ -174,7 +213,37 @@ class MoldedProductionController extends Controller
         $moldedProduction->operators()->sync($data['operator_ids'] ?? []);
         $moldedProduction->silos()->sync($data['silo_ids'] ?? []);
 
-        $moldedProduction->load(['moldType:id,name', 'operators:id,name', 'silos:id,name']);
+        // Sincronizar scraps
+        $existingScrapIds = $moldedProduction->scraps()->pluck('id')->toArray();
+        $incomingScraps = $data['scraps'] ?? [];
+        $newScrapIds = [];
+        foreach ($incomingScraps as $scrap) {
+            if (isset($scrap['id'])) {
+                // Atualizar scrap existente
+                $scrapModel = $moldedProduction->scraps()->find($scrap['id']);
+                if ($scrapModel) {
+                    $scrapModel->update([
+                        'reason_id' => $scrap['reason_id'],
+                        'quantity' => $scrap['quantity'],
+                    ]);
+                    $newScrapIds[] = $scrapModel->id;
+                }
+            } else {
+                // Criar novo scrap
+                $created = $moldedProduction->scraps()->create([
+                    'reason_id' => $scrap['reason_id'],
+                    'quantity' => $scrap['quantity'],
+                ]);
+                $newScrapIds[] = $created->id;
+            }
+        }
+        // Remover scraps que não vieram na requisição
+        $toDelete = array_diff($existingScrapIds, $newScrapIds);
+        if (!empty($toDelete)) {
+            $moldedProduction->scraps()->whereIn('id', $toDelete)->delete();
+        }
+
+        $moldedProduction->load(['moldType:id,name', 'operators:id,name', 'silos:id,name', 'scraps.reason:id,name']);
 
         return response()->json([
             'moldedProduction' => [
@@ -192,6 +261,14 @@ class MoldedProductionController extends Controller
                 'operator_names' => $moldedProduction->operators->pluck('name')->values(),
                 'silo_ids' => $moldedProduction->silos->pluck('id')->values(),
                 'operator_ids' => $moldedProduction->operators->pluck('id')->values(),
+                'scraps' => $moldedProduction->scraps->map(function ($scrap) {
+                    return [
+                        'id' => $scrap->id,
+                        'reason_id' => $scrap->reason_id,
+                        'reason_name' => $scrap->reason?->name,
+                        'quantity' => $scrap->quantity,
+                    ];
+                }),
             ],
         ]);
     }

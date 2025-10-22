@@ -18,6 +18,8 @@ class MoldedProduction extends Model
         'ended_at',
         'sheet_number',
         'quantity',
+        'scrap_quantity',
+        'scrap_reason_id',
         'package_weight',
         'package_quantity',
         'loss_factor_enabled',
@@ -32,6 +34,8 @@ class MoldedProduction extends Model
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
         'quantity' => 'integer',
+        'scrap_quantity' => 'integer',
+        'scrap_reason_id' => 'integer',
         'package_quantity' => 'integer',
         'package_weight' => 'decimal:2',
         'weight_considered_unit' => 'decimal:3',
@@ -39,6 +43,10 @@ class MoldedProduction extends Model
         'loss_factor_enabled' => 'boolean',
         'loss_factor' => 'decimal:4',
     ];
+    public function scrapReason(): BelongsTo
+    {
+        return $this->belongsTo(Reason::class, 'scrap_reason_id');
+    }
 
     public function productionPointing(): BelongsTo
     {
@@ -58,5 +66,10 @@ class MoldedProduction extends Model
     public function silos(): BelongsToMany
     {
         return $this->belongsToMany(Silo::class, 'molded_production_silo');
+    }
+
+    public function scraps()
+    {
+        return $this->hasMany(MoldedProductionScrap::class);
     }
 }

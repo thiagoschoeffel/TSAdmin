@@ -70,6 +70,7 @@ class DevSeeder extends Seeder
             $this->call(ProductionPointingSeeder::class);
             $this->call(BlockProductionSeeder::class);
             $this->call(MoldedProductionSeeder::class);
+            $this->call(MoldedProductionScrapSeeder::class);
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);
             $this->call(LeadInteractionSeeder::class);

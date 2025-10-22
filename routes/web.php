@@ -219,6 +219,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::get('/', [\App\Http\Controllers\ReasonController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\ReasonController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\ReasonController::class, 'store'])->name('store');
+        Route::get('all-active', [\App\Http\Controllers\ReasonController::class, 'allActive'])->name('all-active');
+        Route::get('all', [\App\Http\Controllers\ReasonController::class, 'all'])->name('all');
         Route::get('{reason}/modal', [\App\Http\Controllers\ReasonController::class, 'modal'])->name('modal');
         Route::get('{reason}/edit', [\App\Http\Controllers\ReasonController::class, 'edit'])->name('edit');
         Route::patch('{reason}', [\App\Http\Controllers\ReasonController::class, 'update'])->name('update');

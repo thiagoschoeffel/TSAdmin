@@ -59,6 +59,16 @@ class MoldedProductionFactory extends Factory
             $silos = Silo::query()->inRandomOrder()->limit(mt_rand(1, 3))->pluck('id')->all();
             $mp->operators()->sync($ops);
             $mp->silos()->sync($silos);
+
+            // Gerar scraps aleatórios
+            $reasons = \App\Models\Reason::query()->inRandomOrder()->limit(5)->pluck('id')->all();
+            $scrapCount = mt_rand(0, 3);
+            for ($i = 0; $i < $scrapCount; $i++) {
+                $mp->scraps()->create([
+                    'reason_id' => $this->faker->randomElement($reasons),
+                    'quantity' => $this->faker->numberBetween(1, 20),
+                ]);
+            }
         });
     }
 }
