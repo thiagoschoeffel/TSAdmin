@@ -63,7 +63,7 @@ class MoldedProductionController extends Controller
 
     public function store(Request $request, ProductionPointing $productionPointing): JsonResponse
     {
-        $this->authorize('update', $productionPointing);
+        $this->authorize('create', MoldedProduction::class);
 
         $data = $request->validate([
             'started_at' => ['required', 'date'],
@@ -123,6 +123,9 @@ class MoldedProductionController extends Controller
             }
         }
 
+        // Movimenta estoque: consumo de MP e entrada de moldado
+        app(\App\Services\Inventory\InventoryService::class)->syncMoldedProduction($mp);
+
         $mp->load(['moldType:id,name', 'operators:id,name', 'silos:id,name', 'scraps.reason:id,name']);
 
         return response()->json([
@@ -152,17 +155,22 @@ class MoldedProductionController extends Controller
 
     public function destroy(ProductionPointing $productionPointing, MoldedProduction $moldedProduction): JsonResponse
     {
-        $this->authorize('update', $productionPointing);
+        $this->authorize('delete', $moldedProduction);
         if ($moldedProduction->production_pointing_id !== $productionPointing->id) {
             abort(404);
         }
+        // Apagar movimentos associados antes de excluir
+        \App\Models\InventoryMovement::query()
+            ->where('reference_type', \App\Models\MoldedProduction::class)
+            ->where('reference_id', $moldedProduction->id)
+            ->delete();
         $moldedProduction->delete();
         return response()->json(['status' => 'ok']);
     }
 
     public function update(Request $request, ProductionPointing $productionPointing, MoldedProduction $moldedProduction): JsonResponse
     {
-        $this->authorize('update', $productionPointing);
+        $this->authorize('update', $moldedProduction);
         if ($moldedProduction->production_pointing_id !== $productionPointing->id) {
             abort(404);
         }
@@ -244,6 +252,9 @@ class MoldedProductionController extends Controller
         }
 
         $moldedProduction->load(['moldType:id,name', 'operators:id,name', 'silos:id,name', 'scraps.reason:id,name']);
+
+        // Sincroniza movimentos de estoque após atualização
+        app(\App\Services\Inventory\InventoryService::class)->syncMoldedProduction($moldedProduction);
 
         return response()->json([
             'moldedProduction' => [

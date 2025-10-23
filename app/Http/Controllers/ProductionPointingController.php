@@ -109,6 +109,9 @@ class ProductionPointingController extends Controller
         $productionPointing->operators()->sync($data['operator_ids']);
         $productionPointing->silos()->sync($data['silo_ids']);
 
+        // Criar/atualizar reserva de matéria-prima
+        app(\App\Services\Inventory\InventoryService::class)->reserveForProductionPointing($productionPointing);
+
         return redirect()->route('production-pointings.index')->with('status', 'Apontamento de produção criado com sucesso!');
     }
 
@@ -159,6 +162,9 @@ class ProductionPointingController extends Controller
 
         $productionPointing->operators()->sync($data['operator_ids']);
         $productionPointing->silos()->sync($data['silo_ids']);
+
+        // Atualizar reserva de matéria-prima conforme mudanças
+        app(\App\Services\Inventory\InventoryService::class)->reserveForProductionPointing($productionPointing);
 
         return redirect()->route('production-pointings.index')->with('status', 'Apontamento de produção atualizado com sucesso!');
     }

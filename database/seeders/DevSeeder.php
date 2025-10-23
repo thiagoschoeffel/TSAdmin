@@ -15,6 +15,8 @@ class DevSeeder extends Seeder
         Schema::disableForeignKeyConstraints();
         foreach (
             [
+                'inventory_movements',
+                'inventory_reservations',
                 'molded_production_operator',
                 'molded_production_silo',
                 'molded_productions',
@@ -70,6 +72,8 @@ class DevSeeder extends Seeder
             $this->call(ProductionPointingSeeder::class);
             $this->call(BlockProductionSeeder::class);
             $this->call(MoldedProductionSeeder::class);
+            // Movimentos e reservas após produções e apontamentos
+            $this->call(InventorySeeder::class);
             $this->call(MoldedProductionScrapSeeder::class);
             $this->call(ProductSeeder::class);
             $this->call(LeadSeeder::class);

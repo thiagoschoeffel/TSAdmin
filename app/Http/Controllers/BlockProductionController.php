@@ -67,7 +67,7 @@ class BlockProductionController extends Controller
     }
     public function store(Request $request, ProductionPointing $productionPointing): JsonResponse
     {
-        $this->authorize('update', $productionPointing);
+        $this->authorize('create', BlockProduction::class);
 
         $validated = $request->validate([
             'started_at' => ['required', 'date'],
@@ -108,6 +108,9 @@ class BlockProductionController extends Controller
         $bp->operators()->sync($validated['operator_ids'] ?? []);
         $bp->silos()->sync($validated['silo_ids'] ?? []);
 
+        // Movimenta estoque: consumo de MP e entrada de bloco
+        app(\App\Services\Inventory\InventoryService::class)->syncBlockProduction($bp);
+
         // Build response payload with computed values
         $bp->load(['blockType:id,name,raw_material_percentage', 'operators:id,name', 'silos:id,name']);
         $bt = $bp->blockType;
@@ -145,17 +148,22 @@ class BlockProductionController extends Controller
 
     public function destroy(ProductionPointing $productionPointing, BlockProduction $blockProduction): JsonResponse
     {
-        $this->authorize('update', $productionPointing);
+        $this->authorize('delete', $blockProduction);
         if ($blockProduction->production_pointing_id !== $productionPointing->id) {
             abort(404);
         }
+        // Apagar movimentos associados antes de excluir
+        \App\Models\InventoryMovement::query()
+            ->where('reference_type', \App\Models\BlockProduction::class)
+            ->where('reference_id', $blockProduction->id)
+            ->delete();
         $blockProduction->delete();
         return response()->json(['status' => 'ok']);
     }
 
     public function update(Request $request, ProductionPointing $productionPointing, BlockProduction $blockProduction): JsonResponse
     {
-        $this->authorize('update', $productionPointing);
+        $this->authorize('update', $blockProduction);
         if ($blockProduction->production_pointing_id !== $productionPointing->id) {
             abort(404);
         }
@@ -196,6 +204,9 @@ class BlockProductionController extends Controller
 
         $blockProduction->operators()->sync($validated['operator_ids'] ?? []);
         $blockProduction->silos()->sync($validated['silo_ids'] ?? []);
+
+        // Sincroniza movimentos de estoque após atualização
+        app(\App\Services\Inventory\InventoryService::class)->syncBlockProduction($blockProduction);
 
         $blockProduction->load(['blockType:id,name,raw_material_percentage', 'operators:id,name', 'silos:id,name']);
         $bt = $blockProduction->blockType;

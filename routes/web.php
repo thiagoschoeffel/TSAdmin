@@ -255,6 +255,30 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::delete('{item}', [\App\Http\Controllers\OrderController::class, 'removeItem'])->name('destroy');
     });
 
+    // Inventory & Estoque
+    Route::prefix('inventory')->name('inventory.')->group(function (): void {
+        // Páginas
+        Route::get('/', [\App\Http\Controllers\InventoryController::class, 'dashboard'])->name('dashboard');
+        Route::get('movements', [\App\Http\Controllers\InventoryController::class, 'movementsPage'])->name('movements.index');
+        Route::get('movements/create', [\App\Http\Controllers\InventoryController::class, 'createMovement'])
+            ->name('movements.create');
+        Route::post('movements', [\App\Http\Controllers\InventoryController::class, 'storeMovement'])
+            ->name('movements.store');
+        Route::get('movements/{movement}/edit', [\App\Http\Controllers\InventoryController::class, 'editMovement'])
+            ->name('movements.edit');
+        Route::patch('movements/{movement}', [\App\Http\Controllers\InventoryController::class, 'updateMovement'])
+            ->name('movements.update');
+        Route::delete('movements/{movement}', [\App\Http\Controllers\InventoryController::class, 'destroyMovement'])
+            ->name('movements.destroy');
+
+        // APIs
+        Route::get('summary', [\App\Http\Controllers\InventoryController::class, 'summary'])->name('summary');
+        Route::get('silos/load', [\App\Http\Controllers\InventoryController::class, 'siloLoads'])->name('silos.load');
+        Route::get('movements/list', [\App\Http\Controllers\InventoryController::class, 'movements'])->name('movements.list');
+        Route::post('raw-materials/movements', [\App\Http\Controllers\InventoryController::class, 'storeRawMaterialMovement'])
+            ->name('raw-materials.movements.store');
+    });
+
     Route::prefix('products/{product}/components')->name('products.components.')->group(function (): void {
         Route::get('/', [\App\Http\Controllers\ProductComponentController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\ProductComponentController::class, 'store'])->name('store');

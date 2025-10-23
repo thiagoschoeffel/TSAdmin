@@ -26,6 +26,16 @@ const props = defineProps({
     requestSheetNumber: { type: [Number, String, null], default: null },
 });
 import { computed } from 'vue';
+
+const page = computed(() => getCurrentInstance()?.appContext?.config?.globalProperties?.$page || {});
+const user = computed(() => page.value.props?.auth?.user || null);
+const isAdmin = computed(() => user.value?.role === 'admin');
+const canCreateBlockProductions = computed(() => isAdmin.value || !!user.value?.permissions?.block_productions?.create);
+const canUpdateBlockProductions = computed(() => isAdmin.value || !!user.value?.permissions?.block_productions?.update);
+const canDeleteBlockProductions = computed(() => isAdmin.value || !!user.value?.permissions?.block_productions?.delete);
+const canCreateMoldedProductions = computed(() => isAdmin.value || !!user.value?.permissions?.molded_productions?.create);
+const canUpdateMoldedProductions = computed(() => isAdmin.value || !!user.value?.permissions?.molded_productions?.update);
+const canDeleteMoldedProductions = computed(() => isAdmin.value || !!user.value?.permissions?.molded_productions?.delete);
 const loadedReasons = ref([]);
 const allReasons = ref([]); // Todos os motivos (ativos e inativos)
 
@@ -436,8 +446,8 @@ const columns = [
 
 // Dropdown actions (Blocks)
 const rowActionsBlocks = () => ([
-    { key: 'edit-block', label: 'Editar', icon: 'pencil' },
-    { key: 'delete-block', label: 'Remover', icon: 'trash', class: 'text-rose-600' },
+    ...(canUpdateBlockProductions.value ? [{ key: 'edit-block', label: 'Editar', icon: 'pencil' }] : []),
+    ...(canDeleteBlockProductions.value ? [{ key: 'delete-block', label: 'Remover', icon: 'trash', class: 'text-rose-600' }] : []),
 ]);
 
 const confirmDelete = ref({ open: false, processing: false, entry: null });
@@ -591,8 +601,8 @@ const handleSubmitMolded = async () => {
 
 // Dropdown actions (Moldeds)
 const rowActionsMolded = () => ([
-    { key: 'edit-molded', label: 'Editar', icon: 'pencil' },
-    { key: 'delete-molded', label: 'Remover', icon: 'trash', class: 'text-rose-600' },
+    ...(canUpdateMoldedProductions.value ? [{ key: 'edit-molded', label: 'Editar', icon: 'pencil' }] : []),
+    ...(canDeleteMoldedProductions.value ? [{ key: 'delete-molded', label: 'Remover', icon: 'trash', class: 'text-rose-600' }] : []),
 ]);
 const confirmDeleteMolded = ref({ open: false, processing: false, entry: null });
 const editingMoldedId = ref(null);
@@ -766,7 +776,7 @@ const columnsMolded = [
                     <InputDatePicker v-model="form.ended_at" :withTime="true" :allowManualInput="true" required
                         :error="!!form.errors.ended_at" />
                     <span v-if="form.errors.ended_at" class="text-sm font-medium text-rose-600">{{ form.errors.ended_at
-                        }}</span>
+                    }}</span>
                 </label>
 
                 <label class="form-label">
@@ -785,7 +795,7 @@ const columnsMolded = [
                     <InputNumber v-model="form.weight" :formatted="true" :precision="2" :min="0.01" :step="0.01"
                         placeholder="0,00" required :error="!!form.errors.weight" />
                     <span v-if="form.errors.weight" class="text-sm font-medium text-rose-600">{{ form.errors.weight
-                        }}</span>
+                    }}</span>
                 </label>
 
                 <label class="form-label">
@@ -805,7 +815,7 @@ const columnsMolded = [
                     <InputNumber v-model="form.height" :formatted="true" :precision="0" :min="1" :step="1"
                         placeholder="0" required :error="!!form.errors.height" />
                     <span v-if="form.errors.height" class="text-sm font-medium text-rose-600">{{ form.errors.height
-                        }}</span>
+                    }}</span>
                 </label>
             </div>
 
@@ -820,7 +830,7 @@ const columnsMolded = [
                         cadastrado.</p>
                 </div>
                 <span v-if="form.errors.silo_ids" class="text-sm font-medium text-rose-600">{{ form.errors.silo_ids
-                    }}</span>
+                }}</span>
             </div>
 
             <div class="space-y-3">
@@ -843,7 +853,8 @@ const columnsMolded = [
                 </Checkbox>
                 <div class="flex gap-2">
                     <Button variant="ghost" type="button" @click="cancelBlocks">Cancelar</Button>
-                    <Button variant="primary" type="submit" :loading="form.processing">Salvar</Button>
+                    <Button variant="primary" type="submit" :loading="form.processing"
+                        :disabled="!canCreateBlockProductions && !canUpdateBlockProductions">Salvar</Button>
                 </div>
             </div>
         </form>
@@ -970,7 +981,7 @@ const columnsMolded = [
                 </div>
                 <span v-if="formMolded.errors.silo_ids" class="text-sm font-medium text-rose-600">{{
                     formMolded.errors.silo_ids
-                    }}</span>
+                }}</span>
             </div>
 
             <div class="space-y-3">
@@ -990,7 +1001,8 @@ const columnsMolded = [
 
             <div class="flex justify-end gap-2">
                 <Button variant="ghost" type="button" @click="cancelMolded">Cancelar</Button>
-                <Button variant="primary" type="submit" :loading="formMolded.processing">Salvar</Button>
+                <Button variant="primary" type="submit" :loading="formMolded.processing"
+                    :disabled="!canCreateMoldedProductions && !canUpdateMoldedProductions">Salvar</Button>
             </div>
         </form>
 

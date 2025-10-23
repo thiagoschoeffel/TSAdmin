@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\BlockProductionObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,6 +38,11 @@ class BlockProduction extends Model
         'is_scrap' => 'boolean',
         'dimension_customization_enabled' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::observe(BlockProductionObserver::class);
+    }
 
     public function productionPointing(): BelongsTo
     {

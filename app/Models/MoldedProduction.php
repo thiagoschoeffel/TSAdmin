@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\MoldedProductionObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,6 +44,11 @@ class MoldedProduction extends Model
         'loss_factor_enabled' => 'boolean',
         'loss_factor' => 'decimal:4',
     ];
+
+    protected static function booted(): void
+    {
+        static::observe(MoldedProductionObserver::class);
+    }
     public function scrapReason(): BelongsTo
     {
         return $this->belongsTo(Reason::class, 'scrap_reason_id');

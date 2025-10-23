@@ -67,6 +67,15 @@ return [
                 'delete' => 'Excluir matérias-primas',
             ],
         ],
+        'inventory_movements' => [
+            'label' => 'Movimentos de Estoque',
+            'abilities' => [
+                'view' => 'Visualizar movimentos de estoque',
+                'create' => 'Criar movimentos de estoque',
+                'update' => 'Editar movimentos de estoque',
+                'delete' => 'Excluir movimentos de estoque',
+            ],
+        ],
         'production_pointings' => [
             'label' => 'Apontamento de produção EPS',
             'abilities' => [
@@ -74,6 +83,24 @@ return [
                 'create' => 'Criar apontamentos de produção',
                 'update' => 'Editar apontamentos de produção',
                 'delete' => 'Excluir apontamentos de produção',
+            ],
+        ],
+        'block_productions' => [
+            'label' => 'Produções de blocos',
+            'abilities' => [
+                'view' => 'Visualizar produções de blocos',
+                'create' => 'Criar produções de blocos',
+                'update' => 'Editar produções de blocos',
+                'delete' => 'Excluir produções de blocos',
+            ],
+        ],
+        'molded_productions' => [
+            'label' => 'Produções moldadas',
+            'abilities' => [
+                'view' => 'Visualizar produções moldadas',
+                'create' => 'Criar produções moldadas',
+                'update' => 'Editar produções moldadas',
+                'delete' => 'Excluir produções moldadas',
             ],
         ],
         'silos' => [
