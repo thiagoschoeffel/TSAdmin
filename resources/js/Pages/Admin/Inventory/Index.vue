@@ -10,6 +10,7 @@ import Pagination from '@/components/Pagination.vue';
 import { route as ziggyRoute } from '@/ziggy-client';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
 import PerPageSelector from '@/components/PerPageSelector.vue';
+import InventoryMovementDetailsModal from '@/components/inventory/InventoryMovementDetailsModal.vue';
 
 const props = defineProps({
     rawMaterials: { type: Array, default: () => [] },
@@ -52,6 +53,10 @@ const paginator = computed(() => props.paginator || { data: [], total: 0, curren
 const rows = computed(() => paginator.value.data || []);
 const loading = ref(false);
 
+// Estado da modal de detalhes
+const details = ref({ open: false, movementId: null });
+const openDetails = (movement) => { details.value.movementId = movement.id; details.value.open = true; };
+
 const applyFilters = () => {
     loading.value = true;
     const q = {};
@@ -69,6 +74,14 @@ const resetFilters = () => {
 };
 
 const columns = [
+    {
+        header: 'ID', key: 'id', component: 'button', props: (row) => ({
+            type: 'button',
+            class: (canViewInventory.value ? 'font-bold text-blue-600 cursor-pointer' : 'text-slate-900'),
+            disabled: !canViewInventory.value,
+            onClick: canViewInventory.value ? () => openDetails(row) : undefined
+        })
+    },
     {
         header: 'Quando', key: 'occurred_at', formatter: (v) => {
             const date = new Date(v);
@@ -207,5 +220,7 @@ const handleAction = async ({ action, item }) => {
             <DataTable :columns="columns" :data="rows" row-key="id" :actions="actions" @action="handleAction" />
             <Pagination v-if="paginator && paginator.total" :paginator="paginator" />
         </section>
+
+        <InventoryMovementDetailsModal v-model="details.open" :movement-id="details.movementId" />
     </AdminLayout>
 </template>

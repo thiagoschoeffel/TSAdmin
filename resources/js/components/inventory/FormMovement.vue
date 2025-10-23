@@ -42,7 +42,7 @@ const locTypes = [
                 Tipo de Item
                 <InputSelect v-model="form.item_type" :options="itemTypes" :placeholder="null" required />
                 <span v-if="form.errors?.item_type" class="text-sm font-medium text-rose-600">{{ form.errors.item_type
-                }}</span>
+                    }}</span>
             </label>
             <label class="form-label" v-if="form.item_type === 'raw_material'">
                 Matéria-prima
@@ -93,7 +93,7 @@ const locTypes = [
                     Largura (mm)
                     <InputNumber v-model="form.width_mm" :formatted="true" :precision="0" :min="0" :step="1" required />
                     <span v-if="form.errors?.width_mm" class="text-sm font-medium text-rose-600">{{ form.errors.width_mm
-                    }}</span>
+                        }}</span>
                 </label>
                 <label class="form-label">
                     Altura (mm)
@@ -121,13 +121,14 @@ const locTypes = [
                 Direção
                 <InputSelect v-model="form.direction" :options="directions" :placeholder="null" required />
                 <span v-if="form.errors?.direction" class="text-sm font-medium text-rose-600">{{ form.errors.direction
-                }}</span>
+                    }}</span>
             </label>
             <label class="form-label">
                 Quantidade {{ form.item_type === 'raw_material' ? '(kg)' : '(unidades)' }}
                 <InputNumber v-model="form.quantity" :formatted="true"
-                    :precision="form.item_type === 'raw_material' ? 2 : 0" :min="0"
-                    :step="form.item_type === 'raw_material' ? 0.001 : 1" required />
+                    :precision="form.item_type === 'raw_material' ? 2 : 0" :min="form.direction === 'adjust' ? null : 0"
+                    :allow-negative="form.direction === 'adjust'" :step="form.item_type === 'raw_material' ? 0.001 : 1"
+                    required />
                 <span v-if="form.errors?.quantity" class="text-sm font-medium text-rose-600">{{
                     form.errors.quantity }}</span>
             </label>
@@ -137,7 +138,7 @@ const locTypes = [
                 <InputSelect v-model="form.location_type" :options="locTypes" :placeholder="null" required />
                 <span v-if="form.errors?.location_type" class="text-sm font-medium text-rose-600">{{
                     form.errors.location_type
-                }}</span>
+                    }}</span>
             </label>
             <label class="form-label" v-if="form.location_type === 'silo'">
                 Silo

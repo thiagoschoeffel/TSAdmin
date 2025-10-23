@@ -45,6 +45,110 @@ class InventoryController extends Controller
 
         return response()->json(['stock' => $stock]);
     }
+
+    public function modal(InventoryMovement $movement): JsonResponse
+    {
+        $this->authorize('view', $movement);
+
+        $movement->load([
+            'rawMaterial',
+            'silo',
+            'blockType',
+            'almoxarifado',
+            'moldType',
+            'createdBy',
+            'updatedBy'
+        ]);
+
+        // Carregar movimento de consumo relacionado se existir
+        $relatedConsumption = null;
+        if ($movement->item_type === 'block' || $movement->item_type === 'molded') {
+            $relatedConsumption = InventoryMovement::query()
+                ->where('reference_type', 'inventory_movement')
+                ->where('reference_id', $movement->id)
+                ->where('direction', 'out')
+                ->with(['rawMaterial', 'createdBy'])
+                ->first();
+        }
+
+        return response()->json([
+            'movement' => [
+                'id' => $movement->id,
+                'occurred_at' => $movement->occurred_at?->format('d/m/Y H:i'),
+                'item_type' => $movement->item_type,
+                'item_type_formatted' => match ($movement->item_type) {
+                    'raw_material' => 'Matéria-prima',
+                    'block' => 'Bloco',
+                    'molded' => 'Moldado',
+                    default => $movement->item_type
+                },
+                'direction' => $movement->direction,
+                'direction_formatted' => match ($movement->direction) {
+                    'in' => 'Entrada',
+                    'out' => 'Saída',
+                    'adjust' => 'Ajuste',
+                    default => $movement->direction
+                },
+                'quantity' => $movement->quantity,
+                'unit' => $movement->unit,
+                'location_type' => $movement->location_type,
+                'location_type_formatted' => match ($movement->location_type) {
+                    'silo' => 'Silo',
+                    'almoxarifado' => 'Almoxarifado',
+                    'none' => 'Nenhum',
+                    default => $movement->location_type
+                },
+                'location_name' => match ($movement->location_type) {
+                    'silo' => $movement->silo?->name,
+                    'almoxarifado' => $movement->almoxarifado?->name,
+                    default => null
+                },
+                'reference_type' => $movement->reference_type,
+                'reference_id' => $movement->reference_id,
+                'reference_formatted' => $movement->reference_type ?
+                    (\Illuminate\Support\Str::of($movement->reference_type)->replace('App\\Models\\', '')->replace('\\', '') . '#' . $movement->reference_id) :
+                    null,
+                'notes' => $movement->notes,
+                'created_at' => $movement->created_at?->format('d/m/Y H:i'),
+                'updated_at' => $movement->updated_at?->format('d/m/Y H:i'),
+                'created_by' => $movement->createdBy?->name,
+                'updated_by' => $movement->updatedBy?->name,
+
+                // Dados específicos do item
+                'raw_material' => $movement->rawMaterial ? [
+                    'id' => $movement->rawMaterial->id,
+                    'name' => $movement->rawMaterial->name,
+                ] : null,
+                'block_type' => $movement->blockType ? [
+                    'id' => $movement->blockType->id,
+                    'name' => $movement->blockType->name,
+                ] : null,
+                'mold_type' => $movement->moldType ? [
+                    'id' => $movement->moldType->id,
+                    'name' => $movement->moldType->name,
+                ] : null,
+                'dimensions' => $movement->length_mm ? [
+                    'length_mm' => $movement->length_mm,
+                    'width_mm' => $movement->width_mm,
+                    'height_mm' => $movement->height_mm,
+                ] : null,
+
+                // Movimento de consumo relacionado
+                'related_consumption' => $relatedConsumption ? [
+                    'id' => $relatedConsumption->id,
+                    'raw_material' => $relatedConsumption->rawMaterial ? [
+                        'id' => $relatedConsumption->rawMaterial->id,
+                        'name' => $relatedConsumption->rawMaterial->name,
+                    ] : null,
+                    'quantity' => $relatedConsumption->quantity,
+                    'unit' => $relatedConsumption->unit,
+                    'created_by' => $relatedConsumption->createdBy?->name,
+                    'created_at' => $relatedConsumption->created_at?->format('d/m/Y H:i'),
+                ] : null,
+            ],
+        ]);
+    }
+
     // Página de dashboard: resumo + cargas de silos
     public function dashboard(Request $request): InertiaResponse
     {
@@ -176,7 +280,7 @@ class InventoryController extends Controller
             'consumed_raw_material_id' => ['nullable', 'exists:raw_materials,id'],
             'consumed_quantity_kg' => ['nullable', 'numeric', 'min:0'],
             'direction' => ['required', 'in:in,adjust,out'],
-            'quantity' => ['required', 'numeric'],
+            'quantity' => ['required', 'numeric', $request->direction === 'adjust' ? null : 'min:0'],
             'location_type' => ['required', 'in:silo,almoxarifado,none'],
             'location_id' => ['nullable', 'integer'],
             'notes' => ['nullable', 'string', 'max:500'],
@@ -260,7 +364,7 @@ class InventoryController extends Controller
             'consumed_raw_material_id' => ['nullable', 'exists:raw_materials,id'],
             'consumed_quantity_kg' => ['nullable', 'numeric', 'min:0'],
             'direction' => ['required', 'in:in,adjust,out'],
-            'quantity' => ['required', 'numeric'],
+            'quantity' => ['required', 'numeric', $request->direction === 'adjust' ? null : 'min:0'],
             'location_type' => ['required', 'in:silo,almoxarifado,none'],
             'location_id' => ['nullable', 'integer'],
             'notes' => ['nullable', 'string', 'max:500'],
@@ -488,7 +592,7 @@ class InventoryController extends Controller
             'consumed_raw_material_id' => ['nullable', 'exists:raw_materials,id'],
             'consumed_quantity_kg' => ['nullable', 'numeric', 'min:0'],
             'direction' => ['required', 'in:in,adjust,out'],
-            'quantity' => ['required', 'numeric'],
+            'quantity' => ['required', 'numeric', $request->direction === 'adjust' ? null : 'min:0'],
             'location_type' => ['required', 'in:silo,almoxarifado,none'],
             'location_id' => ['nullable', 'integer'],
             'notes' => ['nullable', 'string', 'max:500'],

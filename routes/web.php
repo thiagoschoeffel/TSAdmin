@@ -260,8 +260,17 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         // Páginas
         Route::get('/', [\App\Http\Controllers\InventoryController::class, 'dashboard'])->name('dashboard');
         Route::get('movements', [\App\Http\Controllers\InventoryController::class, 'movementsPage'])->name('movements.index');
+        Route::get('movements/{movement}/modal', [\App\Http\Controllers\InventoryController::class, 'modal'])->name('movements.modal');
         Route::get('movements/create', [\App\Http\Controllers\InventoryController::class, 'createMovement'])
             ->name('movements.create');
+        Route::post('movements', [\App\Http\Controllers\InventoryController::class, 'storeMovement'])
+            ->name('movements.store');
+        Route::get('movements/{movement}/edit', [\App\Http\Controllers\InventoryController::class, 'editMovement'])
+            ->name('movements.edit');
+        Route::patch('movements/{movement}', [\App\Http\Controllers\InventoryController::class, 'updateMovement'])
+            ->name('movements.update');
+        Route::delete('movements/{movement}', [\App\Http\Controllers\InventoryController::class, 'destroyMovement'])
+            ->name('movements.destroy');
         Route::post('movements', [\App\Http\Controllers\InventoryController::class, 'storeMovement'])
             ->name('movements.store');
         Route::get('movements/{movement}/edit', [\App\Http\Controllers\InventoryController::class, 'editMovement'])
