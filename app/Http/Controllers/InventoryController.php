@@ -12,10 +12,86 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
 {
+    // Estoque atual de matéria-prima por tipo
+    public function rawMaterialStock(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $this->authorize('viewAny', InventoryMovement::class);
+        $from = $request->query('from') ? Carbon::parse($request->query('from')) : null;
+        $to = $request->query('to') ? Carbon::parse($request->query('to')) : null;
+
+        // Busca todos os tipos de matéria-prima
+        $rawMaterials = RawMaterial::query()->get();
+
+        $result = $rawMaterials->map(function ($raw) use ($from, $to) {
+            // Inicial: saldo antes do período
+            $initial = $from ? InventoryMovement::query()
+                ->where('item_type', 'raw_material')
+                ->where('item_id', $raw->id)
+                ->where('occurred_at', '<', $from)
+                ->selectRaw('SUM(CASE WHEN direction = "in" THEN quantity WHEN direction = "out" THEN -quantity WHEN direction = "adjust" THEN quantity ELSE 0 END) as saldo')
+                ->value('saldo') ?? 0 : 0;
+
+            // Entradas no período
+            $input = InventoryMovement::query()
+                ->where('item_type', 'raw_material')
+                ->where('item_id', $raw->id)
+                ->when($from, fn($q) => $q->where('occurred_at', '>=', $from))
+                ->when($to, fn($q) => $q->where('occurred_at', '<=', $to))
+                ->where('direction', 'in')
+                ->sum('quantity') ?? 0;
+
+            // Requisições (saídas) no período
+            $requested = InventoryMovement::query()
+                ->where('item_type', 'raw_material')
+                ->where('item_id', $raw->id)
+                ->when($from, fn($q) => $q->where('occurred_at', '>=', $from))
+                ->when($to, fn($q) => $q->where('occurred_at', '<=', $to))
+                ->where('direction', 'out')
+                ->sum('quantity') ?? 0;
+
+            // Saldo final
+            $balance = $initial + $input - $requested;
+
+            return [
+                'raw_material_id' => $raw->id,
+                'raw_material_name' => $raw->name,
+                'initial_kg' => (float) $initial,
+                'input_kg' => (float) $input,
+                'requested_kg' => (float) $requested,
+                'balance_kg' => (float) $balance,
+            ];
+        });
+
+        return response()->json(['data' => $result]);
+    }
+    // Produção de matéria-prima por dia (gráfico de linha)
+    public function productionKgByDay(Request $request): JsonResponse
+    {
+        $from = $request->query('from') ? Carbon::parse($request->query('from')) : null;
+        $to = $request->query('to') ? Carbon::parse($request->query('to')) : null;
+
+        $query = \App\Models\ProductionPointing::query()
+            ->selectRaw('DATE(started_at) as day, SUM(quantity) as total_kg')
+            ->whereNotNull('started_at');
+
+        if ($from) {
+            $query->where('started_at', '>=', $from);
+        }
+        if ($to) {
+            $query->where('started_at', '<=', $to);
+        }
+
+        $result = $query->groupBy(DB::raw('DATE(started_at)'))
+            ->orderBy('day')
+            ->get();
+
+        return response()->json(['data' => $result]);
+    }
     // Saldo de blocos por tipo e dimensões
     public function blockStockByTypeAndDimension(Request $request): JsonResponse
     {
@@ -44,6 +120,127 @@ class InventoryController extends Controller
             ->get();
 
         return response()->json(['stock' => $stock]);
+    }
+
+    // Produção de matéria-prima por tipo (gráfico de barras)
+    public function productionKgByMaterialType(Request $request): JsonResponse
+    {
+        $result = \App\Models\ProductionPointing::query()
+            ->join('raw_materials', 'production_pointings.raw_material_id', '=', 'raw_materials.id')
+            ->select('raw_materials.name as raw_material_name', DB::raw('SUM(production_pointings.quantity) as total_kg'))
+            ->whereNotNull('raw_materials.name')
+            ->groupBy('raw_materials.name')
+            ->orderByDesc('total_kg')
+            ->get();
+
+        return response()->json(['data' => $result]);
+    }
+
+    // Produção de blocos por dia (gráfico de linha)
+    public function blocksProducedByDay(Request $request): JsonResponse
+    {
+        $from = $request->query('from') ? Carbon::parse($request->query('from')) : null;
+        $to = $request->query('to') ? Carbon::parse($request->query('to')) : null;
+
+        $query = InventoryMovement::query()
+            ->select(DB::raw('DATE(occurred_at) as day'), DB::raw('SUM(quantity) as total_units'))
+            ->where('item_type', 'block')
+            ->where('direction', 'in')
+            ->when($from, fn($q) => $q->where('occurred_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('occurred_at', '<=', $to))
+            ->groupBy(DB::raw('DATE(occurred_at)'))
+            ->orderBy('day')
+            ->get();
+
+        return response()->json(['data' => $query]);
+    }
+
+    // Produção de moldados e refugos por dia (gráfico de área)
+    public function moldedProductionAndScrapByDay(Request $request): JsonResponse
+    {
+        $from = $request->query('from') ? Carbon::parse($request->query('from')) : null;
+        $to = $request->query('to') ? Carbon::parse($request->query('to')) : null;
+
+        // Produção de moldados por dia
+        $productionQuery = \App\Models\MoldedProduction::query()
+            ->selectRaw('DATE(started_at) as day, SUM(quantity) as total_produced')
+            ->whereNotNull('started_at')
+            ->when($from, fn($q) => $q->where('started_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('started_at', '<=', $to))
+            ->groupBy(DB::raw('DATE(started_at)'));
+
+        // Refugos de moldados por dia
+        $scrapQuery = DB::table('molded_production_scraps')
+            ->join('molded_productions', 'molded_production_scraps.molded_production_id', '=', 'molded_productions.id')
+            ->selectRaw('DATE(molded_productions.started_at) as day, SUM(molded_production_scraps.quantity) as total_scrap')
+            ->whereNotNull('molded_productions.started_at')
+            ->when($from, fn($q) => $q->where('molded_productions.started_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('molded_productions.started_at', '<=', $to))
+            ->groupBy(DB::raw('DATE(molded_productions.started_at)'));
+
+        $productionData = $productionQuery->get()->keyBy('day');
+        $scrapData = $scrapQuery->get()->keyBy('day');
+
+        // Combinar os dados
+        $allDays = collect(array_merge($productionData->keys()->toArray(), $scrapData->keys()->toArray()))
+            ->unique()
+            ->sort()
+            ->values();
+
+        $result = $allDays->map(function ($day) use ($productionData, $scrapData) {
+            return [
+                'day' => $day,
+                'total_produced' => (int) ($productionData->get($day)->total_produced ?? 0),
+                'total_scrap' => (int) ($scrapData->get($day)->total_scrap ?? 0),
+            ];
+        });
+
+        return response()->json(['data' => $result]);
+    }
+
+    // Produção de blocos por tipo e dimensões (tabela)
+    public function blockProductionByTypeAndDimensions(Request $request): JsonResponse
+    {
+        $from = $request->query('from') ? Carbon::parse($request->query('from')) : null;
+        $to = $request->query('to') ? Carbon::parse($request->query('to')) : null;
+
+        $query = InventoryMovement::query()
+            ->leftJoin('block_productions', function ($join) {
+                $join->on('inventory_movements.reference_type', '=', DB::raw("'App\\\\Models\\\\BlockProduction'"))
+                    ->on('inventory_movements.reference_id', '=', 'block_productions.id');
+            })
+            ->join('block_types', 'inventory_movements.block_type_id', '=', 'block_types.id')
+            ->select([
+                'block_types.name as block_type_name',
+                'inventory_movements.length_mm',
+                'inventory_movements.width_mm',
+                'inventory_movements.height_mm',
+                DB::raw('SUM(inventory_movements.quantity) as total_units'),
+                DB::raw('SUM(CAST(inventory_movements.quantity AS NUMERIC) * CAST(inventory_movements.length_mm AS NUMERIC) * CAST(inventory_movements.width_mm AS NUMERIC) * CAST(inventory_movements.height_mm AS NUMERIC) / 1000000000) as total_m3'),
+                DB::raw('SUM(COALESCE(block_productions.weight, CAST(inventory_movements.quantity AS NUMERIC) * CAST(inventory_movements.length_mm AS NUMERIC) * CAST(inventory_movements.width_mm AS NUMERIC) * CAST(inventory_movements.height_mm AS NUMERIC) * 2000 / 1000000000) * (block_types.raw_material_percentage / 100)) as virgin_mp_kg'),
+                DB::raw('SUM(COALESCE(block_productions.weight, CAST(inventory_movements.quantity AS NUMERIC) * CAST(inventory_movements.length_mm AS NUMERIC) * CAST(inventory_movements.width_mm AS NUMERIC) * CAST(inventory_movements.height_mm AS NUMERIC) * 2000 / 1000000000) * ((100 - block_types.raw_material_percentage) / 100)) as recycled_mp_kg'),
+            ])
+            ->where('inventory_movements.item_type', 'block')
+            ->where('inventory_movements.direction', 'in')
+            ->whereNotNull('inventory_movements.length_mm')
+            ->whereNotNull('inventory_movements.width_mm')
+            ->whereNotNull('inventory_movements.height_mm')
+            ->when($from, fn($q) => $q->where('inventory_movements.occurred_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('inventory_movements.occurred_at', '<=', $to))
+            ->groupBy([
+                'block_types.name',
+                'inventory_movements.length_mm',
+                'inventory_movements.width_mm',
+                'inventory_movements.height_mm',
+                'block_types.raw_material_percentage'
+            ])
+            ->orderBy('block_types.name')
+            ->orderBy('inventory_movements.length_mm')
+            ->orderBy('inventory_movements.width_mm')
+            ->orderBy('inventory_movements.height_mm')
+            ->get();
+
+        return response()->json(['data' => $query]);
     }
 
     public function modal(InventoryMovement $movement): JsonResponse
@@ -487,29 +684,82 @@ class InventoryController extends Controller
             ->when(true, $dateFilter)
             ->sum('quantity');
 
-        $blocksInKg = (clone InventoryMovement::query())
+        $blocksInUnits = (clone InventoryMovement::query())
             ->where('item_type', 'block')->where('direction', 'in')
             ->when(true, $dateFilter)
             ->sum('quantity');
 
-        $moldedInKg = (clone InventoryMovement::query())
+        $blocksProducedM3 = (clone InventoryMovement::query())
+            ->where('item_type', 'block')->where('direction', 'in')
+            ->when(true, $dateFilter)
+            ->selectRaw('SUM(CAST(quantity AS NUMERIC) * CAST(length_mm AS NUMERIC) * CAST(width_mm AS NUMERIC) * CAST(height_mm AS NUMERIC) / 1000000000) as total_m3')
+            ->value('total_m3') ?? 0;
+
+        $virginMpKgForBlocks = \App\Models\BlockProduction::query()
+            ->join('block_types', 'block_productions.block_type_id', '=', 'block_types.id')
+            ->when($from, fn($q) => $q->where('block_productions.created_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('block_productions.created_at', '<=', $to))
+            ->selectRaw('SUM(block_productions.weight * (block_types.raw_material_percentage / 100)) as virgin_mp')
+            ->value('virgin_mp') ?? 0;
+
+        $recycledMpKgForBlocks = \App\Models\BlockProduction::query()
+            ->join('block_types', 'block_productions.block_type_id', '=', 'block_types.id')
+            ->when($from, fn($q) => $q->where('block_productions.created_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('block_productions.created_at', '<=', $to))
+            ->selectRaw('SUM(block_productions.weight * ((100 - block_types.raw_material_percentage) / 100)) as recycled_mp')
+            ->value('recycled_mp') ?? 0;
+
+        $moldedInUnits = (clone InventoryMovement::query())
             ->where('item_type', 'molded')->where('direction', 'in')
             ->when(true, $dateFilter)
             ->sum('quantity');
 
-        $blockLossKg = (clone InventoryMovement::query())
+        $moldedLossUnits = DB::table('molded_production_scraps')
+            ->when($from, fn($q) => $q->where('molded_production_scraps.created_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('molded_production_scraps.created_at', '<=', $to))
+            ->sum('quantity') ?? 0;
+
+        $virginMpKgForMolded = \App\Models\MoldedProduction::query()
+            ->when($from, fn($q) => $q->where('molded_productions.created_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('molded_productions.created_at', '<=', $to))
+            ->sum('total_weight_considered') ?? 0;
+
+        $blockLossUnits = (clone InventoryMovement::query())
             ->where('item_type', 'block')->where('direction', 'adjust')
             ->when(true, $dateFilter)
             ->sum(DB::raw('CASE WHEN quantity < 0 THEN -quantity ELSE 0 END'));
+
+        $blockLossKg = \App\Models\BlockProduction::query()
+            ->where('is_scrap', true)
+            ->when($from, fn($q) => $q->where('block_productions.created_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('block_productions.created_at', '<=', $to))
+            ->sum('weight') ?? 0;
+
+        $moldedLossRanking = DB::table('molded_production_scraps')
+            ->join('reasons', 'molded_production_scraps.reason_id', '=', 'reasons.id')
+            ->select('reasons.id as code', 'reasons.name as reason', DB::raw('SUM(molded_production_scraps.quantity) as quantity'))
+            ->when($from, fn($q) => $q->where('molded_production_scraps.created_at', '>=', $from))
+            ->when($to, fn($q) => $q->where('molded_production_scraps.created_at', '<=', $to))
+            ->groupBy('reasons.id', 'reasons.name')
+            ->orderByDesc('quantity')
+            ->limit(3)
+            ->get();
 
         return response()->json([
             'from' => $from?->toDateTimeString(),
             'to' => $to?->toDateTimeString(),
             'raw_material_input_kg' => (float) $rawIn,
             'raw_material_consumed_kg' => (float) $rawOut,
-            'blocks_produced_units' => (float) $blocksInKg,
-            'molded_produced_units' => (float) $moldedInKg,
-            'block_loss_units' => (float) $blockLossKg,
+            'blocks_produced_units' => (int) $blocksInUnits,
+            'blocks_produced_m3' => (float) $blocksProducedM3,
+            'virgin_mp_kg_for_blocks' => (float) $virginMpKgForBlocks,
+            'recycled_mp_kg_for_blocks' => (float) $recycledMpKgForBlocks,
+            'molded_produced_units' => (int) $moldedInUnits,
+            'molded_loss_units' => (int) $moldedLossUnits,
+            'virgin_mp_kg_for_molded' => (float) $virginMpKgForMolded,
+            'block_loss_units' => (int) $blockLossUnits,
+            'block_loss_kg' => (float) $blockLossKg,
+            'molded_loss_ranking' => $moldedLossRanking,
         ]);
     }
 

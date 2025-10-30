@@ -257,8 +257,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
 
     // Inventory & Estoque
     Route::prefix('inventory')->name('inventory.')->group(function (): void {
+        Route::get('production-kg-by-day', [\App\Http\Controllers\InventoryController::class, 'productionKgByDay'])->name('production.kg-by-day');
+        Route::get('blocks-produced-by-day', [\App\Http\Controllers\InventoryController::class, 'blocksProducedByDay'])->name('blocks.produced-by-day');
+        Route::get('block-production-by-type-and-dimensions', [\App\Http\Controllers\InventoryController::class, 'blockProductionByTypeAndDimensions'])->name('block.production-by-type-and-dimensions');
+        Route::get('molded-production-and-scrap-by-day', [\App\Http\Controllers\InventoryController::class, 'moldedProductionAndScrapByDay'])->name('molded.production-and-scrap-by-day');
         // Páginas
         Route::get('/', [\App\Http\Controllers\InventoryController::class, 'dashboard'])->name('dashboard');
+        // Estoque atual de matéria-prima
+        Route::get('raw-material-stock', [\App\Http\Controllers\InventoryController::class, 'rawMaterialStock'])->name('raw-material-stock');
         Route::get('movements', [\App\Http\Controllers\InventoryController::class, 'movementsPage'])->name('movements.index');
         Route::get('movements/{movement}/modal', [\App\Http\Controllers\InventoryController::class, 'modal'])->name('movements.modal');
         Route::get('movements/create', [\App\Http\Controllers\InventoryController::class, 'createMovement'])
@@ -279,11 +285,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
             ->name('movements.update');
         Route::delete('movements/{movement}', [\App\Http\Controllers\InventoryController::class, 'destroyMovement'])
             ->name('movements.destroy');
+        Route::get('production-kg-by-material-type', [\App\Http\Controllers\InventoryController::class, 'productionKgByMaterialType'])->name('production.kg-by-material-type');
 
         // APIs
         Route::get('summary', [\App\Http\Controllers\InventoryController::class, 'summary'])->name('summary');
         Route::get('silos/load', [\App\Http\Controllers\InventoryController::class, 'siloLoads'])->name('silos.load');
         Route::get('movements/list', [\App\Http\Controllers\InventoryController::class, 'movements'])->name('movements.list');
+        Route::get('reservations-by-raw-material', [\App\Http\Controllers\InventoryController::class, 'reservationsByRawMaterial'])->name('reservations.by-raw-material');
         Route::post('raw-materials/movements', [\App\Http\Controllers\InventoryController::class, 'storeRawMaterialMovement'])
             ->name('raw-materials.movements.store');
     });

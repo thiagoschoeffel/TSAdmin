@@ -114,12 +114,16 @@ class InventoryService
                 InventoryMovement::query()->create([
                     'occurred_at' => $occur,
                     'item_type' => 'block',
-                    'item_id' => (int) $bp->block_type_id,
+                    'item_id' => null, // blocos não têm item_id específico
+                    'block_type_id' => (int) $bp->block_type_id,
+                    'length_mm' => $bp->length_mm,
+                    'width_mm' => $bp->width_mm,
+                    'height_mm' => $bp->height_mm,
                     'location_type' => 'none',
                     'location_id' => null,
                     'direction' => 'in',
-                    'quantity' => $weightKg, // track in kg
-                    'unit' => 'kg',
+                    'quantity' => 1, // 1 unidade por bloco produzido
+                    'unit' => 'unit',
                     'reference_type' => BlockProduction::class,
                     'reference_id' => $bp->id,
                     'notes' => 'Entrada de produção (bloco)',
@@ -130,12 +134,16 @@ class InventoryService
                 InventoryMovement::query()->create([
                     'occurred_at' => $occur,
                     'item_type' => 'block',
-                    'item_id' => (int) $bp->block_type_id,
+                    'item_id' => null, // blocos não têm item_id específico
+                    'block_type_id' => (int) $bp->block_type_id,
+                    'length_mm' => $bp->length_mm,
+                    'width_mm' => $bp->width_mm,
+                    'height_mm' => $bp->height_mm,
                     'location_type' => 'none',
                     'location_id' => null,
                     'direction' => 'adjust',
-                    'quantity' => -$weightKg,
-                    'unit' => 'kg',
+                    'quantity' => -1, // 1 unidade perdida
+                    'unit' => 'unit',
                     'reference_type' => BlockProduction::class,
                     'reference_id' => $bp->id,
                     'notes' => 'Perda (bloco refugo)',
@@ -151,9 +159,10 @@ class InventoryService
         $pp = $mp->productionPointing;
         $rawId = $pp?->raw_material_id;
         $consumedKg = (float) $mp->total_weight_considered; // kg considered
+        $producedUnits = (int) $mp->quantity; // unidades produzidas
         $occur = $mp->ended_at ?? $mp->started_at ?? Carbon::now();
 
-        DB::transaction(function () use ($mp, $pp, $rawId, $consumedKg, $occur) {
+        DB::transaction(function () use ($mp, $pp, $rawId, $consumedKg, $producedUnits, $occur) {
             // remove previous movements for this molded production
             InventoryMovement::query()
                 ->where('reference_type', MoldedProduction::class)
@@ -203,16 +212,17 @@ class InventoryService
                 }
             }
 
-            // Produced stock (molded) in kg
+            // Produced stock (molded) in units
             InventoryMovement::query()->create([
                 'occurred_at' => $occur,
                 'item_type' => 'molded',
-                'item_id' => (int) $mp->mold_type_id,
+                'item_id' => null, // moldados usam mold_type_id
+                'mold_type_id' => (int) $mp->mold_type_id,
                 'location_type' => 'none',
                 'location_id' => null,
                 'direction' => 'in',
-                'quantity' => $consumedKg, // track in kg for parity
-                'unit' => 'kg',
+                'quantity' => $producedUnits, // unidades produzidas
+                'unit' => 'unit',
                 'reference_type' => MoldedProduction::class,
                 'reference_id' => $mp->id,
                 'notes' => 'Entrada de produção (moldado)',
@@ -234,4 +244,3 @@ class InventoryService
         $reservation->save();
     }
 }
-

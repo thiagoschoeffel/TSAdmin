@@ -39,7 +39,6 @@ class InventorySeeder extends Seeder
         $now = Carbon::now();
         $silos = Silo::all('id');
         $raws = RawMaterial::all('id');
-        $blockTypes = \App\Models\BlockType::all('id');
         foreach ($silos as $silo) {
             foreach ($raws as $rm) {
                 $qty = mt_rand(2000, 6000); // 2 a 6 toneladas
@@ -57,38 +56,6 @@ class InventorySeeder extends Seeder
                     'notes' => 'Abastecimento inicial de silo (seed)',
                     'created_by' => null,
                 ]);
-            }
-            // Seed inbound loads for blocks by type and dimension
-            foreach ($blockTypes as $bt) {
-                $qty = mt_rand(500, 2000); // 0.5 a 2 toneladas
-                // Buscar um BlockProduction compatível
-                $blockProduction = \App\Models\BlockProduction::where('block_type_id', $bt->id)
-                    ->where('length_mm', '>=', 400)
-                    ->where('width_mm', '>=', 1000)
-                    ->where('height_mm', '>=', 200)
-                    ->first();
-                $itemId = $blockProduction ? $blockProduction->id : null;
-                // Se não houver BlockProduction, pula o seed para evitar erro
-                if ($itemId) {
-                    InventoryMovement::query()->create([
-                        'occurred_at' => $now->copy()->subDays(mt_rand(5, 20)),
-                        'item_type' => 'block',
-                        'item_id' => $itemId,
-                        'block_type_id' => $bt->id,
-                        'length_mm' => mt_rand(400, 1200),
-                        'width_mm' => mt_rand(1000, 1200),
-                        'height_mm' => mt_rand(200, 400),
-                        'location_type' => 'silo',
-                        'location_id' => $silo->id,
-                        'direction' => 'in',
-                        'quantity' => $qty,
-                        'unit' => 'kg',
-                        'reference_type' => null,
-                        'reference_id' => null,
-                        'notes' => 'Entrada inicial de blocos (seed)',
-                        'created_by' => null,
-                    ]);
-                }
             }
         }
 

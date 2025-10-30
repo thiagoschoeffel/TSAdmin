@@ -25,8 +25,10 @@ class InventoryMovementFactory extends Factory
             'location_type' => $this->faker->randomElement($locTypes),
             'location_id' => null,
             'direction' => $this->faker->randomElement($dirs),
-            'quantity' => $this->faker->randomFloat(3, 1, 500),
-            'unit' => $itemType === 'raw_material' ? 'kg' : 'unidade',
+            'quantity' => $itemType === 'raw_material'
+                ? $this->faker->randomFloat(3, 1, 500)
+                : $this->faker->numberBetween(1, 500), // Inteiro para blocos e moldados
+            'unit' => $itemType === 'raw_material' ? 'kg' : 'unit',
             'reference_type' => null,
             'reference_id' => null,
             'notes' => $this->faker->boolean(30) ? $this->faker->sentence(6) : null,
@@ -37,7 +39,7 @@ class InventoryMovementFactory extends Factory
         if ($itemType === 'raw_material') {
             $data['item_id'] = 1;
         } elseif ($itemType === 'molded') {
-            $data['item_id'] = 1; // mold_type_id
+            $data['mold_type_id'] = 1; // mold_type_id para moldados
         } elseif ($itemType === 'block') {
             $data['block_type_id'] = 1;
             $data['length_mm'] = $this->faker->randomElement([400, 500, 600, 800, 1000, 1200, 1500]);
