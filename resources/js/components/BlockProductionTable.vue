@@ -1,19 +1,23 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 import DataTable from '@/components/DataTable.vue';
 
+const props = defineProps({
+    period: { type: Object, default: () => ({ start: null, end: null }) }
+});
+
 const data = ref([]);
 const loading = ref(true);
-const period = ref({ start: null, end: null });
+const emptyMessage = 'Nenhum registro encontrado.';
 
 const fetchData = async () => {
     loading.value = true;
     try {
         const params = {};
-        if (period.value.start) params.from = period.value.start;
-        if (period.value.end) params.to = period.value.end;
+        if (props.period.start) params.from = props.period.start;
+        if (props.period.end) params.to = props.period.end;
         const res = await axios.get(route('inventory.block.production-by-type-and-dimensions'), { params });
         // Add unique key to each item for DataTable
         data.value = (res.data.data || []).map(item => ({
@@ -26,6 +30,7 @@ const fetchData = async () => {
 };
 
 onMounted(fetchData);
+watch(() => props.period, fetchData, { deep: true });
 
 // Computed property para calcular os totais
 const totals = computed(() => {
@@ -67,25 +72,25 @@ const columns = [
     {
         header: 'Tipo de Bloco',
         key: 'block_type_name',
-        class: 'font-medium'
+        class: 'font-medium text-left'
     },
     {
         header: 'Comprimento (mm)',
         key: 'length_mm',
         formatter: formatInteger,
-        class: 'text-center'
+        class: 'text-center text-left'
     },
     {
         header: 'Largura (mm)',
         key: 'width_mm',
         formatter: formatInteger,
-        class: 'text-center'
+        class: 'text-center text-left'
     },
     {
         header: 'Altura (mm)',
         key: 'height_mm',
         formatter: formatInteger,
-        class: 'text-center'
+        class: 'text-center text-left'
     },
     {
         header: 'Quantidade (un)',
@@ -121,11 +126,11 @@ const columns = [
         <div v-else>
             <div class="datatable relative">
                 <div class="datatable-scroll overflow-x-auto overflow-y-hidden">
-                    <table class="min-w-full table-auto border-separate table">
+                    <table class="min-w-full table-auto table">
                         <thead>
                             <tr>
                                 <th v-for="column in columns" :key="column.key || column.header" :class="[
-                                    'dt-cell border-b-2 border-slate-200 px-3 py-3 text-left text-sm font-semibold text-slate-600',
+                                    'dt-cell px-3 py-3 text-left text-sm font-semibold text-slate-800',
                                     column.class
                                 ]">
                                     {{ column.header }}
@@ -135,7 +140,7 @@ const columns = [
                         <tbody>
                             <tr v-for="item in data" :key="item.uniqueKey">
                                 <td v-for="column in columns" :key="column.key || column.header" :class="[
-                                    'dt-cell border-b border-slate-200 px-3 py-3 text-sm text-slate-800',
+                                    'dt-cell px-3 py-3 text-sm text-slate-800',
                                     column.class
                                 ]">
                                     <template v-if="column.cellRenderer">
@@ -144,51 +149,43 @@ const columns = [
                                     <component v-else-if="column.component" :is="column.component"
                                         v-bind="column.props ? column.props(item) : {}">
                                         {{ column.formatter ? column.formatter(item[column.key], item) :
-                                        item[column.key] }}
+                                            item[column.key] }}
                                     </component>
                                     <template v-else>
                                         {{ column.formatter ? column.formatter(item[column.key], item) :
-                                        item[column.key] }}
+                                            item[column.key] }}
                                     </template>
                                 </td>
                             </tr>
                             <tr v-if="!data || data.length === 0">
-                                <td :colspan="columns.length" class="px-4 py-6 text-center text-sm text-slate-500">{{
+                                <td :colspan="columns.length" class="px-4 py-6 text-center text-sm text-slate-800">{{
                                     emptyMessage }}</td>
                             </tr>
                         </tbody>
                         <tfoot v-if="data && data.length > 0">
                             <tr class="bg-slate-50">
-                                <td
-                                    class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900">
                                     TOTAL
                                 </td>
-                                <td
-                                    class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm text-slate-600 text-center">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-center">
                                     -
                                 </td>
-                                <td
-                                    class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm text-slate-600 text-center">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-center">
                                     -
                                 </td>
-                                <td
-                                    class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm text-slate-600 text-center">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-center">
                                     -
                                 </td>
-                                <td
-                                    class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900 text-right">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">
                                     {{ formatInteger(totals.total_units) }}
                                 </td>
-                                <td
-                                    class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900 text-right">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">
                                     {{ formatNumber(totals.total_m3, 3) }}
                                 </td>
-                                <td
-                                    class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900 text-right">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">
                                     {{ formatNumber(totals.virgin_mp_kg) }}
                                 </td>
-                                <td
-                                    class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900 text-right">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">
                                     {{ formatNumber(totals.recycled_mp_kg) }}
                                 </td>
                             </tr>

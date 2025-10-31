@@ -1,19 +1,22 @@
 <script setup>
 import VueApexCharts from 'vue3-apexcharts';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
+const props = defineProps({
+    period: { type: Object, default: () => ({ start: null, end: null }) }
+});
+
 const dataByDay = ref([]);
 const loading = ref(true);
-const period = ref({ start: null, end: null });
 
 const fetchData = async () => {
     loading.value = true;
     try {
         const params = {};
-        if (period.value.start) params.from = period.value.start;
-        if (period.value.end) params.to = period.value.end;
+        if (props.period.start) params.from = props.period.start;
+        if (props.period.end) params.to = props.period.end;
         const res = await axios.get(route('inventory.production.kg-by-day'), { params });
         dataByDay.value = res.data.data || [];
     } finally {
@@ -22,6 +25,7 @@ const fetchData = async () => {
 };
 
 onMounted(fetchData);
+watch(() => props.period, fetchData, { deep: true });
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '';

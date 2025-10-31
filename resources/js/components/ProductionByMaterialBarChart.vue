@@ -1,8 +1,12 @@
 <script setup>
 import VueApexCharts from 'vue3-apexcharts';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { route } from 'ziggy-js';
+
+const props = defineProps({
+    period: { type: Object, default: () => ({ start: null, end: null }) }
+});
 
 const dataByMaterial = ref([]);
 const loading = ref(true);
@@ -10,7 +14,10 @@ const loading = ref(true);
 const fetchData = async () => {
     loading.value = true;
     try {
-        const res = await axios.get(route('inventory.production.kg-by-material-type'));
+        const params = {};
+        if (props.period.start) params.from = props.period.start;
+        if (props.period.end) params.to = props.period.end;
+        const res = await axios.get(route('inventory.production.kg-by-material-type'), { params });
         dataByMaterial.value = res.data.data || [];
     } finally {
         loading.value = false;
@@ -18,6 +25,7 @@ const fetchData = async () => {
 };
 
 onMounted(fetchData);
+watch(() => props.period, fetchData, { deep: true });
 
 const formatNumber = (n) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n || 0));
 

@@ -265,6 +265,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function (): voi
         Route::get('/', [\App\Http\Controllers\InventoryController::class, 'dashboard'])->name('dashboard');
         // Estoque atual de matéria-prima
         Route::get('raw-material-stock', [\App\Http\Controllers\InventoryController::class, 'rawMaterialStock'])->name('raw-material-stock');
+        // Estoque atual de blocos
+        Route::get('block-stock', [\App\Http\Controllers\InventoryController::class, 'blockStock'])->name('block-stock');
+        // Estoque atual de moldados
+        Route::get('molded-stock', [\App\Http\Controllers\InventoryController::class, 'moldedStock'])->name('molded-stock');
         Route::get('movements', [\App\Http\Controllers\InventoryController::class, 'movementsPage'])->name('movements.index');
         Route::get('movements/{movement}/modal', [\App\Http\Controllers\InventoryController::class, 'modal'])->name('movements.modal');
         Route::get('movements/create', [\App\Http\Controllers\InventoryController::class, 'createMovement'])

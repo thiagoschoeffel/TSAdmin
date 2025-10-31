@@ -1,7 +1,8 @@
+// ...existing code...
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import InputDatePicker from '@/components/InputDatePicker.vue';
 import Button from '@/components/Button.vue';
 import HeroIcon from '@/components/icons/HeroIcon.vue';
@@ -13,8 +14,12 @@ import MoldedProductionAndScrapChart from '@/components/MoldedProductionAndScrap
 import MoldedProductionRanking from '@/components/MoldedProductionRanking.vue';
 import MoldedProductionYieldCard from '@/components/MoldedProductionYieldCard.vue';
 import RawMaterialStockTable from '@/components/RawMaterialStockTable.vue';
+import { useToasts } from '@/components/toast/useToasts.js';
 import axios from 'axios';
 import { route } from 'ziggy-js';
+
+const fmt = (n, decimals = 2) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(Number(n || 0));
+const { error: toastError } = useToasts();
 
 const props = defineProps({
     filters: { type: Object, default: () => ({}) },
@@ -22,7 +27,15 @@ const props = defineProps({
     siloLoads: { type: Array, default: () => [] },
 });
 
-const period = ref({ start: props.filters?.from || null, end: props.filters?.to || null });
+const period = ref({
+    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0]
+});
+// Período aplicado (usado pelos componentes filhos)
+const appliedPeriod = ref({
+    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0]
+});
 const loading = ref(false);
 const summary = ref(props.summary);
 const silos = ref(props.siloLoads);
@@ -34,37 +47,219 @@ const fetchRawMaterialStock = async () => {
     rawMaterialStockLoading.value = true;
     try {
         const params = {};
-        if (period.value.start) params.from = period.value.start;
-        if (period.value.end) params.to = period.value.end;
+        if (appliedPeriod.value.start) params.from = appliedPeriod.value.start;
+        if (appliedPeriod.value.end) params.to = appliedPeriod.value.end;
         const res = await axios.get(route('inventory.raw-material-stock'), { params });
-        rawMaterialStock.value = res.data.data || [];
+        let data = res.data?.data;
+        if (Array.isArray(data)) {
+            rawMaterialStock.value = data;
+        } else if (data && typeof data === 'object') {
+            rawMaterialStock.value = Object.values(data);
+        } else {
+            rawMaterialStock.value = [];
+        }
+    } catch (error) {
+        console.error('Erro ao buscar estoque de matéria-prima:', error);
+        rawMaterialStock.value = [];
     } finally {
         rawMaterialStockLoading.value = false;
     }
 };
 
-const fetchData = () => {
-    loading.value = true;
-    router.get(route('inventory.dashboard'), {
-        from: period.value.start,
-        to: period.value.end,
-    }, {
-        preserveState: true,
-        onFinish: () => {
-            loading.value = false;
-            fetchRawMaterialStock();
-        },
-    });
+const blockStock = ref([]);
+const blockStockLoading = ref(false);
+
+const fetchBlockStock = async () => {
+    blockStockLoading.value = true;
+    try {
+        const params = {};
+        if (appliedPeriod.value.start) params.from = appliedPeriod.value.start;
+        if (appliedPeriod.value.end) params.to = appliedPeriod.value.end;
+        const res = await axios.get(route('inventory.block-stock'), { params });
+        let data = res.data?.data;
+        if (Array.isArray(data)) {
+            blockStock.value = data;
+        } else if (data && typeof data === 'object') {
+            blockStock.value = Object.values(data);
+        } else {
+            blockStock.value = [];
+        }
+    } catch (error) {
+        console.error('Erro ao buscar estoque de blocos:', error);
+        blockStock.value = [];
+    } finally {
+        blockStockLoading.value = false;
+    }
 };
 
-// Atualiza estoque ao montar e ao mudar período
-fetchRawMaterialStock();
+const moldedStock = ref([]);
+const moldedStockLoading = ref(false);
 
-const fmt = (n, d = 2) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }).format(Number(n || 0));
+const fetchMoldedStock = async () => {
+    moldedStockLoading.value = true;
+    try {
+        const params = {};
+        if (appliedPeriod.value.start) params.from = appliedPeriod.value.start;
+        if (appliedPeriod.value.end) params.to = appliedPeriod.value.end;
+        const res = await axios.get(route('inventory.molded-stock'), { params });
+        let data = res.data?.data;
+        if (Array.isArray(data)) {
+            moldedStock.value = data;
+        } else if (data && typeof data === 'object') {
+            moldedStock.value = Object.values(data);
+        } else {
+            moldedStock.value = [];
+        }
+    } catch (error) {
+        console.error('Erro ao buscar estoque de moldados:', error);
+        moldedStock.value = [];
+    } finally {
+        moldedStockLoading.value = false;
+    }
+};
+
+const fetchSummary = async () => {
+    try {
+        const params = {};
+        if (appliedPeriod.value.start) params.from = appliedPeriod.value.start;
+        if (appliedPeriod.value.end) params.to = appliedPeriod.value.end;
+        const res = await axios.get(route('inventory.summary'), { params });
+        // Corrige para aceitar tanto res.data quanto res.data.data
+        if (res.data && typeof res.data === 'object') {
+            if (res.data.data && typeof res.data.data === 'object') {
+                summary.value = res.data.data;
+            } else {
+                summary.value = res.data;
+            }
+        } else {
+            summary.value = {};
+        }
+    } catch (error) {
+        console.error('Erro ao buscar resumo:', error);
+        summary.value = {};
+    }
+};
+
+const fetchSiloLoads = async () => {
+    try {
+        const params = {};
+        if (appliedPeriod.value.start) params.from = appliedPeriod.value.start;
+        if (appliedPeriod.value.end) params.to = appliedPeriod.value.end;
+        const res = await axios.get(route('inventory.silos.load'), { params });
+        silos.value = res.data?.data || [];
+    } catch (error) {
+        console.error('Erro ao buscar cargas dos silos:', error);
+        silos.value = [];
+    }
+};
+
+// Não chamar fetchData automaticamente ao montar
+// O usuário deve clicar em "Atualizar" para buscar dados
+// Os dados iniciais já vêm dos props (summary, siloLoads)
 
 const totalSilos = computed(() => silos.value.length);
 const totalMateriaisEmSilos = computed(() => silos.value.reduce((acc, s) => acc + (s.materials?.length || 0), 0));
 const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.materials?.reduce((sum, m) => sum + m.balance_kg, 0) || 0, 0));
+
+const totalInitial = computed(() => {
+    if (!Array.isArray(blockStock.value)) return 0;
+    return blockStock.value.reduce((sum, item) => sum + (item.initial_units || 0), 0);
+});
+const totalInput = computed(() => {
+    if (!Array.isArray(blockStock.value)) return 0;
+    return blockStock.value.reduce((sum, item) => sum + (item.input_units || 0), 0);
+});
+const totalOutput = computed(() => {
+    if (!Array.isArray(blockStock.value)) return 0;
+    return blockStock.value.reduce((sum, item) => sum + (item.output_units || 0), 0);
+});
+const totalBalance = computed(() => {
+    if (!Array.isArray(blockStock.value)) return 0;
+    return blockStock.value.reduce((sum, item) => sum + (item.balance_units || 0), 0);
+});
+const totalCubicMeters = computed(() => {
+    if (!Array.isArray(blockStock.value)) return 0;
+    return blockStock.value.reduce((sum, item) => sum + (item.cubic_meters || 0), 0);
+});
+
+const moldedTotalInitial = computed(() => {
+    if (!Array.isArray(moldedStock.value)) return 0;
+    return moldedStock.value.reduce((sum, item) => sum + (item.initial_units || 0), 0);
+});
+const moldedTotalInput = computed(() => {
+    if (!Array.isArray(moldedStock.value)) return 0;
+    return moldedStock.value.reduce((sum, item) => sum + (item.input_units || 0), 0);
+});
+const moldedTotalOutput = computed(() => {
+    if (!Array.isArray(moldedStock.value)) return 0;
+    return moldedStock.value.reduce((sum, item) => sum + (item.output_units || 0), 0);
+});
+const moldedTotalBalance = computed(() => {
+    if (!Array.isArray(moldedStock.value)) return 0;
+    return moldedStock.value.reduce((sum, item) => sum + (item.balance_units || 0), 0);
+});
+
+const fetchData = () => {
+    // Validar período máximo de 60 dias
+    const start = new Date(period.value.start);
+    const end = new Date(period.value.end);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 60) {
+        toastError('O período selecionado não pode exceder 60 dias. O filtro foi redefinido para os últimos 30 dias.');
+
+        // Resetar para últimos 30 dias
+        const hoje = new Date();
+        const trintaDiasAtras = new Date(hoje);
+        trintaDiasAtras.setDate(hoje.getDate() - 30);
+
+        period.value = {
+            start: trintaDiasAtras.toISOString().split('T')[0],
+            end: hoje.toISOString().split('T')[0]
+        };
+
+        return;
+    }
+
+    // Aplicar o período selecionado
+    appliedPeriod.value = { ...period.value };
+
+    loading.value = true;
+    // Atualizar todos os dados
+    Promise.all([
+        fetchSummary(),
+        fetchRawMaterialStock(),
+        fetchBlockStock(),
+        fetchMoldedStock(),
+        fetchSiloLoads()
+    ]).finally(() => {
+        loading.value = false;
+    });
+};
+
+// Removido watcher automático - dados só atualizam ao clicar em "Atualizar"
+// watch(period, () => {
+//     fetchSummary();
+//     fetchRawMaterialStock();
+//     fetchBlockStock();
+//     fetchMoldedStock();
+//     fetchSiloLoads();
+// }, { deep: true });
+
+// Fallback para dados do gráfico de moldados
+const moldedChartData = ref([]);
+function onMoldedChartUpdate(data) {
+    moldedChartData.value = Array.isArray(data) ? data : [];
+}
+const moldedProducedFromChart = computed(() => {
+    if (!moldedChartData.value.length) return 0;
+    return moldedChartData.value.reduce((sum, d) => sum + (Number(d.total_produced) || 0), 0);
+});
+const moldedScrapFromChart = computed(() => {
+    if (!moldedChartData.value.length) return 0;
+    return moldedChartData.value.reduce((sum, d) => sum + (Number(d.total_scrap) || 0), 0);
+});
 </script>
 
 <template>
@@ -79,11 +274,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <p class="text-sm text-slate-600 mt-1">Visão geral dos movimentos e cargas de estoque</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-2">
-                        <InputDatePicker v-model="period.start" placeholder="Data inicial" size="sm" />
-                        <InputDatePicker v-model="period.end" placeholder="Data final" size="sm" />
-                    </div>
-                    <Button :disabled="loading" @click="fetchData" size="sm">
+                    <InputDatePicker v-model="period" range placeholder="Período" />
+                    <Button :disabled="loading" :loading="loading" @click="fetchData">
                         <HeroIcon name="arrow-path" class="h-4 w-4 mr-2" />
                         Atualizar
                     </Button>
@@ -97,7 +289,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">Entrada MP</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.raw_material_input_kg) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.raw_material_input_kg || 0) }}
+                            </p>
                             <p class="text-xs text-slate-500">kg</p>
                         </div>
                     </div>
@@ -107,7 +300,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">Consumo MP</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.raw_material_consumed_kg) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.raw_material_consumed_kg || 0)
+                                }}</p>
                             <p class="text-xs text-slate-500">kg</p>
                         </div>
                     </div>
@@ -117,7 +311,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">Produção Blocos</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.blocks_produced_units, 0) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.blocks_produced_units || 0, 0)
+                                }}</p>
                             <p class="text-xs text-slate-500">unidades</p>
                         </div>
                     </div>
@@ -127,7 +322,7 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">Refugos Blocos</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.block_loss_units, 0) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.block_loss_units || 0, 0) }}</p>
                             <p class="text-xs text-slate-500">unidades</p>
                         </div>
                     </div>
@@ -137,7 +332,7 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">Refugos Blocos</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.block_loss_kg) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.block_loss_kg || 0) }}</p>
                             <p class="text-xs text-slate-500">kg</p>
                         </div>
                     </div>
@@ -147,7 +342,7 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">Produção Blocos m³</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.blocks_produced_m3) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.blocks_produced_m3 || 0) }}</p>
                             <p class="text-xs text-slate-500">m³</p>
                         </div>
                     </div>
@@ -157,7 +352,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">MP Virgem p/ Blocos</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.virgin_mp_kg_for_blocks) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.virgin_mp_kg_for_blocks || 0) }}
+                            </p>
                             <p class="text-xs text-slate-500">kg</p>
                         </div>
                     </div>
@@ -167,7 +363,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">MP Reciclada p/ Blocos</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.recycled_mp_kg_for_blocks) }}
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.recycled_mp_kg_for_blocks || 0)
+                                }}
                             </p>
                             <p class="text-xs text-slate-500">kg</p>
                         </div>
@@ -178,7 +375,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">Produção Moldados</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.molded_produced_units, 0) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.molded_produced_units || 0, 0)
+                                }}</p>
                             <p class="text-xs text-slate-500">unidades</p>
                         </div>
                     </div>
@@ -188,7 +386,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">Refugos Moldados</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.molded_loss_units, 0) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.molded_loss_units || 0, 0) }}
+                            </p>
                             <p class="text-xs text-slate-500">unidades</p>
                         </div>
                     </div>
@@ -198,7 +397,8 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-600">MP Virgem p/ Moldados</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.virgin_mp_kg_for_molded) }}</p>
+                            <p class="text-2xl font-bold text-slate-900">{{ fmt(summary.virgin_mp_kg_for_molded || 0) }}
+                            </p>
                             <p class="text-xs text-slate-500">kg</p>
                         </div>
                     </div>
@@ -207,18 +407,18 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
 
             <!-- Gráfico de Reservas de Matéria-Prima -->
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                <ReservationsBarChart class="xl:col-span-1" />
-                <ProductionByMaterialBarChart class="xl:col-span-1" />
+                <ReservationsBarChart class="xl:col-span-1" :period="appliedPeriod" />
+                <ProductionByMaterialBarChart class="xl:col-span-1" :period="appliedPeriod" />
             </div>
 
             <!-- Gráfico de Produção de Blocos por Dia -->
-            <BlocksProducedByDayChart />
+            <BlocksProducedByDayChart :period="appliedPeriod" />
 
             <!-- Tabela de Produção de Blocos por Tipo e Dimensões -->
-            <BlockProductionTable />
+            <BlockProductionTable :period="appliedPeriod" />
 
             <!-- Gráfico de Produção de Moldados por Dia -->
-            <MoldedProductionAndScrapChart />
+            <MoldedProductionAndScrapChart :period="appliedPeriod" @update:data="onMoldedChartUpdate" />
 
             <!-- Ranking de Refugos dos Moldados + Card de Aproveitamento -->
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -274,6 +474,128 @@ const totalCargaSilos = computed(() => silos.value.reduce((acc, s) => acc + s.ma
         <!-- fechamento da div removido para corrigir erro de tag -->
 
         <!-- Tabela de estoque atual de matéria-prima -->
-        <RawMaterialStockTable :period="period" :data="rawMaterialStock" :loading="rawMaterialStockLoading" />
+        <RawMaterialStockTable :period="appliedPeriod" :data="rawMaterialStock" :loading="rawMaterialStockLoading" />
+
+        <!-- Tabela de estoque de blocos -->
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mt-6">
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">Estoque de blocos</h3>
+            <div class="datatable relative">
+                <div class="datatable-scroll overflow-auto">
+                    <table class="min-w-full table-auto table">
+                        <thead>
+                            <tr>
+                                <th class="dt-cell px-3 py-3 text-left text-sm font-semibold text-slate-600">Tipo</th>
+                                <th class="dt-cell px-3 py-3 text-left text-sm font-semibold text-slate-600">Altura (mm)
+                                </th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Inicial
+                                    (und)</th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Entrada
+                                    (und)</th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Saída
+                                    (und)
+                                </th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Saldo
+                                    (und)
+                                </th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Metros
+                                    Cúbicos (m³)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in blockStock" :key="`${item.type}-${item.height_mm}`">
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 font-medium">{{ item.type }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800">{{ item.height_mm }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 text-right">{{
+                                    fmt(item.initial_units, 0) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 text-right">{{ fmt(item.input_units,
+                                    0) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 text-right">{{
+                                    fmt(item.output_units, 0) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-right font-semibold text-slate-900">{{
+                                    fmt(item.balance_units, 0) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 text-right">{{
+                                    fmt(item.cubic_meters) }}</td>
+                            </tr>
+                            <tr v-if="!blockStock || blockStock.length === 0">
+                                <td :colspan="7" class="px-4 py-6 text-center text-sm text-slate-500">Nenhum registro
+                                    encontrado.</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-slate-50">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900">TOTAL</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900">-</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(totalInitial) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(totalInput) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(totalOutput) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(totalBalance) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(totalCubicMeters) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de estoque de moldados -->
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mt-6">
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">Estoque de Moldados</h3>
+            <div class="datatable relative">
+                <div class="datatable-scroll overflow-auto">
+                    <table class="min-w-full table-auto table">
+                        <thead>
+                            <tr>
+                                <th class="dt-cell px-3 py-3 text-left text-sm font-semibold text-slate-600">Tipo</th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Inicial
+                                    (und)</th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Entrada
+                                    (und)</th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Saída
+                                    (und)
+                                </th>
+                                <th class="dt-cell px-3 py-3 text-right text-sm font-semibold text-slate-600">Saldo
+                                    (und)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in moldedStock" :key="item.type">
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 font-medium">{{ item.type }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 text-right">{{
+                                    fmt(item.initial_units, 0) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 text-right">{{ fmt(item.input_units,
+                                    0) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-slate-800 text-right">{{
+                                    fmt(item.output_units, 0) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm text-right font-semibold text-slate-900">{{
+                                    fmt(item.balance_units, 0) }}</td>
+                            </tr>
+                            <tr v-if="!moldedStock || moldedStock.length === 0">
+                                <td :colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">Nenhum registro
+                                    encontrado.</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-slate-50">
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900">TOTAL</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(moldedTotalInitial) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(moldedTotalInput) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(moldedTotalOutput) }}</td>
+                                <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">{{
+                                    fmt(moldedTotalBalance) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
     </AdminLayout>
 </template>

@@ -57,11 +57,11 @@ const totals = computed(() => {
         <h3 class="text-lg font-semibold text-slate-900 mb-4">Estoque atual de matéria-prima</h3>
         <div class="datatable relative">
             <div class="datatable-scroll overflow-x-auto overflow-y-hidden">
-                <table class="min-w-full table-auto border-separate table">
+                <table class="min-w-full table-auto table">
                     <thead>
                         <tr>
                             <th v-for="column in columns" :key="column.key || column.header" :class="[
-                                'dt-cell border-b-2 border-slate-200 px-3 py-3 text-left text-sm font-semibold text-slate-600',
+                                'dt-cell px-3 py-3 text-left text-sm font-semibold text-slate-600',
                                 column.class
                             ]">
                                 {{ column.header }}
@@ -71,7 +71,7 @@ const totals = computed(() => {
                     <tbody>
                         <tr v-for="item in data" :key="item.raw_material_id">
                             <td v-for="column in columns" :key="column.key || column.header" :class="[
-                                'dt-cell border-b border-slate-200 px-3 py-3 text-sm text-slate-800',
+                                'dt-cell px-3 py-3 text-sm text-slate-800',
                                 column.class
                             ]">
                                 {{ column.formatter ? column.formatter(item[column.key], item) : item[column.key] }}
@@ -82,22 +82,17 @@ const totals = computed(() => {
                                 registro encontrado.</td>
                         </tr>
                     </tbody>
-                    <tfoot v-if="data && data.length > 0">
+                    <tfoot>
                         <tr class="bg-slate-50">
-                            <td
-                                class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900">
+                            <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900">
                                 TOTAL</td>
-                            <td
-                                class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900 text-right">
+                            <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">
                                 {{ formatNumber(totals.initial_kg) }}</td>
-                            <td
-                                class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900 text-right">
+                            <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">
                                 {{ formatNumber(totals.input_kg) }}</td>
-                            <td
-                                class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900 text-right">
+                            <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">
                                 {{ formatNumber(totals.requested_kg) }}</td>
-                            <td
-                                class="dt-cell border-t-2 border-slate-300 px-3 py-3 text-sm font-semibold text-slate-900 text-right">
+                            <td class="dt-cell px-3 py-3 text-sm font-semibold text-slate-900 text-right">
                                 {{ formatNumber(totals.balance_kg) }}</td>
                         </tr>
                     </tfoot>

@@ -27,13 +27,16 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
+
 const props = defineProps({
     produced: { type: Number, required: true },
     scrap: { type: Number, required: true },
 });
-const total = props.produced + props.scrap;
-const success = total > 0 ? (props.produced / total) * 100 : 0;
-const fail = total > 0 ? (props.scrap / total) * 100 : 0;
+
+const total = computed(() => props.produced + props.scrap);
+const success = computed(() => total.value > 0 ? (props.produced / total.value) * 100 : 0);
+const fail = computed(() => total.value > 0 ? (props.scrap / total.value) * 100 : 0);
 const fmt = n => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 </script>
 
